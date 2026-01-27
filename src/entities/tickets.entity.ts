@@ -1,4 +1,4 @@
-//Modulo de entidad para la tabla empresa
+//Modulo de entidad para la tabla tickets
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 'typeorm';
 

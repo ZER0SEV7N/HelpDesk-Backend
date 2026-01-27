@@ -1,4 +1,4 @@
-//Modulo de entidad para la tabla Software equipos
+//Modulo de entidad para la tabla cliente_G
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 
