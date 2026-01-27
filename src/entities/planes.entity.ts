@@ -2,8 +2,6 @@
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 
-//importar relacion con software
-import { Equipos } from './Equipos.entify';
 
 //Definicion de los Planes
 @Entity('Planes')
@@ -24,5 +22,4 @@ export class Planes {
     @Column()
     descripcion: Text; //Licencia del Software equipos
 
-    planes: Planes;
 }
