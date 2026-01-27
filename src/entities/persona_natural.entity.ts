@@ -1,27 +1,27 @@
-//Modulo de entidad para la tabla Software equipos
-//importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+//src/clientes/entities/persona-natural.entity.ts
+//Modulo de entidad para la tabla PersonaNatural
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Equipo } from 'src/Equipos.entity';
 
-//importar relacion con software
-import { Software } from './software.entity';
+//Definicion de la entidad PersonaNatural
+@Entity('PersonaNatural')
+export class PersonaNatural {
+    //
+    @PrimaryGeneratedColumn({ name: 'id_personaN' })
+    idPersonaNatural: number;
 
-//Definicion de la entidad Software
-@Entity('Software_equipos')
-export class Software_equipos {
-    //Columna para el ID del Software equipos
-    @PrimaryGeneratedColumn()
-    id_software_equipos: number; //Llave primaria auto-generada
+    @Column({ length: 8, unique: true })
+    dni: string;
 
-    //Columna para el id del Software
-    @Column()
-    id_software: number; //Id del Software
+    @Column({ length: 100 })
+    nombre: string;
 
-    //Columna para el id de los equipos 
-    @Column()
-    id_equipos: number; //Licencia del Software equipos
+    @Column({ length: 20 })
+    telefono: string;
 
-    //Relacion con la tabla Sucursales (Un empresa puede tener muchas sucursales)
-    @OneToMany( () => Software, software => software.id_software )
-    @JoinColumn( { name: 'id_software' } )
-    software: Software;
+    @Column({ length: 100 })
+    correo: string;
+
+    @OneToMany(() => Equipo, (equipo) => equipo.personaNatural)
+    equipos: Equipo[];
 }

@@ -1,4 +1,4 @@
-//Modulo de entidad para la tabla empresa
+//Modulo de entidad para la tabla Contactos_Ref
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 'typeorm';
 
@@ -9,7 +9,7 @@ import { Empresa } from './empresa.entity';
 @Entity('Contactos_Ref')
 export class Contactos_Ref {
     //Columna para el ID de la empresa
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ name: 'id_contactosref' })
     id_contactosref: number; //Llave primaria auto-generada
 
     //Columna para el nombre de la empresa
@@ -24,9 +24,6 @@ export class Contactos_Ref {
     @Column()
     correo: string; //Correo de la empresa
 
-    //Columna para el telefono de la empresa
-    @Column()
-    telefono: number; //telefono de la empresa
 
     //Columna para el cargo
     @Column()
