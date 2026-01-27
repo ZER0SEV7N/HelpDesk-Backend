@@ -44,7 +44,7 @@ export class Tickets {
 
     //Relacion con la tabla Sucursales (Un empresa puede tener muchas sucursales)
     //ManyToOne
-    @ManyToOne( () => Empresa, empresa => empresa.id_empresa )
-    @JoinColumn( { name: 'id_empresa' } )
-    empresa: Empresa;
+    //@ManyToOne( () => Empresa, empresa => empresa.id_empresa )
+    //@JoinColumn( { name: 'id_empresa' } )
+    //empresa: Empresa;
 }

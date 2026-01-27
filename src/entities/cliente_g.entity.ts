@@ -7,7 +7,7 @@ import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 't
 export class Cliente_G {
     //Columna para el ID del cliente
     @PrimaryGeneratedColumn()
-    id_cliente: number; //Llave primaria auto-generada
+    id_clienteG: number; //Llave primaria auto-generada
 
     //Columna para el nombre del cliente
     @Column()

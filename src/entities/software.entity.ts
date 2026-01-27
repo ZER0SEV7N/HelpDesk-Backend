@@ -5,7 +5,7 @@ import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 't
 //Definicion de la entidad Software
 @Entity('Software')
 export class Software {
-    //Columna para el ID de la empresa
+    //Columna para el ID del Software
     @PrimaryGeneratedColumn()
     id_software: number; //Llave primaria auto-generada
 
