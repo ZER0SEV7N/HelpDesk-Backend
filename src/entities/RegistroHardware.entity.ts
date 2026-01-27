@@ -1,7 +1,7 @@
 //Entidad RegistroHardware
 //Definicion de la entidad RegistroHardware
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { Hardware } from './Hardware.entity';
+import { Hardware } from './/Hardware.entity';
 //Definicion de la entidad RegistroHardware
 @Entity('RegistroHardware')
 export class RegistroHardware {
