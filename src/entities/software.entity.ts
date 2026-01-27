@@ -1,10 +1,10 @@
 //Modulo de entidad para la tabla Software
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
-import { Software_equipos } from './software_equipos.entity'; // Importa la entidad relacionada
+import { Software_equipos } from './Software_equipos.entity'; // Importa la entidad relacionada
 
 //Definicion de la entidad Software
-@Entity('Software')
+@Entity('software')
 export class Software {
     //Columna para el ID del Software
     @PrimaryGeneratedColumn()
@@ -39,6 +39,6 @@ export class Software {
     proveedor: Date; //Proveedor del Software
 
     //Relacion con la tabla Software_equipos (Un software puede estar en muchos equipos)
-    @OneToMany(() => Software_equipos, (se) => se.software)
-    softwareEquipos: Software_equipos[];
+    @OneToMany(() => Software_equipos, (se) => se.soft)
+    se: Software_equipos[];
 }

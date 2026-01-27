@@ -1,6 +1,6 @@
 //Entidad Sucursal
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn } from 'typeorm';
-
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, ManyToOne } from 'typeorm';
+import { Empresa } from './Empresa.entity';
 //Definicion de la entidad Sucursal
 @Entity('Sucursales')
 export class Sucursales {
@@ -29,7 +29,7 @@ export class Sucursales {
     correo: string; //Direccion de la sucursal
 
     //Relacion con la tabla Empresa (Muchas sucursales pertenecen a una empresa)
-    @OneToMany(() => Sucursales, sucursal => sucursal.id_empresa)
+    @ManyToOne(() => Empresa, (empresa) => empresa.sucursal)
     @JoinColumn({ name: 'id_empresa' })
-    sucursales: Sucursales[];
+    empresa: Empresa;
 }

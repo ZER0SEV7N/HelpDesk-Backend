@@ -2,9 +2,8 @@
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 
-
 //Definicion de los Planes
-@Entity('Planes')
+@Entity('planes')
 export class Planes {
     //Columna para el ID del Software equipos
     @PrimaryGeneratedColumn()
@@ -19,7 +18,7 @@ export class Planes {
     nombre: string; //Licencia del Software equipos
 
     //Columna para la descripcion
-    @Column()
-    descripcion: Text; //Licencia del Software equipos
+    @Column('text')
+    descripcion: string; //Licencia del Software equipos
 
 }

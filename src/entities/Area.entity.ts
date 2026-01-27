@@ -4,10 +4,10 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Empresa } from './Empresa.entity';
 import { MicroEmpresa } from './MicroEmpresa.entity';
-import { Sucursales } from './Sucursal.entity';
+import { Sucursales } from './Sucursales.entity';
 
 //Definicion de la entidad Area
-@Entity('Area')
+@Entity('area')
 export class Area {
     //Columna para el ID del area
     @PrimaryGeneratedColumn({ name: 'id_area' })

@@ -5,7 +5,7 @@ import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMan
 import { Equipos } from './Equipos.entity';
 
 //Definicion de la entidad MicroEmpresa
-@Entity('MicroEmpresa')
+@Entity('microEmpresa')
 export class MicroEmpresa {
 
     //Columna para el ID de la microempresa
@@ -33,5 +33,5 @@ export class MicroEmpresa {
     correo: string; //Correo de la microempresa
 
     @OneToMany(() => Equipos, (equipo) => equipo.microEmpresa)
-    equipos: Equipos[];
+    equipo: Equipos[];
 }

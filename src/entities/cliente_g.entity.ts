@@ -3,10 +3,10 @@
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { RegistroDeCuentas } from './RegistroDeCuentas.entity';
 //Definicion de la entidad Cliente_G
-@Entity('Cliente_G')
+@Entity('cliente_g')
 export class Cliente_G {
     //Columna para el ID del cliente
-    @PrimaryGeneratedColumn({name: 'id_clienteG '})
+    @PrimaryGeneratedColumn({name: 'id_clienteG'})
     id_clienteG: number; //Llave primaria auto-generada
 
     //Columna para el nombre del cliente

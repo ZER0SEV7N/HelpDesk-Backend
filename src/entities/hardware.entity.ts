@@ -3,7 +3,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { RegistroHardware } from './RegistroHardware.entity';
 //Definicion de la entidad Hardware
-@Entity('Hardware')
+@Entity('hardware')
 export class Hardware {
     //Columna para el ID del hardware
     @PrimaryGeneratedColumn({ name: 'id_hardware' })
@@ -46,7 +46,7 @@ export class Hardware {
     rev_programada: Date; //Fecha de la proxima revision programada
 
     //Relacion con la tabla RegistroHardware (Un hardware puede tener muchos registros de hardware)
-    @ManyToOne(() => RegistroHardware, (rh) => rh.hardwares)
+    @ManyToOne(() => RegistroHardware, (rh) => rh.hw)
     @JoinColumn({ name: 'id_RH' })
-    registroHardware: RegistroHardware;
+    rh: RegistroHardware;
 }

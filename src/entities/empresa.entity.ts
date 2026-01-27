@@ -1,9 +1,10 @@
 //Modulo de entidad para la tabla empresa
 //importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 'typeorm';
-
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Sucursales } from './Sucursales.entity';
+import { Equipos } from './Equipos.entity';
 //Definicion de la entidad Empresa
-@Entity('Empresa')
+@Entity('empresa')
 export class Empresa {
     //Columna para el ID de la empresa
     @PrimaryGeneratedColumn()
@@ -31,7 +32,9 @@ export class Empresa {
 
     //Relacion con la tabla Sucursales (Un empresa puede tener muchas sucursales)
     //ManyToOne
-    @ManyToOne( () => Empresa, empresa => empresa.id_empresa )
-    @JoinColumn( { name: 'id_empresa' } )
-    empresa: Empresa;
+    @OneToMany(() => Sucursales, (sucursal) => sucursal.empresa)
+    sucursal: Sucursales[];
+
+    @OneToMany(() => Equipos, (equipo) => equipo.empresa)
+    equipo: Equipos[];
 }

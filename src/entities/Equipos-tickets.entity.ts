@@ -3,7 +3,7 @@ import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Equipos } from 'src/entities/Equipos.entity';
 import { Ticket } from 'src/entities/Tickets.entity';
 
-@Entity('Equipos_tickets')
+@Entity('equipos_tickets')
 export class EquiposTickets {
   @PrimaryGeneratedColumn({ name: 'id_equiposTickets' })
   idEquiposTickets: number;

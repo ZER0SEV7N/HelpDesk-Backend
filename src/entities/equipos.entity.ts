@@ -5,12 +5,12 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMan
 //importar relaciones foraneas
 import { Empresa } from './Empresa.entity';
 import { MicroEmpresa } from './MicroEmpresa.entity';
-import { Planes } from './planes.entity';
+import { Planes } from './Planes.entity';
 import { Ticket } from './Tickets.entity';
-import { PersonaNatural } from './persona_natural.entity';
+import { PersonaNatural } from './Persona_natural.entity';
 
 //Definicion de la entidad Equipos
-@Entity('Equipos')
+@Entity('equipos')
 export class Equipos {
     //Columna para el ID del equipo
     @PrimaryGeneratedColumn({ name: 'id_equipo' })
@@ -67,5 +67,5 @@ export class Equipos {
 
     //Relacion con la tabla Tickets (Un equipo puede tener muchos tickets)
     @OneToMany(() => Ticket, ticket => ticket.equipo)
-    tickets: Ticket[];
+    ticket: Ticket[];
 }

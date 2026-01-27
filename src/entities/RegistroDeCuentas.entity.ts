@@ -5,7 +5,7 @@ import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMan
 import { Cliente_G } from './Cliente_g.entity';
 
 //Definicion de la entidad Registro_cuentas
-@Entity('RegistroDeCuentas')
+@Entity('registroDeCuentas')
 export class RegistroDeCuentas {
     //Columna para el ID de los registros de cuentas
     @PrimaryGeneratedColumn()
@@ -25,6 +25,6 @@ export class RegistroDeCuentas {
 
     //Relacion con la tabla Sucursales (Un empresa puede tener muchas sucursales)
     @OneToOne(() => Cliente_G, (cliente) => cliente.cuenta)
-    @JoinColumn({ name: 'id_clienteG' })
+    @JoinColumn({ name: 'id_clienteG'})
     clienteG: Cliente_G;
 }

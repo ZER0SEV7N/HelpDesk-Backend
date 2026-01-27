@@ -4,7 +4,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Equipos } from 'src/entities/Equipos.entity';
 
 //Definicion de la entidad PersonaNatural
-@Entity('PersonaNatural')
+@Entity('personaNatural')
 export class PersonaNatural {
     //
     @PrimaryGeneratedColumn({ name: 'id_personaN' })
@@ -23,5 +23,5 @@ export class PersonaNatural {
     correo: string;
 
     @OneToMany(() => Equipos, (equipo) => equipo.personaNatural)
-    equipos: Equipos[];
+    equipo: Equipos[];
 }

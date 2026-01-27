@@ -13,7 +13,7 @@ export enum TicketStatus {
 }
 
 //Definicion de la entidad Tickets
-@Entity('Tickets')
+@Entity('tickets')
 export class Ticket {
     //Columna para el ID de Tickets
     @PrimaryGeneratedColumn({name: 'id_tickets'})
