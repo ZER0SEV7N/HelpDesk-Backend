@@ -12,22 +12,6 @@ export class Contactos_Ref {
     @PrimaryGeneratedColumn()
     id_contactosref: number; //Llave primaria auto-generada
 
-    //Columna para el ID de la empresa
-    @Column()
-    id_empresa: number; //ID de la empresa
-
-    //Columna para el ID de la microempresa
-    @Column()
-    id_microempresa: number; //id de la microempresa
-
-    //Columna para el id de la persona natural
-    @Column()
-    id_personanatural: number; //id de la persona natural
-
-    //Columna para el telefono
-    @Column()
-    telefono: string; //Telefono de la Empresa
-
     //Columna para el nombre de la empresa
     @Column()
     nombre: string; //Nombre de la empresa
@@ -49,8 +33,18 @@ export class Contactos_Ref {
     cargo: string; //cargo
 
 
-    //Relacion con la tabla Sucursales (Un empresa puede tener muchas sucursales)
-    @ManyToOne( () => Empresa, empresa => empresa.id_empresa )
+    //Relacion con la tabla Sucursales
+    @ManyToOne( () => Empresa, {nullable : true} )
     @JoinColumn( { name: 'id_empresa' } )
     empresa: Empresa;
+
+    //Relacion con la tabla Sucursales
+    @ManyToOne( () => Empresa, {nullable : true} )
+    @JoinColumn( { name: 'id_microempresa' } )
+    microempresa: Empresa;
+
+    //Relacion con la tabla Sucursales
+    @ManyToOne( () => Empresa, {nullable : true} )
+    @JoinColumn( { name: 'id_empresa' } )
+    persona_natural: Empresa;
 }
