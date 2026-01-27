@@ -5,8 +5,8 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMan
 //importar relaciones foraneas
 import { Empresa } from './Empresa.entity';
 import { MicroEmpresa } from './MicroEmpresa.entity';
-import { Plan } from './Plan.entity';
+import { Planes } from './planes.entity';
 import { Ticket } from './tickets.entity';
-import { PersonaNatural } from './PersonaNatural.entity';
+import { PersonaNatural } from './persona_natural.entity';
 
 //Definicion
