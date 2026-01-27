@@ -1,7 +1,7 @@
 //Modulo de entidad para la tabla Cliente_G
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
-import { RegistroDeCuentas } from './RegistroDecuentas.entity';
+import { RegistroDeCuentas } from './RegistroDeCuentas.entity';
 //Definicion de la entidad Cliente_G
 @Entity('Cliente_G')
 export class Cliente_G {

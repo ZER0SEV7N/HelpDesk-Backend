@@ -3,7 +3,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 //importar relacion con software
 import { Software } from './software.entity';
-import { Equipo } from './equipo.entity';
+import { Equipos } from './Equipos.entity';
 
 //Definicion de la entidad Software
 @Entity('Software_equipos')
@@ -17,7 +17,7 @@ export class Software_equipos {
     @JoinColumn({ name: 'id_software' })
     software: Software;
 
-    @ManyToOne(() => Equipo) // Asegúrate de agregar @OneToMany en Equipo si lo necesitas
+    @ManyToOne(() => Equipos) // Asegúrate de agregar @OneToMany en Equipo si lo necesitas
     @JoinColumn({ name: 'id_equipos' })
-    equipo: Equipo;
+    equipo: Equipos;
 }

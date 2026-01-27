@@ -3,7 +3,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 'typeorm';
 
 //importar relacion con la empresa
-import { Empresa } from './empresa.entity';
+import { Empresa } from './Empresa.entity';
 
 //Definicion de la entidad Contactos_Ref
 @Entity('Contactos_Ref')

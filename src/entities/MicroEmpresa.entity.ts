@@ -2,7 +2,7 @@
 //Modulo de entidad para la tabla microempresa
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
-import { Equipo } from './Equipos.entity';
+import { Equipos } from './Equipos.entity';
 
 //Definicion de la entidad MicroEmpresa
 @Entity('MicroEmpresa')
@@ -32,6 +32,6 @@ export class MicroEmpresa {
     @Column({ length: 100 })
     correo: string; //Correo de la microempresa
 
-    @OneToMany(() => Equipo, (equipo) => equipo.microEmpresa)
-    equipos: Equipo[];
+    @OneToMany(() => Equipos, (equipo) => equipo.microEmpresa)
+    equipos: Equipos[];
 }

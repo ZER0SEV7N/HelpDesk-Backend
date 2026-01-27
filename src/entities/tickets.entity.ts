@@ -2,7 +2,7 @@
 //Modulo de entidad para la tabla ticket
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn } from 'typeorm';
-import { Equipo } from './Equipos.entity';
+import { Equipos } from './Equipos.entity';
 
 //Definir los estados posibles de un ticket
 export enum TicketStatus {
@@ -56,7 +56,7 @@ export class Ticket {
     fecha_registro: Date; //Fecha de registro del ticket
 
     //Relacion con la tabla Equipos (Muchos tickets pueden pertenecer a un equipo)
-    @ManyToOne(() => Equipo, equipo => equipo.id_equipos)
+    @ManyToOne(() => Equipos, equipo => equipo.id_equipo)
     @JoinColumn({ name: 'id_equipos' })
-    equipo: Equipo; 
+    equipo: Equipos; 
 }
