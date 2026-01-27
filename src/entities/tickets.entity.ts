@@ -2,7 +2,7 @@
 //Modulo de entidad para la tabla ticket
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn } from 'typeorm';
-import { Equipo } from './equipos.entity';
+import { Equipo } from './Equipos.entity';
 
 //Definir los estados posibles de un ticket
 export enum TicketStatus {

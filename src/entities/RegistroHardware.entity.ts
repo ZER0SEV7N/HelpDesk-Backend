@@ -1,7 +1,7 @@
 //Entidad RegistroHardware
 //Definicion de la entidad RegistroHardware
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
-
+import { Hardware } from './Hardware.entity';
 //Definicion de la entidad RegistroHardware
 @Entity('RegistroHardware')
 export class RegistroHardware {
@@ -26,8 +26,7 @@ export class RegistroHardware {
     @Column()
     proveedor : string; //Proveedor del hardware
 
-    //Relacion con la tabla hardware (Muchos registros de hardware pertenecen a un hardware)
-    @ManyToOne(() => RegistroHardware, registroHardware => registroHardware.id_RH)
-    @JoinColumn({ name: 'id_RH' })
-    registroHardware: RegistroHardware;
+    //Relacion con la tabla Hardware (Muchos registros de hardware pertenecen a un hardware)
+    @OneToMany(() => Hardware, (hw) => hw.registroHardware)
+    hardwares: Hardware[];
 }

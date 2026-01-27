@@ -6,23 +6,19 @@ import { RegistroHardware } from './RegistroHardware.entity';
 @Entity('Hardware')
 export class Hardware {
     //Columna para el ID del hardware
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ name: 'id_hardware' })
     id_hardware: number; //Llave primaria auto-generada
 
-    //Columna FK registro hardware
-    @Column()
-    id_RH: number; //Llave foranea a la tabla RegistroHardware
-
     //Columna para el tipo de hardware
-    @Column()
-    tipo_hardware: string; //Tipo de hardware (Ejemplo: Laptop, Desktop, Monitor, etc.)
+    @Column({name: 'tipo_equipo' })
+    tipo_equipo: string; //Tipo de hardware (Ejemplo: Laptop, Desktop, Monitor, etc.)
 
     //Columna para el numero de serie
     @Column({ length: 100 })
     numero_serie: string; //Numero de serie del hardware
 
     //Columna para la fecha de compra
-    @Column()
+    @Column({name: 'fecha_compra', type: 'date' })
     fecha_compra: Date; //Fecha de compra del hardware
 
     //Columna para el Plan de Mantenimiento
@@ -50,7 +46,7 @@ export class Hardware {
     rev_programada: Date; //Fecha de la proxima revision programada
 
     //Relacion con la tabla RegistroHardware (Un hardware puede tener muchos registros de hardware)
-    @OneToMany(() => RegistroHardware, registroHardware => registroHardware.id_RH)
+    @ManyToOne(() => RegistroHardware, (rh) => rh.hardwares)
     @JoinColumn({ name: 'id_RH' })
-    registrosHardware: RegistroHardware[];
+    registroHardware: RegistroHardware;
 }

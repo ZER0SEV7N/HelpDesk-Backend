@@ -1,13 +1,13 @@
 //Modulo de entidad para la tabla Cliente_G
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
-import { RegistrxoDeCuentas } from './registroDeCuentas.entity';
+import { RegistroDeCuentas } from './RegistroDecuentas.entity';
 //Definicion de la entidad Cliente_G
 @Entity('Cliente_G')
 export class Cliente_G {
     //Columna para el ID del cliente
     @PrimaryGeneratedColumn({name: 'id_clienteG '})
-    id_cliente: number; //Llave primaria auto-generada
+    id_clienteG: number; //Llave primaria auto-generada
 
     //Columna para el nombre del cliente
     @Column({ length: 100 })
@@ -38,6 +38,6 @@ export class Cliente_G {
     cargo: string; //Cargo del cliente
 
     //Relacion con la tabla RegistroDeCuentas (uno a uno)
-    @OneToOne(() => RegistroDeCuentas, (cuenta) => cuenta.id_clienteG)
+    @OneToOne(() => RegistroDeCuentas, (cuenta) => cuenta.clienteG)
     cuenta: RegistroDeCuentas;
 }
