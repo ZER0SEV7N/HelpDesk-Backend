@@ -20,7 +20,7 @@ import { join } from 'path';
             password: '', //Contraseña de la base de datos
             database: 'helpdesk_db', //Nombre de la base de datos
             //entities: [join(__dirname, '../**/*.entity{.ts,.js}')],
-            //autoLoadEntities: true, //Carga automática de entidades
+            autoLoadEntities: true, //Carga automática de entidades
             synchronize: false, //Sincronización de la base de datos (solo en desarrollo)
         }),
     ],
