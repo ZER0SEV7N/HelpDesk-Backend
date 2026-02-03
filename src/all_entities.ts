@@ -18,6 +18,8 @@ import { Planes } from './entities/Planes.entity';
 import { EquiposTickets } from './entities/Equipos-tickets.entity';
 import { RegistroDeCuentas } from './entities/RegistroDeCuentas.entity';
 import { Cuenta_trabajadores } from './entities/Cuenta_trabajadores.entity';
+import { Usuario } from './entities/Usuario.entity';
+import { Rol } from './entities/Rol.entity';
 
 // 2. Exporta un arreglo con TODAS ellas
 export const ENTITIES_ARRAY = [
