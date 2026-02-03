@@ -30,6 +30,10 @@ export class Usuario {
     @Column({ length: 15 })
     telefono: string; //Telefono del usuario
 
+    //Columna para estado
+    @Column()
+    is_active: boolean; //Estado del usuario
+
     //Relacion con la tabla Rol (muchos a uno)
     @ManyToOne(() => Rol, (rol) => rol.usuarios)
     @JoinColumn({ name: 'id_rol' })
