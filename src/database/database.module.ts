@@ -19,9 +19,9 @@ import { join } from 'path';
             username: 'root', //Usuario de la base de datos
             password: '', //Contraseña de la base de datos
             database: 'helpdesk_db', //Nombre de la base de datos
-            entities: [join(__dirname, '../**/*.entity{.ts,.js}')],
-            //autoLoadEntities: true, //Carga automática de entidades
-            synchronize: true, //Sincronización de la base de datos (solo en desarrollo)
+            //entities: [join(__dirname, '../**/*.entity{.ts,.js}')],
+            autoLoadEntities: true, //Carga automática de entidades
+            synchronize: false, //Sincronización de la base de datos (solo en desarrollo)
         }),
     ],
 })
