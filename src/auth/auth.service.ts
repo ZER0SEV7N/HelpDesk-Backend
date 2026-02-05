@@ -1,68 +1,83 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+//helpdesk-app/src/auth/auth.service.ts
+//Servicio de autenticacion para el manejo de registro y login de usuarios
+//----------------------------------------------------------
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common'; //Importaciones necesarias
+import { InjectRepository } from '@nestjs/typeorm'; //Para inyectar repositorios de TypeORM
+import { Repository } from 'typeorm'; //Repositorio de TypeORM
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Usuario } from '../entities/Usuario.entity'; // Ajusta la ruta según tu estructura
 import { Rol } from '../entities/Rol.entity';
-import { RegisterAuthDto } from './dto/register.auth.dto';
-import { LoginAuthDto } from './dto/login.auth.dto';
+import { RegisterDTO } from './dto/register.auth.dto'; // Ajusta la ruta según tu estructura
+import { LoginDTO } from './dto/login.auth.dto';
 
+//Servicio de autenticacion
 @Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(Usuario)
-        private usuarioRepository: Repository<Usuario>,
+        private usuariosRepo: Repository<Usuario>,
         @InjectRepository(Rol)
-        private rolRepository: Repository<Rol>,
+        private rolRepo: Repository<Rol>,
         private jwtService: JwtService,
     ) {}
 
-    // REGISTRO DE USUARIO
-    async register(userObject: RegisterAuthDto) {
-        const { contrasena, ...userData } = userObject;
+    //Metodo para registrar un usuario
+    async register(dto: RegisterDTO) {
+        //Verificar si el usuario ya existe por correo
+        const exists = await this.usuariosRepo.findOne({
+            where: { correo: dto.correo },
+        });
 
-        // 1. Buscar si el rol existe (Por defecto asignamos rol ID 1 o buscamos por nombre 'Usuario')
-        // Ajusta esto según tu lógica de roles en base de datos.
-        const defaultRole = await this.rolRepository.findOne({ where: { id_rol: 1 } }); 
+        if (exists) {
+            throw new HttpException(
+                'El correo ya está registrado',
+                HttpStatus.CONFLICT,
+            );
+        }
+
+        //1. Buscar si el rol existe (Por defecto asignamos rol ID 1 o buscamos por nombre 'Usuario')
+        const defaultRole = await this.rolRepo.findOne({ where: { nombre: 'TRABAJADOR' } }); 
         
         if (!defaultRole) throw new HttpException('Rol por defecto no encontrado', HttpStatus.CONFLICT);
 
         // 2. Encriptar contraseña
-        const hashedPassword = await bcrypt.hash(contrasena, 10);
+        const hashedPassword = await bcrypt.hash(dto.contraseña, 10);
 
         // 3. Crear usuario
-        const newUser = this.usuarioRepository.create({
-            ...userData,
+        const newUser = this.usuariosRepo.create({
+            nombre: dto.nombre,
+            correo: dto.correo,
             contrasena: hashedPassword,
+            telefono: dto.telefono,
             rol: defaultRole,
-            is_active: true
+            is_active: true,
         });
 
-        return await this.usuarioRepository.save(newUser);
+        return await this.usuariosRepo.save(newUser);
     }
 
-    // LOGIN DE USUARIO
-    async login(userObject: LoginAuthDto) {
-        const { correo, contrasena } = userObject;
-
-        // 1. Buscar usuario por correo y traer su relación con Rol
-        const findUser = await this.usuarioRepository.findOne({ 
-            where: { correo },
-            relations: ['rol'] 
+    //Metodo para el LOGIN DE USUARIO
+    async login(dto: LoginDTO) {
+        const user = await this.usuariosRepo.findOne({
+            where: { correo: dto.correo },
+            relations: ['rol'], // Asegura que el rol se cargue junto con el usuario
         });
 
-        if (!findUser) throw new HttpException('USUARIO_NO_ENCONTRADO', HttpStatus.NOT_FOUND);
+        //En caso de que no exista el usuario
+        if (!user || !user.is_active) throw new UnauthorizedException('Credenciales incorrectas');
 
-        // 2. Verificar contraseña
-        const checkPassword = await bcrypt.compare(contrasena, findUser.contrasena);
-        if (!checkPassword) throw new HttpException('CONTRASENA_INCORRECTA', HttpStatus.FORBIDDEN);
+        //Verificar contraseña
+        const checkPassword = await bcrypt.compare(dto.contrasena, user.contrasena);
+        if (!checkPassword) throw new UnauthorizedException('Credenciales incorrectas');
 
-        // 3. Generar Token (Payload)
-        const payload = { sub: findUser.id_usuario, correo: findUser.correo, rol: findUser.rol.nombre };
-        
+        //Generar Token (Payload)
+        const payload = { sub: user.id_usuario, correo: user.correo, rol: user.rol.nombre };
+
+        //Retornar datos del usuario junto con el token
         return {
-            user: findUser,
+            user: user,
+            role: user.rol.nombre,
             token: this.jwtService.sign(payload),
         };
     }
