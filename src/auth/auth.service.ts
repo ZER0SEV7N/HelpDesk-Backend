@@ -42,11 +42,12 @@ export class AuthService {
         if (!defaultRole) throw new HttpException('Rol por defecto no encontrado', HttpStatus.CONFLICT);
 
         // 2. Encriptar contraseña
-        const hashedPassword = await bcrypt.hash(dto.contraseña, 10);
+        const hashedPassword = await bcrypt.hash(dto.contrasena, 10);
 
         // 3. Crear usuario
         const newUser = this.usuariosRepo.create({
             nombre: dto.nombre,
+            apellido: dto.apellido,
             correo: dto.correo,
             contrasena: hashedPassword,
             telefono: dto.telefono,
@@ -65,20 +66,30 @@ export class AuthService {
         });
 
         //En caso de que no exista el usuario
-        if (!user || !user.is_active) throw new UnauthorizedException('Credenciales incorrectas');
+        if (!user || !user.is_active) throw new UnauthorizedException('Correo incorrecto');
 
         //Verificar contraseña
-        const checkPassword = await bcrypt.compare(dto.contrasena, user.contrasena);
-        if (!checkPassword) throw new UnauthorizedException('Credenciales incorrectas');
+        const isPasswordValid = await bcrypt.compare(
+            dto.contrasena,      
+            user.contrasena, 
+        );
 
-        //Generar Token (Payload)
-        const payload = { sub: user.id_usuario, correo: user.correo, rol: user.rol.nombre };
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Contraseña incorrecta');
+        }
 
-        //Retornar datos del usuario junto con el token
-        return {
-            user: user,
+        const payload = {
+            sub: user.id_usuario,
             role: user.rol.nombre,
-            token: this.jwtService.sign(payload),
+        };
+
+        const token = this.jwtService.sign(payload);
+
+
+        return {
+            user,
+            role: user.rol.nombre,
+            token,
         };
     }
 }

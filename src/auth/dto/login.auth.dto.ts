@@ -12,8 +12,7 @@ export class LoginDTO {
 
   //Contrasena del usuario
   @IsString() //Valida que sea una cadena de texto
-  @IsNotEmpty() //Valida que no este vacio
-  @MinLength(6) //Valida que tenga al menos 6 caracteres
+  @IsNotEmpty() //Valida que no este vacio  @MinLength(6) //Valida que tenga al menos 6 caracteres
   contrasena: string;
 }
 

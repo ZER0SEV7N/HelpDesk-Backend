@@ -1,3 +1,6 @@
+//helpdesk-app/src/auth/auth.controller.ts
+//Controlador de autenticacion
+// ----------------------------------------------------------
 import { 
     Body, 
     Controller,
@@ -10,15 +13,15 @@ import { RegisterDTO } from './dto/register.auth.dto';
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
-  // REGISTER
-@Post('register')
-register(@Body() dto: RegisterDTO) {
-    return this.authService.register(dto);
-}
+    //REGISTER
+    @Post('register')
+    register(@Body() dto: RegisterDTO) {
+        return this.authService.register(dto);
+    }
 
-  // LOGIN
-@Post('login')
-login(@Body() dto: LoginDTO) {
-    return this.authService.login(dto);
-}
+    //LOGIN
+    @Post('login')
+    login(@Body() dto: LoginDTO) {
+        return this.authService.login(dto);
+    }
 }
