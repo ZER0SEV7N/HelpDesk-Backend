@@ -13,11 +13,7 @@ export class Rol {
     //Columna para el nombre del rol
     @Column({ length: 50 })
     nombre: string; //Nombre del rol
-
-    //Columna para el nivel de seguridad
-    @Column()
-    nivel_seguridad: number; //Nivel de seguridad del rol
-
+    
     //Relacion con la tabla Usuario (uno a muchos)
     @OneToMany(() => Usuario, (usuario) => usuario.rol)
     usuarios: Usuario[];
