@@ -3,12 +3,15 @@
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn } from 'typeorm';
 import { Equipos } from './Equipos.entity';
+import { Usuario } from './Usuario.entity';
 
 //Definir los estados posibles de un ticket
 export enum TicketStatus {
     PENDIENTE = 'Pendiente',
-    En_PROGRESO = 'En Progreso',
+    ASIGNADO = 'Asignado',
+    EN_PROGRESO = 'En Progreso',
     RESUELTO = 'Resuelto',
+    REABIERTO = 'Reabierto',
     CERRADO = 'Cerrado',
 }
 
@@ -19,29 +22,18 @@ export class Ticket {
     @PrimaryGeneratedColumn({name: 'id_tickets'})
     id_ticket: number; //Llave primaria auto-generada
 
-    //Columna para el ID de equipos
-    @Column({name: 'id_equipos'})
-    id_equipos: number; 
+    //Columna para el PIN de ticket (Codigo unico para cada ticket)
+    //Generar un PIN unico para cada ticket (puede ser un numero aleatorio o un string alfanumerico)
+    @Column({ unique: true, length: 6 })
+    pin: string; //PIN unico del ticket
 
-    //Columna para el tipo de incidente
-    @Column({ name: 'tipo_incidente', length: 100 })
-    tipoIncidente: string; //Tipo de incidente (Maximo 100 caracteres)
+    //Columna para el Asunto del ticket
+    @Column({  })
+    asunto: string; //Asunto del ticket
 
-    //Columna para el nombre del cliente
-    @Column({name: 'nombre_cliente', length: 100})
-    nombre_cliente: string; //Nombre del cliente
-
-    //Columna para el nombre de la empresa
-    @Column({ length: 150 })
-    empresa: string; //Nombre de la empresa
-
-    //Columna para el nombre del area
-    @Column({ length: 100 })
-    area: string; //Nombre del area
-
-    //Columna para para el nombre del sucursal
-    @Column({ length: 100 })
-    sucursal: string; //Nombre de la sucursal
+    //Columna para el detalle del ticket
+    @Column({ type: 'text' })
+    detalle: string;
 
     //Columna para el estado del ticket
     @Column({
@@ -51,12 +43,55 @@ export class Ticket {
     })
     estado: TicketStatus; //Estado del ticket
 
-    //Columnna para la fecha de registro 
-    @CreateDateColumn({name: 'fecha_registro'})
-    fecha_registro: Date; //Fecha de registro del ticket
+   // ---------------------------------------------------------
+  // Relación con Equipos
+  // ---------------------------------------------------------
+  @Column()
+  id_equipo: number;
 
-    //Relacion con la tabla Equipos (Muchos tickets pueden pertenecer a un equipo)
-    @ManyToOne(() => Equipos, equipo => equipo.id_equipo)
-    @JoinColumn({ name: 'id_equipos' })
-    equipo: Equipos; 
+  @ManyToOne(() => Equipos, { eager: false })
+  @JoinColumn({ name: 'id_equipo' })
+  equipo: Equipos;
+
+  // ---------------------------------------------------------
+  // Usuario que crea el ticket (cliente / trabajador)
+  // ---------------------------------------------------------
+  @Column()
+  id_cliente: number;
+
+  @ManyToOne(() => Usuario, { eager: false })
+  @JoinColumn({ name: 'id_cliente' })
+  cliente: Usuario;
+
+  // ---------------------------------------------------------
+  // Soporte asignado (nullable)
+  // ---------------------------------------------------------
+  @Column({ nullable: true })
+  id_soporte: number;
+
+  @ManyToOne(() => Usuario, { nullable: true })
+  @JoinColumn({ name: 'id_soporte' })
+  soporte: Usuario;
+
+  // ---------------------------------------------------------
+  // Incidencia relacionada a software (opcional)
+  // ---------------------------------------------------------
+  @Column({ nullable: true })
+  id_software: number;
+
+  // Flag para identificar incidencia de software
+  @Column({ default: false })
+  es_software: boolean;
+
+  // ---------------------------------------------------------
+  // Evidencia (imagen opcional)
+  // ---------------------------------------------------------
+  @Column({ nullable: true })
+  imagen_url: string;
+
+  // ---------------------------------------------------------
+  // Fecha de creación
+  // ---------------------------------------------------------
+  @CreateDateColumn({ name: 'fecha_creacion' })
+  fecha_creacion: Date;
 }
