@@ -8,7 +8,6 @@ import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { HardwareModule } from './hardware/hardware.module';
 import { TicketModule } from './ticket/ticket.module';
-import { TicketModule } from './ticket/ticket.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
