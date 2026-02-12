@@ -1,4 +1,4 @@
-//src/entities/tickets.entity.ts
+//src/entities/Tickets.entity.ts
 //Modulo de entidad para la tabla ticket
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn } from 'typeorm';
@@ -10,7 +10,6 @@ export enum TicketStatus {
     PENDIENTE = 'Pendiente',
     ASIGNADO = 'Asignado',
     EN_PROGRESO = 'En Progreso',
-    RESUELTO = 'Resuelto',
     REABIERTO = 'Reabierto',
     CERRADO = 'Cerrado',
 }
@@ -67,27 +66,27 @@ export class Ticket {
   // Soporte asignado (nullable)
   // ---------------------------------------------------------
   @Column({ nullable: true })
-  id_soporte: number;
+  id_soporte?: number;
 
   @ManyToOne(() => Usuario, { nullable: true })
   @JoinColumn({ name: 'id_soporte' })
-  soporte: Usuario;
+  soporte?: Usuario;
 
   // ---------------------------------------------------------
   // Incidencia relacionada a software (opcional)
   // ---------------------------------------------------------
   @Column({ nullable: true })
-  id_software: number;
+  id_software?: number;
 
   // Flag para identificar incidencia de software
   @Column({ default: false })
-  es_software: boolean;
+  es_software?: boolean;
 
   // ---------------------------------------------------------
   // Evidencia (imagen opcional)
   // ---------------------------------------------------------
   @Column({ nullable: true })
-  imagen_url: string;
+  imagen_url?: string;
 
   // ---------------------------------------------------------
   // Fecha de creación
