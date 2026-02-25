@@ -19,10 +19,6 @@ export class CreateHardwareDto {
 
     @IsString()
     @IsNotEmpty()
-    plan: string; //Plan de mantenimiento del hardware
-
-    @IsString()
-    @IsNotEmpty()
     marca: string; //Marca del hardware
 
     @IsString()

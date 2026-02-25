@@ -156,7 +156,6 @@ export class TicketService {
         : '------',
       equipo: t.equipo.tipo,
       empresa: t.equipo.empresa.nombre_cliente,
-      sucursal: t.equipo.sucursal.nombre,
       fecha_creacion: t.fecha_creacion,
     }));
   }

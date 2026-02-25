@@ -19,7 +19,8 @@ export class HardwareService {
     //Crear un nuevo hardware
     async create(createHardwareDto: CreateHardwareDto) {
         const nuevoHardware = this.hardwareRepo.create(createHardwareDto);
-        return this.hardwareRepo.save(nuevoHardware);
+        console.log(nuevoHardware)
+        return await this.hardwareRepo.save(nuevoHardware);
     }
 
     //Listar todos los hardwares
