@@ -15,12 +15,12 @@ export class TicketController {
   //Endpoint para crear un nuevo ticket
   //POST /ticket/CrearTicket
   //El cliente envia el {
-  // asunto, 
-  // detalle, 
-  // id_equipo, 
-  // id_software (opcional), 
-  // es_software (booleano para indicar si el problema es de software o hardware) 
-  // y una imagen (opcional)
+  //asunto, 
+  //detalle, 
+  //id_equipo, 
+  //id_software (opcional), 
+  //es_software (booleano para indicar si el problema es de software o hardware) 
+  //y una imagen (opcional)
   @Post()
   @Roles('TRABAJADOR')
   create(@Body() dto: CreateTicketDto,
@@ -32,10 +32,10 @@ export class TicketController {
   //Endpoint para listar todos los tickets con filtros opcionales
   //GET /ticket/ListarTickets?estado=Pendiente&id_equipo=1
   //El cliente puede filtrar por {
-  // estado, 
-  // Pin, 
-  // Trabajador, 
-  // Fecha. Si no se envian filtros, se listan todos los tickets del cliente
+  //estado, 
+  //Pin, 
+  //Trabajador, 
+  //Fecha. Si no se envian filtros, se listan todos los tickets del cliente
   @Get()
   findAll(
     @Req() req: any, 

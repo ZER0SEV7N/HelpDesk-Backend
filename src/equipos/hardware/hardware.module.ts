@@ -5,7 +5,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HardwareService } from './hardware.service';
 import { HardwareController } from './hardware.controller';
-import { ENTITIES_ARRAY } from '../all_entities';
+import { ENTITIES_ARRAY } from '../../all_entities';
 
 //Definicion del modulo HardwareModule
 @Module({

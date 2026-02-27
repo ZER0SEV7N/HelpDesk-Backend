@@ -8,7 +8,7 @@ import { Equipos } from 'src/entities/Equipos.entity';
 export class PersonaNatural {
     //
     @PrimaryGeneratedColumn({ name: 'id_personaN' })
-    idPersonaNatural: number;
+    id_PersonaNatural: number;
 
     @Column({ length: 8, unique: true })
     dni: string;

@@ -5,7 +5,6 @@
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
-import { join } from 'path';
 
 
 //Configuracion de la conexion a la base de datos

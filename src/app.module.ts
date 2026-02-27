@@ -6,13 +6,14 @@ import { ClientesModule } from './clientes/clientes.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
-import { HardwareModule } from './hardware/hardware.module';
+import { HardwareModule } from './equipos/hardware/hardware.module';
 import { TicketModule } from './ticket/ticket.module';
+import { EquiposModule } from './equipos/equipos.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
       isGlobal: true}),
-      DatabaseModule, ClientesModule, AuthModule, UserModule, HardwareModule, TicketModule, ],
+      DatabaseModule, ClientesModule, AuthModule, UserModule, HardwareModule, TicketModule, EquiposModule, ],
   controllers: [AppController],
   providers: [AppService],
 })
