@@ -1,8 +1,9 @@
 //src/entities/Usuario.entity.ts
 //Modulo de entidad para la tabla Usuario
 //importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Rol } from './Rol.entity';
+import { Mensaje } from './mensajes';
 
 //Definicion de la entidad Usuario
 @Entity('usuario')
@@ -38,4 +39,8 @@ export class Usuario {
     @ManyToOne(() => Rol, (rol) => rol.usuarios)
     @JoinColumn({ name: 'id_rol' })
     rol: Rol;
+
+    //Relacion con la tabla Mensajes (un usuario puede enviar muchos mensajes)
+    @OneToMany(() => Mensaje, mensaje => mensaje.enviador)
+    mensajes: Mensaje[];
 }
