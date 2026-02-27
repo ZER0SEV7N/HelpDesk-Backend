@@ -8,12 +8,13 @@ import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { HardwareModule } from './hardware/hardware.module';
 import { TicketModule } from './ticket/ticket.module';
+import { ChatGateway } from './chat/chat.gateway';
 
 @Module({
   imports: [ConfigModule.forRoot({
       isGlobal: true}),
       DatabaseModule, ClientesModule, AuthModule, UserModule, HardwareModule, TicketModule, ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ChatGateway],
 })
 export class AppModule {}
