@@ -1,32 +1,31 @@
 //Entidad RegistroHardware
 //Definicion de la entidad RegistroHardware
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-import { Hardware } from './Hardware.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Hardware } from './hardware.entity';
 //Definicion de la entidad RegistroHardware
 @Entity('registroHardware')
 export class RegistroHardware {
+  //Columna para el ID del registro de hardware
+  @PrimaryGeneratedColumn()
+  id_RH: number; //Llave primaria auto-generada
 
-    //Columna para el ID del registro de hardware
-    @PrimaryGeneratedColumn()
-    id_RH : number; //Llave primaria auto-generada
+  //Columna fecha de instalacion
+  @Column()
+  fecha_instalacion: Date; //Fecha de instalacion del hardware
 
-    //Columna fecha de instalacion
-    @Column()
-    fecha_instalacion : Date; //Fecha de instalacion del hardware
+  //descripcion del hardware
+  @Column('text')
+  descripcion: string; //Descripcion del hardware instalado
 
-    //descripcion del hardware
-    @Column('text')
-    descripcion : string; //Descripcion del hardware instalado
+  //Columnna serie del hardware
+  @Column({ length: 100 })
+  serie: string; //Numero de serie del hardware
 
-    //Columnna serie del hardware
-    @Column({ length: 100 })
-    serie : string; //Numero de serie del hardware
+  //Columna de proveedor
+  @Column()
+  proveedor: string; //Proveedor del hardware
 
-    //Columna de proveedor
-    @Column()
-    proveedor : string; //Proveedor del hardware
-
-    //Relacion con la tabla Hardware (Muchos registros de hardware pertenecen a un hardware)
-    @OneToMany(() => Hardware, (hw) => hw.rh)
-    hw: Hardware[];
+  //Relacion con la tabla Hardware (Muchos registros de hardware pertenecen a un hardware)
+  @OneToMany(() => Hardware, (hw) => hw.rh)
+  hw: Hardware[];
 }

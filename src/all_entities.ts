@@ -9,7 +9,7 @@ import { Cliente_G } from './entities/Cliente_g.entity';
 import { Area } from './entities/Area.entity';
 import { Contactos_Ref } from './entities/Contactos_Ref.entity';
 import { Equipos } from './entities/Equipos.entity';
-import { Hardware } from './entities/Hardware.entity';
+import { Hardware } from './entities/hardware.entity';
 import { Software } from './entities/Software.entity';
 import { Software_equipos } from './entities/Software_equipos.entity';
 import { RegistroHardware } from './entities/RegistroHardware.entity';

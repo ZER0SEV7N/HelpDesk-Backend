@@ -7,10 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { 1Module } from './1/1.module';
 import { SoftwareModule } from './software/software.module';
-import { HardwardModule } from './hardward/hardward.module';
+import { HardwareModule } from './hardware/hardware.module';
 
 @Module({
-  imports: [DatabaseModule, ClientesModule, AuthModule, UserModule, 1Module, SoftwareModule, HardwardModule, ],
+  imports: [DatabaseModule, ClientesModule, AuthModule, UserModule, 1Module, SoftwareModule, HardwareModule, ],
   controllers: [AppController],
   providers: [AppService],
 })
