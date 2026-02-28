@@ -9,10 +9,10 @@
 //Importaciones necesarias:
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common'; //Para marcar esta clase como un servicio inyectable
 import { CreateTicketDto } from './dto/create-ticket.dto'; //DTO para la creacion de un ticket
-import { Ticket, TicketStatus } from 'src/entities/Tickets.entity'; //Entidad de Ticket para interactuar con la base de datos
+import { UpdateTicketDto } from './dto/update-ticket.dto';
+import { Ticket, TicketStatus } from '../entities/Tickets.entity'; //Entidad de Ticket para interactuar con la base de datos
 import { Repository } from 'typeorm'; //Repositorio de TypeORM para manejar las operaciones de base de datos
 import { InjectRepository } from '@nestjs/typeorm'; //Para inyectar el repositorio de Ticket
-import { ChangeStatusDTO } from './dto/change-status.dto'; //DTO para el cambio de estado de un ticket
 
 //Servicio de Ticket
 @Injectable()
@@ -53,14 +53,11 @@ export class TicketService {
       asunto: dto.asunto,
       detalle: dto.detalle,
       estado: TicketStatus.PENDIENTE, //Estado inicial del ticket
-      
-      id_equipos: dto.id_equipo,
+      id_equipo: dto.id_equipo,
       id_cliente: user.userId, //El cliente es el usuario que crea el ticket
-      
       id_soporte: null, //No se asigna soporte al momento de crear el ticket
       id_software: dto.id_software,
       es_software: dto.es_software,
-
       imagen_url: dto.imagen_url ?? null,
     });
 
@@ -93,7 +90,34 @@ export class TicketService {
       throw new ForbiddenException('No tienes permisos para ver los tickets');
     }
 
-    return await this.ticketRepo.find({ where: { id_cliente: user.userId }, order: { fecha_registro: 'DESC' } 
+    return await this.ticketRepo.find({
+      where: { id_cliente: user.userId },
+      order: { fecha_creacion: 'DESC' },
     });
+  }
 
+  async findAll() {
+    return this.ticketRepo.find({
+      order: { fecha_creacion: 'DESC' },
+    });
+  }
+
+  async findOne(id: number) {
+    const ticket = await this.ticketRepo.findOne({ where: { id_ticket: id } });
+    if (!ticket) {
+      throw new NotFoundException(`Ticket con ID ${id} no encontrado`);
+    }
+    return ticket;
+  }
+
+  async update(id: number, updateTicketDto: UpdateTicketDto) {
+    const ticket = await this.findOne(id);
+    Object.assign(ticket, updateTicketDto);
+    return this.ticketRepo.save(ticket);
+  }
+
+  async remove(id: number) {
+    const ticket = await this.findOne(id);
+    return this.ticketRepo.remove(ticket);
+  }
 }

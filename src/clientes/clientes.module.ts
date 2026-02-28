@@ -1,15 +1,11 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm'; 
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientesService } from './clientes.service';
 import { ClientesController } from './clientes.controller';
-import { ENTITIES_ARRAY } from '../all_entities'; // 👈 Importas la lista maestra
+import { Empresa } from '../entities/Empresa.entity';
 
 @Module({
-  imports: [
-    // 👇 3. ESTA ES LA LÍNEA QUE TE FALTA. 
-    // Sin esto, el Servicio no puede usar el repositorio.
-    TypeOrmModule.forFeature(ENTITIES_ARRAY), 
-  ],
+  imports: [TypeOrmModule.forFeature([Empresa])],
   controllers: [ClientesController],
   providers: [ClientesService],
 })
