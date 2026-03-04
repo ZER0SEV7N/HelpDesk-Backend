@@ -4,7 +4,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn, OneToMany } from 'typeorm';
 import { Equipos } from './Equipos.entity';
 import { Usuario } from './Usuario.entity';
-import { Mensaje } from './mensajes';
 
 //Definir los estados posibles de un ticket
 export enum TicketStatus {
@@ -95,10 +94,5 @@ export class Ticket {
   @CreateDateColumn({ name: 'fecha_creacion' })
   fecha_creacion: Date;
 
-  // ---------------------------------------------------------
-  // Union con mensajes (un ticket puede tener muchos mensajes)
-  // ---------------------------------------------------------
-  // Relación con mensajes (un ticket puede tener muchos mensajes)
-  @OneToMany(() => Mensaje, mensaje => mensaje.ticket)
-  messages: Mensaje[];
+
 }

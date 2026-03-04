@@ -20,11 +20,13 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs-modules/ioredis": "^2.0.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/mapped-types": "*",
+    "@nestjs/mongoose": "^11.0.4",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/platform-socket.io": "^11.1.14",
@@ -36,7 +38,9 @@
     "class-validator": "^0.14.3",
     "cookies-parser": "^1.2.0",
     "g": "^2.0.1",
+    "ioredis": "^5.10.0",
     "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.2.4",
     "mysql2": "^3.16.2",
     "npm": "^11.8.0",
     "passport": "^0.7.0",

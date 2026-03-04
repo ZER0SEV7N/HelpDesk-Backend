@@ -1,0 +1,43 @@
+version: '3.8'
+
+services: 
+  # -----------------------------------------------------
+  # Contenedor de MongoDB (Historial permanente del chat)
+  # ----------------------------------------------------
+  mongodb:
+    #Imagen oficial de MongoDB
+    image: mongo:latest
+    #Nombre del contenedor
+    container_name: helpdesk_mongo
+    #Restart automático del contenedor en caso de fallo
+    restart: always
+    #Puerto expuesto para la conexión a MongoDB
+    ports:
+      - '27017:27017' 
+    #Volumen para persistencia de datos
+    volumes:
+      - mongodb_data:/data/db
+
+  # --------------------------------------------------------
+  # Contenedor de Redis (Almacenamiento en memoria para mensajes del chat)
+  # --------------------------------------------------------
+  redis:
+    #Imagen oficial de Redis
+    image: redis:alpine
+    #Nombre del contenedor
+    container_name: helpdesk_redis
+    #Restart automático del contenedor en caso de fallo
+    restart: always
+    #Puerto expuesto para la conexión a Redis
+    ports:
+      - '6379:6379'
+    #Volumen para persistencia de datos (opcional, Redis es en memoria pero esto permite guardar el estado)
+    volumes:
+      - redis_data:/data
+    #Comando para iniciar el servidor de Redis con configuración personalizada
+    command: redis-server --save 200 1 --loglevel warning
+
+
+volumes:
+  mongodb_data:
+  redis_data:
