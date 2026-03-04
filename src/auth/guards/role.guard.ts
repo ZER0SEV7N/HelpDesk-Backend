@@ -4,7 +4,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/role.decorator';
-import { Observable } from 'rxjs';
 
 //Guardia para verificar roles de usuario
 @Injectable()
@@ -24,7 +23,7 @@ export class RoleGuard implements CanActivate {
     
     const { user } = context.switchToHttp().getRequest(); //Obtiene el usuario del request
 
-    return requiredRoles.includes(user.rol.nombre); //Verifica si el rol del usuario esta en los roles requeridos
+    return requiredRoles.includes(user.rol); //Verifica si el rol del usuario esta en los roles requeridos
 
     }
 }
