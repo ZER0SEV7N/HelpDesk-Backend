@@ -4,7 +4,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Empresa } from '../entities/Empresa.entity';
+import { Empresa } from '../entities/empresa.entity';
 import { CreateEmpresaDto } from './dto/create-empresa.dto';
 
 //Definicion del servicio ClientesService

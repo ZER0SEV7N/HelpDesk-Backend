@@ -1,7 +1,7 @@
 //Modulo de entidad para la tabla empresa
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
-import { Empresa } from './Empresa.entity';
+import { Empresa } from './empresa.entity';
 
 //Definicion de la entidad Cuenta_trabajadores
 @Entity('cuenta_trabajadores')

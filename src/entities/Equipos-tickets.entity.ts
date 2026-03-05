@@ -1,7 +1,7 @@
 // src/operaciones/entities/equipos-tickets.entity.ts
 import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { Equipos } from 'src/entities/Equipos.entity';
-import { Ticket } from 'src/entities/Tickets.entity';
+import { Equipos } from './equipos.entity';
+import { Ticket } from './tickets.entity';
 
 @Entity('equipos_tickets')
 export class EquiposTickets {

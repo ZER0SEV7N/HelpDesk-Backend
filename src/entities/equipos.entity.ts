@@ -3,11 +3,11 @@
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 //importar relaciones foraneas
-import { Empresa } from './Empresa.entity';
+import { Empresa } from './empresa.entity';
 import { MicroEmpresa } from './MicroEmpresa.entity';
-import { Planes } from './Planes.entity';
-import { Ticket } from './Tickets.entity';
-import { PersonaNatural } from './Persona_natural.entity';
+import { Planes } from './planes.entity';
+import { Ticket } from './tickets.entity';
+import { PersonaNatural } from './persona_natural.entity';
 
 //Definicion de la entidad Equipos
 @Entity('equipos')

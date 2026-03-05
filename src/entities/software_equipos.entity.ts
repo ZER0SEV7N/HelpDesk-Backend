@@ -2,8 +2,8 @@
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 //importar relacion con software
-import { Software } from './Software.entity';
-import { Equipos } from './Equipos.entity';
+import { Software } from './software.entity';
+import { Equipos } from './equipos.entity';
 
 //Definicion de la entidad Software
 @Entity('software_equipos')
