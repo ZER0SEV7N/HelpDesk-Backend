@@ -23,7 +23,227 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+API REST **HelpDesk** (mesa de ayuda) con NestJS: autenticación JWT, clientes, hardware, tickets y planes/precios.
+
+## Base de datos
+
+La API usa **MySQL**. La conexión se configura en `src/database/database.module.ts` (host: localhost, puerto: 3306, usuario: root, base: helpdesk_db). Crea la base de datos `helpdesk_db` en tu servidor MySQL antes de ejecutar.
+
+---
+
+## Paso a paso: Cómo ejecutar la API
+
+### 1. Instalar dependencias
+
+En la raíz del proyecto:
+
+```bash
+npm install
+```
+
+### 2. Configurar entorno (opcional)
+
+- Si quieres cambiar el puerto o el secreto JWT, copia el ejemplo y edita:
+  ```bash
+  copy .env.example .env
+  ```
+- En `.env` puedes definir por ejemplo:
+  - `PORT=3000` (o el puerto que quieras)
+  - `JWT_SECRET=tu_clave_secreta`
+
+### 3. Ejecutar la API
+
+**Modo desarrollo (recomendado):**
+
+```bash
+npm run start:dev
+```
+
+- La API quedará disponible en **http://localhost:3000** (o en el `PORT` que tengas en `.env`).
+- Si ves el error *"address already in use"*, ese puerto está ocupado: cambia `PORT` en `.env` (por ejemplo `PORT=3002`) y vuelve a ejecutar.
+
+**Otros comandos:**
+
+```bash
+# Una sola ejecución (sin recarga al cambiar código)
+npm run start
+
+# Producción (después de compilar)
+npm run build
+npm run start:prod
+```
+
+### 4. Comprobar que está corriendo
+
+- Abre en el navegador o con Postman/Insomnia: **http://localhost:3000/**  
+  Deberías recibir la respuesta de la raíz de la API.
+
+---
+
+## Paso a paso: Crear planes
+
+Los **planes** son las ofertas/precios de tu HelpDesk (ej: Básico, Premium).
+
+### 1. Listar planes existentes (público)
+
+No requiere login.
+
+```http
+GET http://localhost:3000/planes
+```
+
+### 2. Crear un nuevo plan (requiere login)
+
+Necesitas estar autenticado (token JWT).
+
+**2.1. Iniciar sesión** (si aún no tienes usuario, regístrate antes con `POST /auth/register`):
+
+```http
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "correo": "tu@email.com",
+  "contrasena": "tu_contraseña"
+}
+```
+
+Copia el `token` de la respuesta.
+
+**2.2. Crear el plan** enviando el token en el header:
+
+```http
+POST http://localhost:3000/planes
+Content-Type: application/json
+Authorization: Bearer <tu_token>
+
+{
+  "numero_plan": 1,
+  "nombre": "Básico",
+  "descripcion": "Soporte por correo, 5 tickets al mes.",
+  "precio": 29.99
+}
+```
+
+**Campos del body:**
+
+| Campo        | Tipo   | Obligatorio | Descripción                          |
+|-------------|--------|-------------|--------------------------------------|
+| `numero_plan` | number | Sí          | Número o código del plan (ej: 1, 2) |
+| `nombre`     | string | Sí          | Nombre del plan (ej: Básico)        |
+| `descripcion`| string | Sí          | Qué incluye el plan                  |
+| `precio`     | number | Sí          | Precio (ej: 29.99)                   |
+
+### 3. Ver un plan por ID (público)
+
+```http
+GET http://localhost:3000/planes/1
+```
+
+### 4. Actualizar o eliminar un plan
+
+- **Actualizar:** `PATCH http://localhost:3000/planes/:id` con body parcial y header `Authorization: Bearer <token>`.
+- **Eliminar:** `DELETE http://localhost:3000/planes/:id` con header `Authorization: Bearer <token>`.
+
+---
+
+## Paso a paso: Crear tickets
+
+Los **tickets** son los reportes de incidencias que abre un trabajador.
+
+### Requisitos previos
+
+- Usuario con rol **TRABAJADOR** (el que se asigna por defecto al registrarse).
+- Al menos un **equipo** existente en la base de datos (necesitas su `id_equipo`). Si la base está vacía, tendrás que crear/insertar equipos por otro medio o usar un ID de equipo existente.
+
+### 1. Registrar un usuario (si no tienes uno)
+
+```http
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "Juan",
+  "apellido": "Pérez",
+  "correo": "juan@empresa.com",
+  "contrasena": "MiClave123",
+  "telefono": "999888777"
+}
+```
+
+Ese usuario quedará con rol **TRABAJADOR** y podrá crear tickets.
+
+### 2. Iniciar sesión y obtener el token
+
+```http
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "correo": "juan@empresa.com",
+  "contrasena": "MiClave123"
+}
+```
+
+Guarda el `token` de la respuesta; lo usarás en el siguiente paso.
+
+### 3. Crear un ticket
+
+Envía el token en el header `Authorization`:
+
+```http
+POST http://localhost:3000/ticket
+Content-Type: application/json
+Authorization: Bearer <tu_token>
+
+{
+  "asunto": "No enciende el monitor",
+  "detalle": "El monitor de la estación 5 no da imagen desde hoy en la mañana.",
+  "id_equipo": 1,
+  "es_software": false
+}
+```
+
+**Si el problema es de software**, pon `es_software: true` y opcionalmente `id_software` (ID del software relacionado):
+
+```json
+{
+  "asunto": "Error al abrir el sistema",
+  "detalle": "La aplicación se cierra al iniciar sesión.",
+  "id_equipo": 1,
+  "es_software": true,
+  "id_software": 1
+}
+```
+
+**Campos del body:**
+
+| Campo        | Tipo    | Obligatorio | Descripción                                    |
+|-------------|---------|-------------|------------------------------------------------|
+| `asunto`    | string  | Sí          | Resumen del problema                          |
+| `detalle`   | string  | Sí          | Descripción detallada del incidente            |
+| `id_equipo` | number  | Sí          | ID del equipo afectado (debe existir en BD)   |
+| `es_software` | boolean | Sí        | `true` si es incidencia de software           |
+| `id_software` | number  | No (sí si es software) | ID del software relacionado          |
+| `imagen_url`  | string  | No          | URL o evidencia en base64 (opcional)          |
+
+### 4. Ver mis tickets
+
+Solo el usuario autenticado (TRABAJADOR) ve sus propios tickets:
+
+```http
+GET http://localhost:3000/ticket/mis-tickets
+Authorization: Bearer <tu_token>
+```
+
+### 5. Otras rutas de tickets (con token)
+
+- **Listar todos:** `GET http://localhost:3000/ticket`
+- **Ver uno:** `GET http://localhost:3000/ticket/:id`
+- **Actualizar:** `PATCH http://localhost:3000/ticket/:id`
+- **Eliminar:** `DELETE http://localhost:3000/ticket/:id`
+
+---
 
 ## Project setup
 

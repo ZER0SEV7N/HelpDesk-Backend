@@ -2,7 +2,7 @@
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Sucursales } from './Sucursales.entity';
-import { Equipos } from './Equipos.entity';
+import { Equipos } from './equipos.entity';
 //Definicion de la entidad Empresa
 @Entity('empresa')
 export class Empresa {

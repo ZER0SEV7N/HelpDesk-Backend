@@ -2,7 +2,7 @@
 //Modulo de entidad para la tabla Area
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
-import { Empresa } from './Empresa.entity';
+import { Empresa } from './empresa.entity';
 import { MicroEmpresa } from './MicroEmpresa.entity';
 import { Sucursales } from './Sucursales.entity';
 

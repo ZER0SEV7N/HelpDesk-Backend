@@ -10,8 +10,8 @@
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common'; //Para marcar esta clase como un servicio inyectable
 import { CreateTicketDto } from './dto/create-ticket.dto'; //DTO para la creacion de un ticket
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-import { Ticket, TicketStatus } from '../entities/Tickets.entity'; //Entidad de Ticket para interactuar con la base de datos
-import { Repository } from 'typeorm'; //Repositorio de TypeORM para manejar las operaciones de base de datos
+import { Ticket, TicketStatus } from '../entities/tickets.entity';
+import { Repository, DeepPartial } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm'; //Para inyectar el repositorio de Ticket
 
 //Servicio de Ticket
@@ -48,19 +48,19 @@ export class TicketService {
     const pin = await this.GenerateUniquePin();
 
     //Crear el nuevo ticket
-    const test: Ticket = new Ticket();
-
-    const newTicket: Ticket = this.ticketRepo.create({
+    const data: DeepPartial<Ticket> = {
       pin,
       asunto: dto.asunto,
       detalle: dto.detalle,
-      estado: TicketStatus.PENDIENTE, //Estado inicial del ticket
+      estado: TicketStatus.PENDIENTE,
       id_equipo: dto.id_equipo,
-      id_cliente: user.userId, //El cliente es el usuario que crea el ticket
-      id_software: dto.id_software,
+      id_cliente: user.userId,
+      id_soporte: undefined,
+      id_software: dto.id_software ?? undefined,
       es_software: dto.es_software,
-      imagen_url: dto.imagen_url,
-    });
+      imagen_url: dto.imagen_url ?? undefined,
+    };
+    const newTicket = this.ticketRepo.create(data);
 
     //Guardar el ticket en la base de datos
     return await this.ticketRepo.save(newTicket);

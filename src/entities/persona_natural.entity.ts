@@ -1,7 +1,7 @@
 //src/clientes/entities/persona-natural.entity.ts
 //Modulo de entidad para la tabla PersonaNatural
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { Equipos } from 'src/entities/Equipos.entity';
+import { Equipos } from './equipos.entity';
 
 //Definicion de la entidad PersonaNatural
 @Entity('personaNatural')

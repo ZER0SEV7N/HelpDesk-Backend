@@ -1,6 +1,6 @@
 //Entidad Sucursal
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, ManyToOne } from 'typeorm';
-import { Empresa } from './Empresa.entity';
+import { Empresa } from './empresa.entity';
 //Definicion de la entidad Sucursal
 @Entity('Sucursales')
 export class Sucursales {

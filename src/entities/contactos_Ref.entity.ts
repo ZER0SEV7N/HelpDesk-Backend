@@ -2,9 +2,9 @@
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 'typeorm';
 //importar relacion con la empresa
-import { Empresa } from './Empresa.entity';
+import { Empresa } from './empresa.entity';
 import { MicroEmpresa } from './MicroEmpresa.entity';
-import { PersonaNatural } from './Persona_natural.entity';
+import { PersonaNatural } from './persona_natural.entity';
 //Definicion de la entidad Contactos_Ref
 @Entity('contactos_ref')
 export class Contactos_Ref {

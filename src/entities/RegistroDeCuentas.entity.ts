@@ -2,7 +2,7 @@
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 //importar relacion con cliente_G
-import { Cliente_G } from './Cliente_g.entity';
+import { Cliente_G } from './cliente_g.entity';
 
 //Definicion de la entidad Registro_cuentas
 @Entity('registroDeCuentas')
