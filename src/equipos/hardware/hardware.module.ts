@@ -1,19 +1,15 @@
-//src/hardware/hardware.module.ts
-//Modulo para la gestion de hardware
-//Importaciones necesarias:
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Hardware, HardwareSchema } from '../../schemas/hardware.schema';
 import { HardwareService } from './hardware.service';
 import { HardwareController } from './hardware.controller';
-import { ENTITIES_ARRAY } from '../../all_entities';
 
-//Definicion del modulo HardwareModule
 @Module({
-    imports: [
-        TypeOrmModule.forFeature(ENTITIES_ARRAY),
-    ],
-    controllers: [HardwareController],
-    providers: [HardwareService],
-    exports: [HardwareService], // Exportar el servicio para usarlo en otros modulos
+  imports: [
+    MongooseModule.forFeature([{ name: Hardware.name, schema: HardwareSchema }]),
+  ],
+  controllers: [HardwareController],
+  providers: [HardwareService],
+  exports: [HardwareService],
 })
 export class HardwareModule {}

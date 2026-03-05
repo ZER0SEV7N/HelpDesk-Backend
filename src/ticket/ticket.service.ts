@@ -1,324 +1,176 @@
-//ticket.service.ts
-//Servicio para manejar la logica de negocio relacionada con los tickets
-// - Crear un nuevo ticket
-// - Obtener todos los tickets
-// - Obtener un ticket por filtrado
-// - Actualizar el estado de un ticket
-// - Asignar un ticket a un tecnico
-// - ROLES involucrados: Trabajador | Soporte_Tecnico | Soporte_IN_Situ |
-//Importaciones necesarias:
-import { Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common'; //Para marcar esta clase como un servicio inyectable
-import { CreateTicketDto } from './dto/create-ticket.dto'; //DTO para la creacion de un ticket
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-import { Ticket, TicketStatus } from '../entities/tickets.entity';
-import { Repository, DeepPartial } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm'; //Para inyectar el repositorio de Ticket
+import { Ticket, TicketDocument, TicketStatus } from '../schemas/ticket.schema';
 
-//Servicio de Ticket
 @Injectable()
 export class TicketService {
   constructor(
-    @InjectRepository(Ticket) //Utilizar un repositorio para el manejo del ticket en la BD
-    private readonly ticketRepo: Repository<Ticket>,
-  ){}
+    @InjectModel(Ticket.name) private ticketModel: Model<TicketDocument>,
+  ) {}
 
-  //----------------------------------
-  //Metodo para crear un nuevo ticket
-  //ROl ENCARGADO: Trabajador
-  //API: POST /tickets
-  //----------------------------------
   async createTicket(dto: CreateTicketDto, user: any) {
-    //Verificar rol del usuario
-    if(user.role !== 'TRABAJADOR') {
+    if (user.role !== 'TRABAJADOR') {
       throw new ForbiddenException('No tienes permisos para crear un ticket');
     }
-
-    //Validar coherencia software
     if (dto.es_software && !dto.id_software) {
-      throw new BadRequestException(
-        'Debe seleccionar un software si el incidente es de software',
-      );
+      throw new BadRequestException('Debe seleccionar un software si el incidente es de software');
     }
-
-    if(!dto.es_software) {
-      dto.id_software = undefined; // Aseguramos que no se guarde un software si no es de software
-    }
-
-    //Generar PIN unico para el ticket
-    const pin = await this.GenerateUniquePin();
-
-    //Crear el nuevo ticket
-    const data: DeepPartial<Ticket> = {
+    const pin = await this.generateUniquePin();
+    const idEquipo = new Types.ObjectId(dto.id_equipo);
+    const newTicket = await this.ticketModel.create({
       pin,
       asunto: dto.asunto,
       detalle: dto.detalle,
       estado: TicketStatus.PENDIENTE,
-      id_equipo: dto.id_equipo,
-      id_cliente: user.userId,
+      id_equipo: idEquipo,
+      id_cliente: new Types.ObjectId(user.userId),
       id_soporte: undefined,
-      id_software: dto.id_software ?? undefined,
-      es_software: dto.es_software,
-      imagen_url: dto.imagen_url ?? undefined,
-    };
-    const newTicket = this.ticketRepo.create(data);
-
-    //Guardar el ticket en la base de datos
-    return await this.ticketRepo.save(newTicket);
+      id_software: dto.es_software ? dto.id_software : undefined,
+      es_software: dto.es_software ?? false,
+      imagen_url: dto.imagen_url,
+    });
+    return newTicket.toObject();
   }
 
-  //-------------------------------------------
-  //Metodo privado para generar un PIN unico para cada Ticket
-  //-------------------------------------------
-  private async GenerateUniquePin():Promise<string> {
+  private async generateUniquePin(): Promise<string> {
     let pin: string;
-    let exists: Ticket | null;
-
+    let exists: TicketDocument | null;
     do {
-      pin = Math.floor(100000 + Math.random() * 900000).toString(); //Genera un numero aleatorio de 6 digitos y lo convierte a string
-      exists = await this.ticketRepo.findOne({ where: { pin } }); //Verifica si el PIN ya existe en la base de datos
-    } while (exists); //Si el PIN ya existe, genera uno nuevo
-
-    return pin; //Retorna el PIN unico generado
+      pin = Math.floor(100000 + Math.random() * 900000).toString();
+      exists = await this.ticketModel.findOne({ pin }).exec();
+    } while (exists);
+    return pin;
   }
 
-  //------------------------------------
-  //Metodo para listar los tickets con filtros opcionales y control por rol
-  //ROl ENCARGADO: TODOS (con diferentes niveles de acceso)
-  //API: GET /tickets
-  //------------------------------------
   async findTickets(user: any, filters: any) {
-    //Construir la consulta base
-    const query = this.ticketRepo
-      .createQueryBuilder('ticket')
-      .leftJoinAndSelect('ticket.soporte', 'soporte')
-      .leftJoinAndSelect('ticket.equipo', 'equipo')
-      .leftJoinAndSelect('equipo.empresa', 'empresa')
-      .leftJoinAndSelect('equipo.sucursal', 'sucursal');
-
-    //Aplicar los filtros segun el estado del ticket
-    if(filters.estado) {
-      query.andWhere('ticket.estado = :estado', { estado: filters.estado });
-    }
-
-    //Aplicar el filtro por PIN si se proporciona
-    if(filters.pin) {
-      query.andWhere('ticket.pin = :pin', { pin: filters.pin });
-    }
-
-    //Aplicar el filtro por el nombre del trabajador asignado si se proporciona
-    if(filters.soporte) {
-      query.andWhere('soporte.nombre LIKE :soporte', { soporte: `%${filters.soporte}%` });
-    }
-
-    //Aplicar el filtro por la fecha de creacion si se proporciona
-    if(filters.fecha_creacion) {
+    const query: any = {};
+    if (filters.estado) query.estado = filters.estado;
+    if (filters.pin) query.pin = filters.pin;
+    if (filters.fecha_creacion) {
       const fecha = new Date(filters.fecha_creacion);
       const nextDay = new Date(fecha);
       nextDay.setDate(fecha.getDate() + 1);
-      query.andWhere('ticket.fecha_creacion >= :fecha AND ticket.fecha_creacion < :nextDay', { fecha, nextDay });
+      query.fecha_creacion = { $gte: fecha, $lt: nextDay };
     }
-
-    //Retricciones por rol
     switch (user.role) {
       case 'TRABAJADOR':
-        query.andWhere('ticket.id_cliente = :id', {
-          id: user.userId,
-        });
+        query.id_cliente = new Types.ObjectId(user.userId);
         break;
-
       case 'SOPORTE_IN_SITU':
-        query.andWhere('ticket.id_soporte = :id', {
-          id: user.userId,
-        });
+        query.id_soporte = new Types.ObjectId(user.userId);
         break;
-
       case 'CLIENTE_EMPRESA':
-        query.andWhere('empresa.id_empresa = :empresaId', {
-          empresaId: user.empresaId,
-        });
+        if (user.empresaId) query['equipo.empresa'] = new Types.ObjectId(user.empresaId);
         break;
-      }
-    const tickets = await query.getMany();
-
-    // -------------------------
-    // Formatear respuesta para el frontend
-    // -------------------------
-    return tickets.map(t => ({
-      //pin: t.pin,
+    }
+    const tickets = await this.ticketModel
+      .find(query)
+      .populate('id_soporte', 'nombre apellido')
+      .populate({ path: 'id_equipo', populate: { path: 'empresa', select: 'nombre_cliente' } })
+      .sort({ fecha_creacion: -1 })
+      .lean()
+      .exec();
+    return tickets.map((t: any) => ({
+      _id: t._id,
+      pin: t.pin,
       asunto: t.asunto,
       estado: t.estado,
-      trabajador: t.soporte
-        ? `${t.soporte.nombre} ${t.soporte.apellido}`
-        : '------',
-      equipo: t.equipo.tipo,
-      empresa: t.equipo.empresa.nombre_cliente,
-      ///sucursal: t.equipo.sucursal.nombre,
+      trabajador: t.id_soporte ? `${t.id_soporte.nombre} ${t.id_soporte.apellido}` : '------',
+      equipo: t.id_equipo?.tipo,
+      empresa: t.id_equipo?.empresa?.nombre_cliente,
       fecha_creacion: t.fecha_creacion,
     }));
   }
 
-  //--------------------------------------
-  //Metodo para obtener el detalle de un ticket por su PIN
-  //ROl ENCARGADO: TODOS (con diferentes niveles de acceso)
-  //API: GET /tickets/:pin
-  //--------------------------------------
-  async getTicketById(id: number, user: any){
-    const ticket = await this.ticketRepo.findOne({
-      where: {id_ticket: id},
-      relations: ['equipo', 'cliente', 'soporte'],
-    });
-    if (!ticket) {
-      throw new NotFoundException(`Ticket con ID ${id} no encontrado`);
-    }
-    return ticket; 
+  async getTicketById(id: string, user: any) {
+    const ticket = await this.ticketModel
+      .findById(id)
+      .populate('id_equipo')
+      .populate('id_cliente', 'nombre apellido correo')
+      .populate('id_soporte', 'nombre apellido')
+      .lean()
+      .exec();
+    if (!ticket) throw new NotFoundException(`Ticket con ID ${id} no encontrado`);
+    return ticket;
   }
 
-  //-----------------------------------------
-  //Metodo para asignar un ticket a un tecnico de soporte
-  //Rol encargado: Trabajador (para autoasignarse) | Administrador (para asignar a otros)
-  //API: POST /tickets/:id/asignar
-  //-----------------------------------------
-  async assignTicket(ticketId: number, soporteId: number, user:any ) {
-    if(user.role !== 'SOPORTE_TECNICO') {
+  async assignTicket(ticketId: string, soporteId: string, user: any) {
+    if (user.role !== 'SOPORTE_TECNICO') {
       throw new ForbiddenException('No tienes permisos para asignar este ticket');
     }
-
-    const ticket = await this.ticketRepo.findOne({
-      where: { id_ticket: ticketId },
-    });
-
-    if(!ticket) {
-      throw new NotFoundException('Ticket no encontrado');
-    }
-
-    if(ticket.estado !== TicketStatus.PENDIENTE) {
+    const ticket = await this.ticketModel.findById(ticketId).exec();
+    if (!ticket) throw new NotFoundException('Ticket no encontrado');
+    if (ticket.estado !== TicketStatus.PENDIENTE) {
       throw new BadRequestException('Solo se pueden asignar tickets en estado Pendiente');
     }
-
-    ticket.id_soporte = soporteId;
+    ticket.id_soporte = new Types.ObjectId(soporteId);
     ticket.estado = TicketStatus.ASIGNADO;
-
-    return await this.ticketRepo.save(ticket);
+    await ticket.save();
+    return ticket.toObject();
   }
 
-  //--------------------------------------------
-  //Metodo para iniciar el proceso de resolver un ticket (cambiar estado a En Progreso)
-  //Rol encargado: Soporte Tecnico (solo puede iniciar el proceso si el ticket esta asignado a el)
-  //API: POST /tickets/:id/iniciar
-  //--------------------------------------------
-  async startProgress(ticketId: number, user:any) {
-    const ticket = await this.ticketRepo.findOne({
-      where: { id_ticket: ticketId },
-    });
-
-    //Verificar que el ticket exista
-    if(!ticket) throw new NotFoundException('Ticket no encontrado');
-
-    //Verificar que el ticket este asignado al soporte que intenta iniciar el proceso
-    if(ticket.id_soporte !== user.userId) {
+  async startProgress(ticketId: string, user: any) {
+    const ticket = await this.ticketModel.findById(ticketId).exec();
+    if (!ticket) throw new NotFoundException('Ticket no encontrado');
+    if (ticket.id_soporte?.toString() !== user.userId) {
       throw new ForbiddenException('No tienes permisos para iniciar este ticket');
     }
-
     ticket.estado = TicketStatus.EN_PROGRESO;
-
-    return await this.ticketRepo.save(ticket);
+    await ticket.save();
+    return ticket.toObject();
   }
 
-
-  //-----------------------------------------------------------
-  //Metodo para resolver un ticket (cambiar estado a Resuelto)
-  //El sistema cierra automaticamente el ticket cuando soporte termina
-  //Rol encargado: Soporte Tecnico (solo puede resolver si el ticket esta asignado a el)
-  //API: POST /tickets/:id/resolver
-  async resolveTicket(ticketId: number, user:any) {
-    const ticket = await this.ticketRepo.findOne({
-      where: { id_ticket: ticketId }, 
-    });
-
-    //Verificar que el ticket exista
-    if(!ticket) throw new NotFoundException('Ticket no encontrado');
-
-    //Verificar que el ticket este asignado al soporte que intenta iniciar el proceso
-    if(ticket.id_soporte !== user.userId) {
-      throw new ForbiddenException('No tienes permisos para iniciar este ticket');
+  async resolveTicket(ticketId: string, user: any) {
+    const ticket = await this.ticketModel.findById(ticketId).exec();
+    if (!ticket) throw new NotFoundException('Ticket no encontrado');
+    if (ticket.id_soporte?.toString() !== user.userId) {
+      throw new ForbiddenException('No tienes permisos para resolver este ticket');
     }
-
     ticket.estado = TicketStatus.CERRADO;
-
-    return await this.ticketRepo.save(ticket);
+    await ticket.save();
+    return ticket.toObject();
   }
 
-  //-----------------------------------------------------------
-  //Metodo para reabrir un ticket cerrado (cambiar estado a Reabierto)
-  //Rol encargado: Trabajador (solo puede reabrir si el ticket esta creado por el)
-  //API: POST /tickets/:id/reabrir
-  async reopenTicket(ticketId: number, user:any) {
-    const ticket = await this.ticketRepo.findOne({
-      where: { id_ticket: ticketId }, 
-    });
-
-    //Verificar que el ticket exista
-    if (!ticket) throw new NotFoundException();
-
-    //Verificar que el usuario sea el trabajador que creo el ticket
-    if (user.role !== 'TRABAJADOR') {
-      throw new ForbiddenException('Solo trabajador puede reabrir');
-    }
-
-    //Verificar que el ticket este creado por el trabajador que intenta reabrirlo
-    if (ticket.id_cliente !== user.userId) {
-      throw new ForbiddenException('No autorizado');
-    }
-
-    //Solo se pueden reabrir tickets cerrados
+  async reopenTicket(ticketId: string, user: any) {
+    const ticket = await this.ticketModel.findById(ticketId).exec();
+    if (!ticket) throw new NotFoundException('Ticket no encontrado');
+    if (user.role !== 'TRABAJADOR') throw new ForbiddenException('Solo trabajador puede reabrir');
+    if (ticket.id_cliente.toString() !== user.userId) throw new ForbiddenException('No autorizado');
     if (ticket.estado !== TicketStatus.CERRADO) {
       throw new BadRequestException('Solo tickets cerrados pueden reabrirse');
     }
-
     ticket.estado = TicketStatus.REABIERTO;
-
-    return this.ticketRepo.save(ticket);
+    await ticket.save();
+    return ticket.toObject();
   }
 
-  //-----------------------------------------------------------
-  //Metricas para el Dashboard de los tickets (opcional)
-  //API: GET /tickets/metrics
-  async getDashboardMetrics(user: any){
-    const query = this.ticketRepo.createQueryBuilder('ticket');
-    //Verificar rol del usuario para mostrar solo los tickets relevantes
-    if (user.role === 'TRABAJADOR') {
-      query.where('ticket.id_cliente = :id', { id: user.userId });
-    }
-    const total = await query.getCount();
-    
-    const cerrados = await query.clone()
-        .andWhere('ticket.estado = :estado', { estado: TicketStatus.CERRADO })
-        .getCount();
-
-    const pendientes = await query.clone()
-        .andWhere('ticket.estado = :estado', { estado: TicketStatus.PENDIENTE })
-        .getCount();
-
-    const enProgreso = await query.clone()
-        .andWhere('ticket.estado = :estado', { estado: TicketStatus.EN_PROGRESO })
-        .getCount();
-
-    return {
-      total,
-      cerrados,
-      pendientes,
-      enProgreso,
-    };
+  async getDashboardMetrics(user: any) {
+    const baseQuery: any = user.role === 'TRABAJADOR' ? { id_cliente: new Types.ObjectId(user.userId) } : {};
+    const [total, cerrados, pendientes, enProgreso] = await Promise.all([
+      this.ticketModel.countDocuments(baseQuery),
+      this.ticketModel.countDocuments({ ...baseQuery, estado: TicketStatus.CERRADO }),
+      this.ticketModel.countDocuments({ ...baseQuery, estado: TicketStatus.PENDIENTE }),
+      this.ticketModel.countDocuments({ ...baseQuery, estado: TicketStatus.EN_PROGRESO }),
+    ]);
+    return { total, cerrados, pendientes, enProgreso };
   }
 
-  async update(id: number, updateTicketDto: UpdateTicketDto) {
-    const ticket = await this.getTicketById(id, null); // Usamos getTicketById
-    Object.assign(ticket, updateTicketDto);
-    return this.ticketRepo.save(ticket);
+  async update(id: string, updateTicketDto: UpdateTicketDto) {
+    const ticket = await this.ticketModel.findByIdAndUpdate(
+      id,
+      { $set: updateTicketDto },
+      { new: true },
+    ).exec();
+    if (!ticket) throw new NotFoundException(`Ticket con ID ${id} no encontrado`);
+    return ticket.toObject();
   }
 
-  async remove(id: number) {
-    const ticket = await this.getTicketById(id, null); // Usamos getTicketById
-    return this.ticketRepo.remove(ticket);
+  async remove(id: string) {
+    const ticket = await this.ticketModel.findByIdAndDelete(id).exec();
+    if (!ticket) throw new NotFoundException(`Ticket con ID ${id} no encontrado`);
+    return ticket.toObject();
   }
 }

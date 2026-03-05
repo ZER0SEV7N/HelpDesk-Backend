@@ -26,7 +26,7 @@ export class PlanesController {
   /** Ver un plan por ID (público) */
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.planesService.findOne(+id);
+    return this.planesService.findOne(id);
   }
 
   /** Crear plan (protegido) */
@@ -40,13 +40,12 @@ export class PlanesController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   update(@Param('id') id: string, @Body() updatePlanDto: UpdatePlanDto) {
-    return this.planesService.update(+id, updatePlanDto);
+    return this.planesService.update(id, updatePlanDto);
   }
 
-  /** Eliminar plan (protegido) */
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string) {
-    return this.planesService.remove(+id);
+    return this.planesService.remove(id);
   }
 }

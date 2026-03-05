@@ -1,46 +1,31 @@
-//src/entities/Usuario.entity.ts
-//Modulo de entidad para la tabla Usuario
-//importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+// Entidad TypeORM legacy (referencia); la app usa Mongoose (schemas/user.schema.ts).
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Rol } from './Rol.entity';
-import { Mensaje } from './mensajes';
 
-//Definicion de la entidad Usuario
 @Entity('usuario')
 export class Usuario {
-    //Columna para el ID del usuario
     @PrimaryGeneratedColumn({ name: 'id_usuario' })
-    id_usuario: number; //Llave primaria auto-generada
-    //Columna para el nombre de usuario
-    @Column({ length: 50 })
-    nombre: string; //Nombre de usuario
+    id_usuario: number;
 
-    //Columna para apellido de usuario
     @Column({ length: 50 })
-    apellido: string; //Apellido de usuario
+    nombre: string;
 
-    //Columna para el correo electronico
+    @Column({ length: 50 })
+    apellido: string;
+
     @Column()
-    correo: string; //Correo electronico del usuario
+    correo: string;
 
-    //Columna para la contrasena
     @Column({ name: 'contraseña' })
     contrasena: string;
 
-    //Columna para telefono
     @Column({ length: 15 })
-    telefono: string; //Telefono del usuario
+    telefono: string;
 
-    //Columna para estado
     @Column()
-    is_active: boolean; //Estado del usuario
+    is_active: boolean;
 
-    //Relacion con la tabla Rol (muchos a uno)
     @ManyToOne(() => Rol, (rol) => rol.usuarios)
     @JoinColumn({ name: 'id_rol' })
     rol: Rol;
-
-    //Relacion con la tabla Mensajes (un usuario puede enviar muchos mensajes)
-    @OneToMany(() => Mensaje, mensaje => mensaje.enviador)
-    mensajes: Mensaje[];
 }

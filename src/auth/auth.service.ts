@@ -1,94 +1,73 @@
-//helpdesk-app/src/auth/auth.service.ts
-//Servicio de autenticacion para el manejo de registro y login de usuarios
-//----------------------------------------------------------
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common'; //Importaciones necesarias
-import { InjectRepository } from '@nestjs/typeorm'; //Para inyectar repositorios de TypeORM
-import { Repository } from 'typeorm'; //Repositorio de TypeORM
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { Usuario } from '../entities/Usuario.entity'; // Ajusta la ruta según tu estructura
-import { Rol } from '../entities/Rol.entity';
-import { RegisterDTO } from './dto/register.auth.dto'; // Ajusta la ruta según tu estructura
+import { User, UserDocument } from '../schemas/user.schema';
+import { Rol, RolDocument } from '../schemas/rol.schema';
+import { RegisterDTO } from './dto/register.auth.dto';
 import { LoginDTO } from './dto/login.auth.dto';
 
-//Servicio de autenticacion
 @Injectable()
 export class AuthService {
-    constructor(
-        @InjectRepository(Usuario)
-        private usuariosRepo: Repository<Usuario>,
-        @InjectRepository(Rol)
-        private rolRepo: Repository<Rol>,
-        private jwtService: JwtService,
-    ) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Rol.name) private rolModel: Model<RolDocument>,
+    private jwtService: JwtService,
+  ) {}
 
-    //Metodo para registrar un usuario
-    async register(dto: RegisterDTO) {
-        //Verificar si el usuario ya existe por correo
-        const exists = await this.usuariosRepo.findOne({
-            where: { correo: dto.correo },
-        });
-
-        if (exists) {
-            throw new HttpException(
-                'El correo ya está registrado',
-                HttpStatus.CONFLICT,
-            );
-        }
-
-        //1. Buscar si el rol existe (Por defecto asignamos rol ID 1 o buscamos por nombre 'Usuario')
-        const defaultRole = await this.rolRepo.findOne({ where: { nombre: 'TRABAJADOR' } }); 
-        
-        if (!defaultRole) throw new HttpException('Rol por defecto no encontrado', HttpStatus.CONFLICT);
-
-        // 2. Encriptar contraseña
-        const hashedPassword = await bcrypt.hash(dto.contrasena, 10);
-
-        // 3. Crear usuario
-        const newUser = this.usuariosRepo.create({
-            nombre: dto.nombre,
-            apellido: dto.apellido,
-            correo: dto.correo,
-            contrasena: hashedPassword,
-            telefono: dto.telefono,
-            rol: defaultRole,
-            is_active: true,
-        });
-
-        return await this.usuariosRepo.save(newUser);
+  async register(dto: RegisterDTO) {
+    const exists = await this.userModel.findOne({ correo: dto.correo }).exec();
+    if (exists) {
+      throw new HttpException('El correo ya está registrado', HttpStatus.CONFLICT);
     }
 
-    //Metodo para el LOGIN DE USUARIO
-    async login(dto: LoginDTO) {
-        const user = await this.usuariosRepo.findOne({
-            where: { correo: dto.correo },
-            relations: ['rol'], // Asegura que el rol se cargue junto con el usuario
-        });
-
-        //En caso de que no exista el usuario
-        if (!user || !user.is_active) throw new UnauthorizedException('Correo incorrecto');
-
-        //Verificar contraseña
-        const isPasswordValid = await bcrypt.compare(
-            dto.contrasena,      
-            user.contrasena, 
-        );
-
-        if (!isPasswordValid) {
-            throw new UnauthorizedException('Contraseña incorrecta');
-        }
-
-        const payload = {
-            sub: user.id_usuario,
-            role: user.rol.nombre,
-        };
-
-        const token = this.jwtService.sign(payload);
-
-        return {
-            user,
-            role: user.rol.nombre,
-            token,
-        };
+    let defaultRole = await this.rolModel.findOne({ nombre: 'TRABAJADOR' }).exec();
+    if (!defaultRole) {
+      defaultRole = await this.rolModel.create({ nombre: 'TRABAJADOR' });
     }
+
+    const hashedPassword = await bcrypt.hash(dto.contrasena, 10);
+    const newUser = await this.userModel.create({
+      nombre: dto.nombre,
+      apellido: dto.apellido,
+      correo: dto.correo,
+      contrasena: hashedPassword,
+      telefono: dto.telefono,
+      rol: defaultRole._id,
+      is_active: true,
+    });
+
+    const userWithRol = await this.userModel
+      .findById(newUser._id)
+      .populate('rol')
+      .select('-contrasena')
+      .lean()
+      .exec();
+    return userWithRol;
+  }
+
+  async login(dto: LoginDTO): Promise<{ user: any; role: string; token: string }> {
+    const user = await this.userModel
+      .findOne({ correo: dto.correo })
+      .populate('rol')
+      .exec();
+
+    if (!user || !user.is_active) {
+      throw new UnauthorizedException('Correo incorrecto');
+    }
+
+    const isPasswordValid = await bcrypt.compare(dto.contrasena, user.contrasena);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Contraseña incorrecta');
+    }
+
+    const rolNombre = (user.rol as any)?.nombre ?? 'TRABAJADOR';
+    const payload = { sub: user._id.toString(), role: rolNombre };
+    const token = this.jwtService.sign(payload);
+
+    const userObj = user.toObject ? user.toObject() : user;
+    delete (userObj as any).contrasena;
+    return { user: { ...userObj, id_usuario: user._id.toString() }, role: rolNombre, token };
+  }
 }

@@ -44,20 +44,16 @@ export class HardwareController {
     //Buscar un hardware por ID
     @Get(':id')
     findOne(@Param('id') id: string) {
-        return this.hardwareService.findOne(+id);
+        return this.hardwareService.findOne(id);
     }
 
-    //API: PATCH localhost:3000/hardware/:id
-    //Actualizar un hardware
     @Patch(':id')
     update(@Param('id') id: string, @Body() updateHardwareDto: UpdateHardwareDto) {
-        return this.hardwareService.update(+id, updateHardwareDto);
+        return this.hardwareService.update(id, updateHardwareDto);
     }
 
-    //API: DELETE localhost:3000/hardware/:id
-    //Eliminar un hardware
     @Delete(':id')
     remove(@Param('id') id: string) {
-        return this.hardwareService.remove(+id);
+        return this.hardwareService.remove(id);
     }
 }

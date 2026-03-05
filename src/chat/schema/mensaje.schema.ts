@@ -8,13 +8,11 @@ export type MensajeDocument = Mensaje & Document;
 
 @Schema({timestamps: true}) //Agrega campos de createdAt y updatedAt automaticamente
 export class Mensaje {
-    //ID del ticket al que pertenece el mensaje
     @Prop({ required: true, index: true })
-    ticketId: number;
-    
-    //ID del usuario que envio el mensaje (puede ser el cliente o el soporte tecnico)
+    ticketId: string; // MongoDB ObjectId del ticket (string)
+
     @Prop({ required: true })
-    userId: number;
+    userId: string; // MongoDB ObjectId del usuario (string)
 
     //Contenido del mensaje
     @Prop({ required: true })

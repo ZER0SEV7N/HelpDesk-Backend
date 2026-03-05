@@ -20,13 +20,12 @@ export class ChatService {
         return await mensaje.save();
     }
 
-    //Guardar mensaje masivamente
-    async guardarMensajesMasivo(mensajes: any[]): Promise<Mensaje[]> {
-        return await this.mensajeModel.insertMany(mensajes);
+    async guardarMensajesMasivo(mensajes: MensajeDto[]): Promise<Mensaje[]> {
+        const docs = await this.mensajeModel.insertMany(mensajes);
+        return docs as unknown as Mensaje[];
     }
 
-    //Obtener el historial de mensajes de un ticket
-    async obtenerHistorial(ticketId: number): Promise<Mensaje[]> {
-        return await this.mensajeModel.find({ ticketId}).sort({ createdAt: 1 }).exec(); //Ordenar por fecha de creación ascendente
+    async obtenerHistorial(ticketId: string): Promise<Mensaje[]> {
+        return await this.mensajeModel.find({ ticketId }).sort({ createdAt: 1 }).exec();
     }
 }

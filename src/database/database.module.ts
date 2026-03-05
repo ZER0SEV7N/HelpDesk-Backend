@@ -1,24 +1,17 @@
-//Helpdesk-app/src/database/database.module.ts
-//Modulo para la configuracion de la base de datos
-//Se utilizara la base de datos MySQL para el almacenamiento de los tickets, usuarios, roles, equipos y software
-//Importaciones necesarias:
-import { TypeOrmModule } from '@nestjs/typeorm';
+// Base de datos: MongoDB (datos principales) + Redis (chat en tiempo real)
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { RedisModule } from '@nestjs-modules/ioredis';
 
-//Configuracion de la conexion a la base de datos
 @Module({
-    //Importacion del modulo TypeOrmModule con la configuracion de la base de datos
-    imports: [
-        TypeOrmModule.forRoot({
-            type: 'mysql', //Tipo de base de datos
-            host: 'localhost', //Host de la base de datos
-            port: 3306, //Puerto de la base de datos
-            username: 'root', //Usuario de la base de datos
-            password: '', //Contraseña de la base de datos
-            database: 'helpdesk_db', //Nombre de la base de datos
-            autoLoadEntities: true, //Carga automática de entidades
-            synchronize: false, //Sincronización de la base de datos (solo en desarrollo)
-        }),
-    ],
+  imports: [
+    // MongoDB: tickets, usuarios, roles, planes, clientes, hardware, equipos, chat
+    MongooseModule.forRoot('mongodb://localhost:27017/helpdesk'),
+    // Redis: chat en tiempo real (mensajes en memoria, aún en desarrollo)
+    RedisModule.forRoot({
+      type: 'single',
+      url: 'redis://localhost:6379',
+    }),
+  ],
 })
 export class DatabaseModule {}

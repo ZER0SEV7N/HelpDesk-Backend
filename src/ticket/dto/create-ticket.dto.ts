@@ -9,10 +9,10 @@ export class CreateTicketDto {
     @IsNotEmpty() //Valida que no este vacio
     asunto: string;
 
-    //Equipo afectado por el incidente
-    @IsNumber() //Valida que sea un numero
-    @IsNotEmpty() //Valida que no este vacio
-    id_equipo: number;
+    //Equipo afectado (ID MongoDB ObjectId como string)
+    @IsString()
+    @IsNotEmpty()
+    id_equipo: string;
 
     //Problema Relacionado al software
     @IsBoolean() //Valida que sea un booleano

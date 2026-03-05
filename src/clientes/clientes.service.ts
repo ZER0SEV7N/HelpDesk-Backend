@@ -1,33 +1,21 @@
-//src/clientes/clientes.service.ts
-//Servicio para la gestion de clientes
-//Importaciones necesarias:
-import { Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Empresa } from '../entities/empresa.entity';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Empresa, EmpresaDocument } from '../schemas/empresa.schema';
 import { CreateEmpresaDto } from './dto/create-empresa.dto';
 
-//Definicion del servicio ClientesService
 @Injectable()
 export class ClientesService {
-    constructor(
-        @InjectRepository(Empresa)
-        private empresaRepo: Repository<Empresa>,
-    ) {}
+  constructor(
+    @InjectModel(Empresa.name) private empresaModel: Model<EmpresaDocument>,
+  ) {}
 
-    //Crear una nueva empresa
-    async create(CreateEmpresaDto: CreateEmpresaDto) {
-        const nuevaEmpresa = this.empresaRepo.create(CreateEmpresaDto);
-        return this.empresaRepo.save(nuevaEmpresa);
-    }
+  async create(dto: CreateEmpresaDto) {
+    const empresa = await this.empresaModel.create(dto);
+    return empresa.toObject();
+  }
 
-    //Listar todas las empresas
-    async findAll() {
-        return this.empresaRepo.find();
-    }
-
-    //Eliminar una Empresa
-    async Delete() {
-
-    }
+  async findAll() {
+    return this.empresaModel.find().lean().exec();
+  }
 }

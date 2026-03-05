@@ -1,7 +1,7 @@
 //src/ticket/ticket.controller.ts
 //Modulo de controlador para la tabla ticket
 //importaciones necesarias:
-import { Controller, Get, Post, Body, Patch, Param, Query, Req, ParseIntPipe, UseGuards, Delete  } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Query, Req, UseGuards, Delete } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -67,64 +67,51 @@ export class TicketController {
   //Solo el cliente que creo el ticket o el soporte asignado pueden ver los detalles del ticket
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  findOne(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+  findOne(@Param('id') id: string, @Req() req: any) {
     return this.ticketService.getTicketById(id, req.user);
   }
-  
-  //Endpoint para asignar un ticket a un soporte (solo para admin)
-  //Post /ticket/AsignarTicket/1
-  //El admin envia el ID del ticket y el ID del soporte al que se asignara el ticket
+
   @Post(':id/asignar')
   @Roles('SOPORTE_TECNICO')
   @UseGuards(JwtAuthGuard, RoleGuard)
   assign(
-    @Param('id', ParseIntPipe) id: number,
-    @Body('soporteId') soporteId: number,
+    @Param('id') id: string,
+    @Body('soporteId') soporteId: string,
     @Req() req: any,
   ) {
     return this.ticketService.assignTicket(id, soporteId, req.user);
   }
 
-  //Endpoint para que el soporte inicie el progreso del ticket
-  //Post /ticket/IniciarProgreso/1
-  //Solo el soporte asignado puede iniciar el progreso del ticket
   @Post(':id/iniciar')
   @Roles('SOPORTE_TECNICO')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  startProgress(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+  startProgress(@Param('id') id: string, @Req() req: any) {
     return this.ticketService.startProgress(id, req.user);
   }
 
-  //Endpoint para que el soporte resuelva el ticket
-  //Post /ticket/ResolverTicket/1
-  //Solo el soporte asignado puede resolver el ticket
   @Post(':id/resolver')
   @Roles('SOPORTE_TECNICO')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  resolve(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+  resolve(@Param('id') id: string, @Req() req: any) {
     return this.ticketService.resolveTicket(id, req.user);
-  } // CORRECCIÓN: Faltaba esta llave de cierre
-
+  }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateTicketDto: UpdateTicketDto) {
+  update(@Param('id') id: string, @Body() updateTicketDto: UpdateTicketDto) {
     return this.ticketService.update(id, updateTicketDto);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: string) {
     return this.ticketService.remove(id);
   }
 
-  //Endpoint para que el cliente reabra el ticket
-  //Post /ticket/ReabrirTicket/1
-  //Solo el cliente que creo el ticket puede reabrirlo, y solo si el ticket esta cerrado
   @Post(':id/reabrir')
   @Roles('TRABAJADOR')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  reopen(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+  reopen(@Param('id') id: string, @Req() req: any) {
     return this.ticketService.reopenTicket(id, req.user);
   }
 }

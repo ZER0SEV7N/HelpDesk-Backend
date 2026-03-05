@@ -35,24 +35,12 @@ export class CreateEquipoDTO {
     @IsDateString()
     revProgramada?: Date;
 
-    //Propiedad para el ID de la empresa (opcional, ya que un equipo puede no estar asociado a una empresa)
     @IsOptional()
-    @IsNumber()
-    id_empresa?: number;
+    @IsString()
+    id_empresa?: string; // MongoDB ObjectId
 
-    //Propiedad para el ID de la microempresa (opcional, ya que un equipo puede no estar asociado a una microempresa)
     @IsOptional()
-    @IsNumber()
-    id_microempresa?: number;
-
-    //Propiedad para el ID del plan (opcional, ya que un equipo puede no tener un plan asociado)
-    @IsOptional()
-    @IsNumber()
-    id_plan?: number;
-
-    //Propiedad para el ID de la persona natural (opcional, ya que un equipo puede no estar asociado a una persona natural)
-    @IsOptional()
-    @IsNumber()
-    id_personanatural?: number;
+    @IsString()
+    id_plan?: string; // MongoDB ObjectId
 
 }

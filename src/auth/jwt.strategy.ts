@@ -26,8 +26,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     //Funcion para validar el token JWT y extraer la carga util (payload)
     async validate(payload: any) {
-        //En tu AuthService.login el payload tiene { sub, role }
-        return { userId: payload.sub, 
-            rol: payload.rol };
+        return { userId: payload.sub, role: payload.role };
     }
 }
