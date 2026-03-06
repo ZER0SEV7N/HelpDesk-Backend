@@ -1,16 +1,16 @@
 //Entidad Sucursal
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, ManyToOne } from 'typeorm';
-import { Empresa } from './Empresa.entity';
+import { Cliente } from './Cliente.entity';
+import { Equipos } from './Equipos.entity';
+import { Usuario } from './Usuario.entity';
+import { Area } from './Area.entity';
+
 //Definicion de la entidad Sucursal
 @Entity('Sucursales')
 export class Sucursales {
     //Columna para el ID de la sucursal
     @PrimaryGeneratedColumn()
     id_sucursal: number; //Llave primaria auto-generada
-
-    //Columna para el ID de la empresa
-    @Column()
-    id_empresa: number; //Llave foranea a la tabla Empresa
 
     //Columna para el nombre de la sucursal
     @Column()
@@ -24,12 +24,28 @@ export class Sucursales {
     @Column({ length: 20 })
     telefono: string; //Telefono de la sucursal
 
-    //Columna para la direccion de la sucursal
+    //Columna para el correo de la sucursal
     @Column()
-    correo: string; //Direccion de la sucursal
+    correo: string; //Direccion de correo de la sucursal
 
-    //Relacion con la tabla Empresa (Muchas sucursales pertenecen a una empresa)
-    @ManyToOne(() => Empresa, (empresa) => empresa.sucursal)
-    @JoinColumn({ name: 'id_empresa' })
-    empresa: Empresa;
+    //Columna para la direccion
+    @Column()
+    direccion: string;
+
+    //Columna para el Id de cliente
+    @Column()
+    id_cliente: number; //Llave foranea a la tabla Cliente
+
+    @ManyToOne(() => Cliente, (cliente) => cliente.sucursales, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'id_cliente' })
+    cliente: Cliente;
+
+    @OneToMany(() => Equipos, (equipo) => equipo.sucursal)
+    equipos: Equipos[];
+
+    @OneToMany(() => Usuario, (usuario) => usuario.sucursal)
+    usuarios: Usuario[];
+
+    @OneToMany(() => Area, (area) => area.sucursal)
+    areas: Area[];
 }

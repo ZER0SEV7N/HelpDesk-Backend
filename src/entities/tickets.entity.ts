@@ -94,5 +94,11 @@ export class Ticket {
   @CreateDateColumn({ name: 'fecha_creacion' })
   fecha_creacion: Date;
 
+    // ---------------------------------------------------------
+    // Fecha de Actualización
+    // ---------------------------------------------------------
+    @CreateDateColumn({ name: 'fecha_actualizacion' })
+    fecha_actualizacion: Date;
+
 
 }
