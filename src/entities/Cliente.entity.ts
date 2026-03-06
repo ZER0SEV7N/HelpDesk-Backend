@@ -6,8 +6,8 @@ import { Equipos } from './Equipos.entity';
 import { Sucursales } from './Sucursales.entity';
 
 export enum TipoCliente {
-    Juridica = 'JURIDICA',
-    Natural = 'NATURAL',
+    Juridica = 'Juridica',
+    Natural = 'Natural',
 }
 
 //Definicion de la entidad Cliente
