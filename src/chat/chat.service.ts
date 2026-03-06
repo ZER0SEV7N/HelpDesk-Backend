@@ -1,59 +1,32 @@
-//helpdesk-backend/src/chat/chat.service.ts
-//Modulo para el servicio del chat
-//Funcionalidades principales:
-//1. Gestionar la lógica de negocio relacionada con el chat
-//2. Interactuar con la base de datos para almacenar y recuperar mensajes
-//3. Proporcionar métodos para crear, actualizar y eliminar mensajes
-//4. Integrar con el ChatGateway para enviar mensajes a los clientes conectados
-
+//Helpdesk-app/src/chat/chat.service.ts
+//Modulo de servicio para el chat
+//Se encargara de la logica del chat entre el cliente y el soporte tecnico
+//Importaciones necesarias:
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Mensaje } from 'src/entities/Mensajes.entity';
-import { Ticket } from 'src/entities/Tickets.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { MensajeDto } from './dto/mensaje.dto';
+import { Mensaje, MensajeDocument } from './schema/mensaje.schema';
 
 @Injectable()
 export class ChatService {
-  constructor(
-    @InjectRepository(Mensaje)
-    private readonly mensajeRepo: Repository<Mensaje>,
-    @InjectRepository(Ticket)
-    private readonly ticketRepo: Repository<Ticket>,
-  ) {}
+    constructor(
+        @InjectModel(Mensaje.name) private mensajeModel: Model<MensajeDocument>,
+    ){}
+    
+    //Metodo para guardar un mensaje individual en la base de datos
+    async guardarMensaje(mensajeDTO: MensajeDto): Promise<Mensaje> {
+        const mensaje = new this.mensajeModel(mensajeDTO);
+        return await mensaje.save();
+    }
 
-  //Guardar un nuevo mensaje en la base de datos
-  async saveMessage(payload: { id_ticket: number; senderId: number; content: string; fileUrl?: string }) {
-    const { id_ticket, senderId, content, fileUrl } = payload;
+    //Guardar mensaje masivamente
+    async guardarMensajesMasivo(mensajes: any[]): Promise<Mensaje[]> {
+        return await this.mensajeModel.insertMany(mensajes);
+    }
 
-    const newMessage = this.mensajeRepo.create({
-      contenido: content,
-      adjunto: fileUrl,
-      ticket: { id_ticket: id_ticket },
-      usuario: { id_usuario: senderId },
-    })
-
-    return await this.mensajeRepo.save(newMessage);
-  }
-
-  //Obtener el historial de mensajes de un ticket
-  async getMessagesByTicket(id_ticket: number) {
-    return await this.mensajeRepo.find({
-      where: { ticket: { id_ticket} },
-      relations: ['usuario'], //Incluir información del usuario que envió cada mensaje
-      order: { fechaCreacion: 'ASC' }, //Ordenar por fecha de creación
-    });
-  }
-
-  //Marcar un mensaje como leido
-  async markMessageAsRead(ticketId: number, userId: number) {
-    await this.mensajeRepo.createQueryBuilder()
-      .update(Mensaje)
-      .set({ leido: new Date() })
-      .where("ticket.id_ticket = :ticketId", { ticketId })
-      .andWhere("usuario.id_usuario != :userId", { userId }) //Solo marcar como leido los mensajes que no fueron enviados por el usuario actual
-      .andWhere("leido IS NULL") //Solo marcar como leido los mensajes que no han sido leidos previamente
-      .execute();
-    return { success: true };
-  }
-
+    //Obtener el historial de mensajes de un ticket
+    async obtenerHistorial(ticketId: number): Promise<Mensaje[]> {
+        return await this.mensajeModel.find({ ticketId}).sort({ createdAt: 1 }).exec(); //Ordenar por fecha de creación ascendente
+    }
 }

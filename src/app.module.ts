@@ -16,7 +16,15 @@ import { ChatModule } from './chat/chat.module';
 @Module({
   imports: [ConfigModule.forRoot({
       isGlobal: true}),
-      DatabaseModule, ClientesModule, AuthModule, UserModule, HardwareModule, TicketModule, EquiposModule, ChatModule, ],
+      DatabaseModule, 
+      ClientesModule, 
+      AuthModule, 
+      UserModule, 
+      HardwareModule, 
+      TicketModule, 
+      EquiposModule, 
+      ChatModule, 
+    ],
   controllers: [AppController],
   providers: [AppService, ChatGateway, ChatService],
 })

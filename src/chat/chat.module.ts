@@ -1,11 +1,15 @@
+///Helpdesk-app/src/chat/chat.module.ts
+//Modulo del chat
+//Se encargara de manejar la logica del chat entre el cliente y el soporte tecnico
 import { Module } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { ChatGateway } from './chat.gateway';
-import { RoleGuard } from 'src/auth/guards/role.guard';
-import { JwtStrategy } from 'src/auth/jwt.strategy';
-
+import { MongooseModule } from '@nestjs/mongoose';
+import { Mensaje, MensajeSchema } from './schema/mensaje.schema';
 @Module({
-  imports: [JwtStrategy, RoleGuard],
-  providers: [ChatGateway, ChatService],
+    imports: [
+        MongooseModule.forFeature([{ name: Mensaje.name, schema: MensajeSchema }]),
+    ],
+    providers: [ChatService],
+    exports: [ChatService],
 })
 export class ChatModule {}

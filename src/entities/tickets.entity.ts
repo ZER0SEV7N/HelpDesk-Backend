@@ -4,7 +4,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn, OneToMany } from 'typeorm';
 import { Equipos } from './Equipos.entity';
 import { Usuario } from './Usuario.entity';
-import { Mensaje } from './Mensajes.entity';
 
 //Definir los estados posibles de un ticket
 export enum TicketStatus {
@@ -24,7 +23,7 @@ export class Ticket {
 
     //Columna para el PIN de ticket (Codigo unico para cada ticket)
     //Generar un PIN unico para cada ticket (puede ser un numero aleatorio o un string alfanumerico)
-    @Column({ unique: true, length: 6 })
+    @Column({ type: 'varchar', unique: true, length: 6 })
     pin: string; //PIN unico del ticket
 
     //Columna para el Asunto del ticket
@@ -95,10 +94,5 @@ export class Ticket {
   @CreateDateColumn({ name: 'fecha_creacion' })
   fecha_creacion: Date;
 
-  // ---------------------------------------------------------
-  // Union con mensajes (un ticket puede tener muchos mensajes)
-  // ---------------------------------------------------------
-  // Relación con mensajes (un ticket puede tener muchos mensajes)
-  @OneToMany(() => Mensaje, mensaje => mensaje.ticket)
-  messages: Mensaje[];
+
 }

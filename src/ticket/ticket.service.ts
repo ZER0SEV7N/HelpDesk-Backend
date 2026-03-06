@@ -9,10 +9,10 @@
 //Importaciones necesarias:
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common'; //Para marcar esta clase como un servicio inyectable
 import { CreateTicketDto } from './dto/create-ticket.dto'; //DTO para la creacion de un ticket
+import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { Ticket, TicketStatus } from '../entities/Tickets.entity'; //Entidad de Ticket para interactuar con la base de datos
 import { Repository } from 'typeorm'; //Repositorio de TypeORM para manejar las operaciones de base de datos
 import { InjectRepository } from '@nestjs/typeorm'; //Para inyectar el repositorio de Ticket
-import { ChangeStatusDTO } from './dto/change-status.dto'; //DTO para el cambio de estado de un ticket
 
 //Servicio de Ticket
 @Injectable()
@@ -55,14 +55,10 @@ export class TicketService {
       asunto: dto.asunto,
       detalle: dto.detalle,
       estado: TicketStatus.PENDIENTE, //Estado inicial del ticket
-      
       id_equipo: dto.id_equipo,
       id_cliente: user.userId, //El cliente es el usuario que crea el ticket
-      
-      //id_soporte: null, //No se asigna soporte al momento de crear el ticket
       id_software: dto.id_software,
       es_software: dto.es_software,
-
       imagen_url: dto.imagen_url,
     });
 
@@ -171,27 +167,10 @@ export class TicketService {
       where: {id_ticket: id},
       relations: ['equipo', 'cliente', 'soporte'],
     });
-
-    if(!ticket) {
-      throw new NotFoundException('Ticket no encontrado');
+    if (!ticket) {
+      throw new NotFoundException(`Ticket con ID ${id} no encontrado`);
     }
-
-    //Restriccion trabajador
-    if(
-      user.role === 'TRABAJADOR' &&
-      ticket.id_cliente !== user.userId
-    ) {
-      throw new ForbiddenException('No autorizado')
-    }
-
-    //Restricción Soporte In Situ
-    if (
-      user.role === 'SOPORTE_IN_SITU' &&
-      ticket.id_soporte !== user.userId
-    ) {
-      throw new ForbiddenException('No autorizado');
-    }
-    return ticket;
+    return ticket; 
   }
 
   //-----------------------------------------
@@ -306,19 +285,23 @@ export class TicketService {
   //API: GET /tickets/metrics
   async getDashboardMetrics(user: any){
     const query = this.ticketRepo.createQueryBuilder('ticket');
-
     //Verificar rol del usuario para mostrar solo los tickets relevantes
     if (user.role === 'TRABAJADOR') {
       query.where('ticket.id_cliente = :id', { id: user.userId });
     }
-
     const total = await query.getCount();
+    
+    const cerrados = await query.clone()
+        .andWhere('ticket.estado = :estado', { estado: TicketStatus.CERRADO })
+        .getCount();
 
-    const cerrados = await query.andWhere('ticket.estado = :estado', { estado: TicketStatus.CERRADO }).getCount();
+    const pendientes = await query.clone()
+        .andWhere('ticket.estado = :estado', { estado: TicketStatus.PENDIENTE })
+        .getCount();
 
-    const pendientes = await query.andWhere('ticket.estado = :estado', { estado: TicketStatus.PENDIENTE }).getCount();
-
-    const enProgreso = await query.andWhere('ticket.estado = :estado', { estado: TicketStatus.EN_PROGRESO }).getCount();
+    const enProgreso = await query.clone()
+        .andWhere('ticket.estado = :estado', { estado: TicketStatus.EN_PROGRESO })
+        .getCount();
 
     return {
       total,
@@ -326,5 +309,16 @@ export class TicketService {
       pendientes,
       enProgreso,
     };
+  }
+
+  async update(id: number, updateTicketDto: UpdateTicketDto) {
+    const ticket = await this.getTicketById(id, null); // Usamos getTicketById
+    Object.assign(ticket, updateTicketDto);
+    return this.ticketRepo.save(ticket);
+  }
+
+  async remove(id: number) {
+    const ticket = await this.getTicketById(id, null); // Usamos getTicketById
+    return this.ticketRepo.remove(ticket);
   }
 }
