@@ -4,7 +4,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn, OneToMany } from 'typeorm';
 import { Equipos } from './Equipos.entity';
 import { Usuario } from './Usuario.entity';
-import { Mensaje } from './mensajes';
+import { Mensaje } from './Mensajes.entity';
 
 //Definir los estados posibles de un ticket
 export enum TicketStatus {

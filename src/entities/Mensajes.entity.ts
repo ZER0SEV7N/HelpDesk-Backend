@@ -32,5 +32,5 @@ export class Mensaje {
     ticket: Ticket;
 
     @ManyToOne(() => Usuario, usuario => usuario.mensajes)
-    enviador: Usuario;
+    usuario: Usuario;
 }

@@ -14,6 +14,8 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     //REGISTER
+    //POST /auth/register
+    //Permite a un nuevo usuario registrarse en el sistema proporcionando su nombre, correo electrónico y contraseña. El controlador recibe los datos del usuario a través del cuerpo de la solicitud (DTO) y delega la lógica de registro al servicio de autenticación. El servicio se encarga de validar los datos, crear un nuevo usuario en la base de datos y devolver una respuesta adecuada al cliente.
     @Post('register')
     register(@Body() dto: RegisterDTO) {
         return this.authService.register(dto);

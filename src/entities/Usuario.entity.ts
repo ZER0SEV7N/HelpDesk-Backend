@@ -3,7 +3,7 @@
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Rol } from './Rol.entity';
-import { Mensaje } from './mensajes';
+import { Mensaje } from './Mensajes.entity';
 
 //Definicion de la entidad Usuario
 @Entity('usuario')
