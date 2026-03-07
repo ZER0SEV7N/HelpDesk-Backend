@@ -37,7 +37,6 @@ services:
     #Comando para iniciar el servidor de Redis con configuración personalizada
     command: redis-server --save 200 1 --loglevel warning
 
-
 volumes:
   mongodb_data:
   redis_data:
