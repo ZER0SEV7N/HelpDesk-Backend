@@ -4,7 +4,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import cookieParser from 'cookie-parser';
+import cookieParser = require('cookie-parser');
 
 //Funcion principal para iniciar la aplicacion
 async function bootstrap() {

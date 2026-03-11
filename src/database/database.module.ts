@@ -3,11 +3,11 @@
 //Se utilizara la base de datos MySQL para el almacenamiento de los tickets, usuarios, roles, equipos y software
 //Importaciones necesarias:
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Module } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { url } from 'inspector';
 import { RedisModule } from '@nestjs-modules/ioredis';
 //Configuracion de la conexion a la base de datos
+@Global()
 @Module({
     //Importacion del modulo TypeOrmModule con la configuracion de la base de datos
     imports: [
@@ -35,5 +35,6 @@ import { RedisModule } from '@nestjs-modules/ioredis';
             url: 'redis://localhost:6379',
         }),
     ],
+    exports: [RedisModule],
 })
 export class DatabaseModule {}

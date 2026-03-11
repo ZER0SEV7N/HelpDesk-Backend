@@ -11,8 +11,9 @@ import { SubscribeMessage, WebSocketGateway,
 WebSocketServer, OnGatewayConnection } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
-
+/*
 @WebSocketGateway({ cors: { origin: '*' } }) //Permitir conexiones desde cualquier origen
+/*
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketGateway
 
@@ -41,5 +42,5 @@ export class ChatGateway implements OnGatewayConnection {
   @SubscribeMessage('removeChat')
   remove(@MessageBody() id: number) {
     return this.chatService.remove(id);
-  }
-}
+  }*/
+

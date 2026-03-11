@@ -1,7 +1,7 @@
 //src/entities/Rol.entity.ts
 //Modulo de entidad para la tabla Rol
 //importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, CreateDateColumn } from 'typeorm';
 import { Usuario } from './Usuario.entity';
 //Definicion de la entidad Rol
 @Entity('rol')
@@ -17,4 +17,8 @@ export class Rol {
     //Relacion con la tabla Usuario (uno a muchos)
     @OneToMany(() => Usuario, (usuario) => usuario.rol)
     usuarios: Usuario[];
+
+    //Fecha de creacion
+    @CreateDateColumn({ name: 'created_at' })
+    created_at: Date;
 }

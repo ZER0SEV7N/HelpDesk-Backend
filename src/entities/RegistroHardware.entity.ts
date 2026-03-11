@@ -1,6 +1,6 @@
 //Entidad RegistroHardware
 //Definicion de la entidad RegistroHardware
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Hardware } from './Hardware.entity';
 //Definicion de la entidad RegistroHardware
 @Entity('registroHardware')
@@ -29,4 +29,12 @@ export class RegistroHardware {
     //Relacion con la tabla Hardware (Muchos registros de hardware pertenecen a un hardware)
     @OneToMany(() => Hardware, (hw) => hw.rh)
     hw: Hardware[];
+
+    //Fecha de creacion
+    @CreateDateColumn({ name: 'created_at' })
+    created_at: Date;
+
+    //Fecha de actualizacion
+    @UpdateDateColumn({ name: 'updated_at' })
+    updated_at: Date;
 }

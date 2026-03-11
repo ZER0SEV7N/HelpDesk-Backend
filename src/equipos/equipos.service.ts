@@ -13,13 +13,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 //ENTIDADES necesarias
 import { Equipos } from '../entities/Equipos.entity';
-import { Empresa } from 'src/entities/Empresa.entity';
-import { MicroEmpresa } from '../entities/MicroEmpresa.entity';
+
 import { Planes } from 'src/entities/Planes.entity';
 //DTO necesarios
 import { CreateEquipoDTO } from './dto/create-equipos.dto';
 import { UpdateEquipoDto } from './dto/update-equipos.dto';
-import { PersonaNatural } from 'src/entities/Persona_natural.entity';
+
 
 //Decorador para marcar la clase como un servicio con codigo inyectable
 @Injectable()
@@ -29,20 +28,9 @@ export class EquiposService {
     //Repo Equipos
     @InjectRepository(Equipos)
     private equiposRepo: Repository<Equipos>,
-    //Repo Empresa
-    @InjectRepository(Empresa)
-    private empresaRepo: Repository<Empresa>,
-    //Repo MicroEmpresa
-    @InjectRepository(MicroEmpresa)
-    private microEmpresaRepo: Repository<MicroEmpresa>,
-    //Repo Planes
-    @InjectRepository(Planes)
-    private planesRepo: Repository<Planes>,
-    //Repo PersonaNatural
-    @InjectRepository(PersonaNatural)
-    private personaNaturalRepo: Repository<PersonaNatural>,
-  ) {}
 
+  ) {}
+  /*
   //Metodo para crear un nuevo equipo en la base de datos
   //Recibe un DTO con los datos del nuevo equipo
   //POST /equipos
@@ -60,7 +48,7 @@ export class EquiposService {
         'El equipo debe tener exactamente un propietario',
       );
     }
-
+    
     //Buscar relaciones si existen
     const empresa = createEquipoDTO.id_empresa
       ? await this.empresaRepo.findOneBy({
@@ -95,5 +83,5 @@ export class EquiposService {
 
     //Guardar el nuevo equipo en la base de datos
     return await this.equiposRepo.save(nuevoEquipo);
-  }
+  }*/
 }

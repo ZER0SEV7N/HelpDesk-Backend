@@ -1,6 +1,6 @@
 //Modulo de entidad para la tabla Hardware
 //importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { RegistroHardware } from './RegistroHardware.entity';
 //Definicion de la entidad Hardware
 @Entity('hardware')
@@ -45,4 +45,12 @@ export class Hardware {
     @ManyToOne(() => RegistroHardware, (rh) => rh.hw, { nullable: true })
     @JoinColumn({ name: 'id_RH' })
     rh: RegistroHardware;
+
+    //Fecha de creacion
+    @CreateDateColumn({ name: 'created_at' })
+    created_at: Date;
+
+    //Fecha de actualizacion
+    @UpdateDateColumn({ name: 'updated_at' })
+    updated_at: Date;
 }

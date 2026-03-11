@@ -16,7 +16,7 @@ export enum TicketStatus {
 
 //Definicion de la entidad Tickets
 @Entity('tickets')
-export class Ticket {
+export class Tickets {
     //Columna para el ID de Tickets
     @PrimaryGeneratedColumn({name: 'id_tickets'})
     id_ticket: number; //Llave primaria auto-generada
@@ -93,6 +93,12 @@ export class Ticket {
   // ---------------------------------------------------------
   @CreateDateColumn({ name: 'fecha_creacion' })
   fecha_creacion: Date;
+
+    // ---------------------------------------------------------
+    // Fecha de Actualización
+    // ---------------------------------------------------------
+    @CreateDateColumn({ name: 'fecha_actualizacion' })
+    fecha_actualizacion: Date;
 
 
 }

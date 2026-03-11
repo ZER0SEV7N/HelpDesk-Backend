@@ -10,7 +10,7 @@
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common'; //Para marcar esta clase como un servicio inyectable
 import { CreateTicketDto } from './dto/create-ticket.dto'; //DTO para la creacion de un ticket
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-import { Ticket, TicketStatus } from '../entities/Tickets.entity'; //Entidad de Ticket para interactuar con la base de datos
+import { Tickets, TicketStatus } from '../entities/Tickets.entity'; //Entidad de Ticket para interactuar con la base de datos
 import { Repository } from 'typeorm'; //Repositorio de TypeORM para manejar las operaciones de base de datos
 import { InjectRepository } from '@nestjs/typeorm'; //Para inyectar el repositorio de Ticket
 
@@ -18,8 +18,8 @@ import { InjectRepository } from '@nestjs/typeorm'; //Para inyectar el repositor
 @Injectable()
 export class TicketService {
   constructor(
-    @InjectRepository(Ticket) //Utilizar un repositorio para el manejo del ticket en la BD
-    private readonly ticketRepo: Repository<Ticket>,
+    @InjectRepository(Tickets) //Utilizar un repositorio para el manejo del ticket en la BD
+    private readonly ticketRepo: Repository<Tickets>,
   ){}
 
   //----------------------------------
@@ -48,9 +48,9 @@ export class TicketService {
     const pin = await this.GenerateUniquePin();
 
     //Crear el nuevo ticket
-    const test: Ticket = new Ticket();
+    const test: Tickets = new Tickets();
 
-    const newTicket: Ticket = this.ticketRepo.create({
+    const newTicket: Tickets = this.ticketRepo.create({
       pin,
       asunto: dto.asunto,
       detalle: dto.detalle,
@@ -71,7 +71,7 @@ export class TicketService {
   //-------------------------------------------
   private async GenerateUniquePin():Promise<string> {
     let pin: string;
-    let exists: Ticket | null;
+    let exists: Tickets | null;
 
     do {
       pin = Math.floor(100000 + Math.random() * 900000).toString(); //Genera un numero aleatorio de 6 digitos y lo convierte a string
@@ -151,7 +151,7 @@ export class TicketService {
         ? `${t.soporte.nombre} ${t.soporte.apellido}`
         : '------',
       equipo: t.equipo.tipo,
-      empresa: t.equipo.empresa.nombre_cliente,
+      //empresa: t.equipo.empresa.nombre_cliente,
       ///sucursal: t.equipo.sucursal.nombre,
       fecha_creacion: t.fecha_creacion,
     }));
