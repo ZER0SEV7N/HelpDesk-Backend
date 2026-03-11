@@ -91,4 +91,14 @@ export class AuthService {
             token,
         };
     }
+    // Añade esto al final de tu AuthService
+async verifyToken(token: string) {
+    try {
+        // Esto verifica que el token sea válido y no haya expirado
+        const payload = await this.jwtService.verifyAsync(token);
+        return payload;
+    } catch (error) {
+        throw new UnauthorizedException('Token inválido o expirado');
+    }
+}
 }
