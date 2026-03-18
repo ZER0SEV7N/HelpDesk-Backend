@@ -1,24 +1,40 @@
-//Modulo de entidad para la tabla Software equipos
-//importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+// Entidad para la tabla planes (planes y precios)
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, OneToMany, UpdateDateColumn } from 'typeorm';
+import { Clientes } from './Clientes.entity';
 
-//Definicion de los Planes
 @Entity('planes')
 export class Planes {
-    //Columna para el ID del Software equipos
-    @PrimaryGeneratedColumn()
-    id_plan: number; //Llave primaria auto-generada
+  @PrimaryGeneratedColumn({ name: 'id_plan' })
+  id_plan: number;
 
-    //Columna para el nombre del plan
-    @Column()
-    numero_plan: number; //Numero del plan
+  /** Número/código del plan (ej: 1, 2, 3) */
+  @Column({ name: 'numero_plan', type: 'int' })
+  numero_plan: number;
 
-    //Columna para el id de los equipos 
-    @Column()
-    nombre: string; //Licencia del Software equipos
+  /** Nombre del plan (ej: Básico, Premium, Empresarial) */
+  @Column({ length: 100 })
+  Tipo: string;
 
-    //Columna para la descripcion
-    @Column('text')
-    descripcion: string; //Licencia del Software equipos
+  /** Descripción de lo que incluye el plan */
+  @Column('text')
+  descripcion: string;
 
+  /** Precio del plan (moneda local) */
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  precio: number;
+
+  //Limite de equipos que pueden registrar los clientes con este plan
+  @Column({ type: 'int', nullable: true })
+  limite_equipos: number;
+
+  @OneToMany(() => Clientes, cliente => cliente.plan)
+  clientes: Clientes[];
+
+  //Fecha de creacion
+  @CreateDateColumn({ name: 'created_at' })
+  created_at: Date;
+
+  //Fecha de actualizacion
+  @UpdateDateColumn({ name: 'updated_at' })
+  updated_at: Date;
 }

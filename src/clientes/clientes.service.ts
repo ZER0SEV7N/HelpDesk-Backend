@@ -4,12 +4,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Empresa } from '../entities/Empresa.entity';
 import { CreateEmpresaDto } from './dto/create-empresa.dto';
 
 //Definicion del servicio ClientesService
 @Injectable()
 export class ClientesService {
+    /*
     constructor(
         @InjectRepository(Empresa)
         private empresaRepo: Repository<Empresa>,
@@ -29,5 +29,5 @@ export class ClientesService {
     //Eliminar una Empresa
     async Delete() {
 
-    }
+    }*/
 }

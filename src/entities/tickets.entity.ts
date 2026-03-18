@@ -1,47 +1,48 @@
-//src/entities/tickets.entity.ts
+//src/entities/Tickets.entity.ts
 //Modulo de entidad para la tabla ticket
-//importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn } from 'typeorm';
+
+import { 
+  Entity, 
+  Column, 
+  PrimaryGeneratedColumn, 
+  JoinColumn, 
+  ManyToOne, 
+  CreateDateColumn, 
+  UpdateDateColumn, 
+  OneToMany 
+} from 'typeorm';
+
 import { Equipos } from './Equipos.entity';
+import { Usuario } from './Usuario.entity';
 
 //Definir los estados posibles de un ticket
 export enum TicketStatus {
     PENDIENTE = 'Pendiente',
-    En_PROGRESO = 'En Progreso',
-    RESUELTO = 'Resuelto',
+    ASIGNADO = 'Asignado',
+    EN_PROGRESO = 'En Progreso',
+    REABIERTO = 'Reabierto',
     CERRADO = 'Cerrado',
 }
 
 //Definicion de la entidad Tickets
 @Entity('tickets')
-export class Ticket {
+export class Tickets {
+
     //Columna para el ID de Tickets
-    @PrimaryGeneratedColumn({name: 'id_tickets'})
-    id_ticket: number; //Llave primaria auto-generada
+    @PrimaryGeneratedColumn({ name: 'id_tickets' })
+    id_ticket: number;
 
-    //Columna para el ID de equipos
-    @Column({name: 'id_equipos'})
-    id_equipos: number; 
+    //Columna para el PIN de ticket
+    @Column({ type: 'varchar', unique: true, length: 6 })
+    pin: string;
 
-    //Columna para el tipo de incidente
-    @Column({ name: 'tipo_incidente', length: 100 })
-    tipoIncidente: string; //Tipo de incidente (Maximo 100 caracteres)
+    //Columna para el Asunto del ticket
+    @Column({ type: 'varchar', length: 255 })
+    asunto: string;
 
-    //Columna para el nombre del cliente
-    @Column({name: 'nombre_cliente', length: 100})
-    nombre_cliente: string; //Nombre del cliente
-
-    //Columna para el nombre de la empresa
-    @Column({ length: 150 })
-    empresa: string; //Nombre de la empresa
-
-    //Columna para el nombre del area
-    @Column({ length: 100 })
-    area: string; //Nombre del area
-
-    //Columna para para el nombre del sucursal
-    @Column({ length: 100 })
-    sucursal: string; //Nombre de la sucursal
+    //Columna para el detalle del ticket
+    @Column({ type: 'text' })
+    detalle: string;
 
     //Columna para el estado del ticket
     @Column({
@@ -49,14 +50,48 @@ export class Ticket {
         enum: TicketStatus,
         default: TicketStatus.PENDIENTE,
     })
-    estado: TicketStatus; //Estado del ticket
+    estado: TicketStatus;
 
-    //Columnna para la fecha de registro 
-    @CreateDateColumn({name: 'fecha_registro'})
-    fecha_registro: Date; //Fecha de registro del ticket
+    // Relación con Equipos
+    @Column()
+    id_equipo: number;
 
-    //Relacion con la tabla Equipos (Muchos tickets pueden pertenecer a un equipo)
-    @ManyToOne(() => Equipos, equipo => equipo.id_equipo)
-    @JoinColumn({ name: 'id_equipos' })
-    equipo: Equipos; 
+    @ManyToOne(() => Equipos, { eager: false })
+    @JoinColumn({ name: 'id_equipo' })
+    equipo: Equipos;
+
+    // Usuario que crea el ticket
+    @Column()
+    id_cliente: number;
+
+    @ManyToOne(() => Usuario, { eager: false })
+    @JoinColumn({ name: 'id_cliente' })
+    cliente: Usuario;
+
+    // Soporte asignado
+    @Column({ nullable: true })
+    id_soporte?: number;
+
+    @ManyToOne(() => Usuario, { nullable: true })
+    @JoinColumn({ name: 'id_soporte' })
+    soporte?: Usuario;
+
+    // Incidencia software
+    @Column({ nullable: true })
+    id_software?: number;
+
+    @Column({ default: false })
+    es_software: boolean;
+
+    // Evidencia
+    @Column({ nullable: true })
+    imagen_url?: string;
+    
+    // Fecha de creación
+    @CreateDateColumn({ name: 'fecha_creacion' })
+    fecha_creacion: Date;
+
+    // Fecha de actualización
+    @UpdateDateColumn({ name: 'fecha_actualizacion' })
+    fecha_actualizacion: Date;
 }
