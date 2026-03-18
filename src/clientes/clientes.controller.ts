@@ -8,6 +8,7 @@ import { CreateEmpresaDto } from './dto/create-empresa.dto';
 //Definicion del controlador ClientesController
 @Controller('clientes')
 export class ClientesController {
+    /*
     constructor(private readonly clientesService: ClientesService) {}
 
     //API: Localhost:3000/clientes
@@ -20,5 +21,5 @@ export class ClientesController {
     @Get()
     findAll() {
         return this.clientesService.findAll();
-    }
+    }*/
 }

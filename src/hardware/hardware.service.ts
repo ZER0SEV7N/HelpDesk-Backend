@@ -3,7 +3,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Hardware } from '../entities/hardware.entity';
+import { Hardware } from '../entities/Hardware.entity';
 import { CreateHardwareDto } from './dto/create-hardware.dto';
 import { RegistroHardware } from '../entities/RegistroHardware.entity';
 import { UpdateHardwareDto } from './dto/update-hardware.dto';

@@ -1,6 +1,6 @@
 //Modulo de entidad para la tabla Hardware
 //importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { RegistroHardware } from './RegistroHardware.entity';
 //Definicion de la entidad Hardware
 @Entity('hardware')
@@ -19,11 +19,7 @@ export class Hardware {
 
     //Columna para la fecha de compra
     @Column({name: 'fecha_compra', type: 'date' })
-    fecha_compra: Date; //Fecha de compra del hardware
-
-    //Columna para el Plan de Mantenimiento
-    @Column()
-    plan: string; //Plan de mantenimiento del hardware
+    fecha_compra: Date; //Fecha de compra del hardware  
 
     //Columna para la marca del hardware
     @Column({ length: 50 })
@@ -38,15 +34,23 @@ export class Hardware {
     descripcion: string; //Descripcion del hardware
 
     //Columna de ultima revision
-    @Column()
+    @Column({ nullable: true })
     ult_revision: Date; //Fecha de la ultima revision del hardware
 
     //Columna de revision programada
-    @Column()
+    @Column( { nullable: true } )
     rev_programada: Date; //Fecha de la proxima revision programada
 
     //Relacion con la tabla RegistroHardware (Un hardware puede tener muchos registros de hardware)
-    @ManyToOne(() => RegistroHardware, (rh) => rh.hw)
+    @ManyToOne(() => RegistroHardware, (rh) => rh.hw, { nullable: true })
     @JoinColumn({ name: 'id_RH' })
     rh: RegistroHardware;
+
+    //Fecha de creacion
+    @CreateDateColumn({ name: 'created_at' })
+    created_at: Date;
+
+    //Fecha de actualizacion
+    @UpdateDateColumn({ name: 'updated_at' })
+    updated_at: Date;
 }

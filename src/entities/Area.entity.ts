@@ -2,8 +2,6 @@
 //Modulo de entidad para la tabla Area
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
-import { Empresa } from './Empresa.entity';
-import { MicroEmpresa } from './MicroEmpresa.entity';
 import { Sucursales } from './Sucursales.entity';
 
 //Definicion de la entidad Area
@@ -29,18 +27,12 @@ export class Area {
     @Column({ length: 100 })
     correo: string; //Correo del area
 
-    //Relacion Con la tabla Empresa (Un area puede pertenecer a muchas empresas)
-    @ManyToOne(() => Empresa, {nullable: true}) 
-    @JoinColumn({ name: 'id_empresa' })
-    empresa: Empresa;
-
-    //Relacion Con la tabla MicroEmpresa (Un area puede pertenecer a muchas microempresas)
-    @ManyToOne(() => MicroEmpresa, {nullable: true}) 
-    @JoinColumn({ name: 'id_microempresa' })
-    microEmpresa: MicroEmpresa;
+    //Columna de sucursal
+    @Column({ nullable: true })
+    id_sucursal?: number; //Llave foranea a la tabla Sucursales
 
     //Relacion con la tabla Sucursales (Un area puede pertenecer a muchas sucursales)
-    @ManyToOne(() => Sucursales, {nullable: true})
+    @ManyToOne(() => Sucursales, {nullable: true, onDelete: 'CASCADE'})
     @JoinColumn({ name: 'id_sucursal' })
-    sucursal: Sucursales;
+    sucursal?: Sucursales;
 }

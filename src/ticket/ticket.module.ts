@@ -1,0 +1,16 @@
+//helpDesk-Backend/src/ticket/ticket.module.ts
+//Modulo de tickets.
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TicketService } from './ticket.service';
+import { TicketController } from './ticket.controller';
+import { Tickets } from '../entities/Tickets.entity';
+import { AuthModule } from '../auth/auth.module';
+import { Rol } from 'src/entities/Rol.entity';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([Tickets, Rol]), AuthModule],
+  controllers: [TicketController],
+  providers: [TicketService],
+})
+export class TicketModule {}

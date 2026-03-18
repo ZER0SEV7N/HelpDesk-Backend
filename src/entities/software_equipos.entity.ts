@@ -1,6 +1,6 @@
 //Modulo de entidad para la tabla Software equipos
 //importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 //importar relacion con software
 import { Software } from './Software.entity';
 import { Equipos } from './Equipos.entity';
@@ -20,4 +20,12 @@ export class Software_equipos {
     @ManyToOne(() => Equipos) // Asegúrate de agregar @OneToMany en Equipo si lo necesitas
     @JoinColumn({ name: 'id_equipos' })
     equipo: Equipos;
+
+    //Fecha de creacion
+    @CreateDateColumn({ name: 'created_at' })
+    created_at: Date;
+
+    //Fecha de actualizacion
+    @UpdateDateColumn({ name: 'updated_at' })
+    updated_at: Date;
 }

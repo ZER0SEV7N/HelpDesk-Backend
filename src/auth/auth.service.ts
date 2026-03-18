@@ -8,8 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Usuario } from '../entities/Usuario.entity'; // Ajusta la ruta según tu estructura
 import { Rol } from '../entities/Rol.entity';
-import { RegisterDTO } from './dto/register.auth.dto'; // Ajusta la ruta según tu estructura
-import { LoginDTO } from './dto/login.auth.dto';
+import { RegisterDTO } from './dto/register-auth.dto'; // Ajusta la ruta según tu estructura
+import { LoginDTO } from './dto/login-auth.dto';
 
 //Servicio de autenticacion
 @Injectable()
@@ -37,16 +37,17 @@ export class AuthService {
         }
 
         //1. Buscar si el rol existe (Por defecto asignamos rol ID 1 o buscamos por nombre 'Usuario')
-        const defaultRole = await this.rolRepo.findOne({ where: { nombre: 'TRABAJADOR' } }); 
+        const defaultRole = await this.rolRepo.findOne({ where: { nombre: 'CLIENTE_TRABAJADOR' } }); 
         
         if (!defaultRole) throw new HttpException('Rol por defecto no encontrado', HttpStatus.CONFLICT);
 
         // 2. Encriptar contraseña
-        const hashedPassword = await bcrypt.hash(dto.contraseña, 10);
+        const hashedPassword = await bcrypt.hash(dto.contrasena, 10);
 
         // 3. Crear usuario
         const newUser = this.usuariosRepo.create({
             nombre: dto.nombre,
+            apellido: dto.apellido,
             correo: dto.correo,
             contrasena: hashedPassword,
             telefono: dto.telefono,
@@ -65,20 +66,39 @@ export class AuthService {
         });
 
         //En caso de que no exista el usuario
-        if (!user || !user.is_active) throw new UnauthorizedException('Credenciales incorrectas');
+        if (!user || !user.is_active) throw new UnauthorizedException('Correo incorrecto');
 
         //Verificar contraseña
-        const checkPassword = await bcrypt.compare(dto.contrasena, user.contrasena);
-        if (!checkPassword) throw new UnauthorizedException('Credenciales incorrectas');
+        const isPasswordValid = await bcrypt.compare(
+            dto.contrasena,      
+            user.contrasena, 
+        );
 
-        //Generar Token (Payload)
-        const payload = { sub: user.id_usuario, correo: user.correo, rol: user.rol.nombre };
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Contraseña incorrecta');
+        }
 
-        //Retornar datos del usuario junto con el token
-        return {
-            user: user,
+        const payload = {
+            sub: user.id_usuario,
             role: user.rol.nombre,
-            token: this.jwtService.sign(payload),
+        };
+
+        const token = this.jwtService.sign(payload);
+
+        return {
+            user,
+            role: user.rol.nombre,
+            token,
         };
     }
+    // Añade esto al final de tu AuthService
+async verifyToken(token: string) {
+    try {
+        // Esto verifica que el token sea válido y no haya expirado
+        const payload = await this.jwtService.verifyAsync(token);
+        return payload;
+    } catch (error) {
+        throw new UnauthorizedException('Token inválido o expirado');
+    }
+}
 }
