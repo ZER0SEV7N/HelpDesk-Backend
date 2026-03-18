@@ -5,12 +5,11 @@ import { DatabaseModule } from './database/database.module';
 import { ClientesModule } from './clientes/clientes.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { 1Module } from './1/1.module';
 import { SoftwareModule } from './software/software.module';
 import { HardwareModule } from './hardware/hardware.module';
 
 @Module({
-  imports: [DatabaseModule, ClientesModule, AuthModule, UserModule, 1Module, SoftwareModule, HardwareModule, ],
+  imports: [DatabaseModule, ClientesModule, AuthModule, UserModule, SoftwareModule, HardwareModule],
   controllers: [AppController],
   providers: [AppService],
 })

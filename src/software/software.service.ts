@@ -1,26 +1,55 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateSoftwareDto } from './dto/create-software.dto';
 import { UpdateSoftwareDto } from './dto/update-software.dto';
+import { Software } from './entities/software.entity';
 
 @Injectable()
 export class SoftwareService {
-  create(createSoftwareDto: CreateSoftwareDto) {
-    return 'This action adds a new software';
+  constructor(
+    @InjectRepository(Software)
+    private readonly softwareRepository: Repository<Software>,
+  ) {}
+
+  async create(createSoftwareDto: CreateSoftwareDto) {
+    const software = this.softwareRepository.create(createSoftwareDto as Partial<Software>);
+    return this.softwareRepository.save(software);
   }
 
-  findAll() {
-    return `This action returns all software`;
+  async findAll() {
+    return this.softwareRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} software`;
+  async findOne(id: number) {
+    const software = await this.softwareRepository.findOneBy({ id_software: id });
+
+    if (!software) {
+      throw new NotFoundException(`Software con id ${id} no encontrado`);
+    }
+
+    return software;
   }
 
-  update(id: number, updateSoftwareDto: UpdateSoftwareDto) {
-    return `This action updates a #${id} software`;
+  async update(id: number, updateSoftwareDto: UpdateSoftwareDto) {
+    const software = await this.softwareRepository.preload({
+      id_software: id,
+      ...(updateSoftwareDto as Partial<Software>),
+    });
+
+    if (!software) {
+      throw new NotFoundException(`Software con id ${id} no encontrado`);
+    }
+
+    return this.softwareRepository.save(software);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} software`;
+  async remove(id: number) {
+    const software = await this.findOne(id);
+    await this.softwareRepository.remove(software);
+
+    return {
+      message: `Software con id ${id} eliminado correctamente`,
+    };
   }
 }

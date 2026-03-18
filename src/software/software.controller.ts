@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+// src/software/software.controller.ts
+// Controlador para la gestión de Software
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { SoftwareService } from './software.service';
 import { CreateSoftwareDto } from './dto/create-software.dto';
 import { UpdateSoftwareDto } from './dto/update-software.dto';
@@ -18,17 +29,17 @@ export class SoftwareController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.softwareService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.softwareService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSoftwareDto: UpdateSoftwareDto) {
-    return this.softwareService.update(+id, updateSoftwareDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateSoftwareDto: UpdateSoftwareDto) {
+    return this.softwareService.update(id, updateSoftwareDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.softwareService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.softwareService.remove(id);
   }
 }
