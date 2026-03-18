@@ -1,59 +1,54 @@
-//DTO para crear hardware
-//Importaciones necesarias:
 import {
-  IsString,
-  IsNotEmpty,
-  IsDateString,
-  IsOptional,
+  IsString, // string
+  IsNotEmpty, // no vacío
+  IsDateString, // fecha ISO
+  IsOptional, // opcional
+  IsInt, // entero
+  Min, // mínimo
 } from 'class-validator';
-import {
-  IsString,
-  IsNotEmpty,
-  IsDateString,
-  IsOptional,
-  IsInt,
-  Min,
-} from 'class-validator';
-//Definicion del DTO CreateHardwareDto
+
+import { Type } from 'class-transformer'; // transforma tipos
+
+// DTO para crear hardware
 export class CreateHardwareDto {
   @IsString()
   @IsNotEmpty()
-  tipo_equipo: string; //Tipo de hardware (Ejemplo: Laptop, Desktop, Monitor, etc.)
+  tipoEquipo: string; // tipo de equipo
 
   @IsString()
   @IsNotEmpty()
-  numero_serie: string; //Numero de serie del hardware
+  numeroSerie: string; // serie
 
   @IsDateString()
-  @IsNotEmpty()
-  fecha_compra: Date; //Fecha de compra del hardware
+  fechaCompra: string; // fecha compra
 
   @IsString()
   @IsNotEmpty()
-  plan: string; //Plan de mantenimiento del hardware
+  plan: string; // plan
 
   @IsString()
   @IsNotEmpty()
-  marca: string; //Marca del hardware
+  marca: string; // marca
 
   @IsString()
   @IsNotEmpty()
-  proveedor: string; //Proveedor del hardware
+  proveedor: string; // proveedor
 
   @IsString()
   @IsNotEmpty()
-  descripcion: string; //Descripcion del hardware
-
-  @IsDateString()
-  @IsOptional()
-  ult_revision?: Date; //Fecha de la ultima revision del hardware
+  descripcion: string; // descripcion
 
   @IsDateString()
   @IsOptional()
-  rev_programada?: Date; //Fecha de la proxima revision programada
+  ultRevision?: string; // ultima revisión
 
+  @IsDateString()
+  @IsOptional()
+  revProgramada?: string; // proxima revision
+
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   @IsOptional()
-  id_RH?: number; //Id del registro de hardware asociado
+  idRH?: number; // id relacionado
 }
