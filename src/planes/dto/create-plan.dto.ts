@@ -10,10 +10,10 @@ export class CreatePlanDto {
   @Min(0)
   numero_plan: number;
 
-  //Nombre del plan, debe ser una cadena de texto no vacia
+  //Tipo del plan, debe ser una cadena de texto no vacia
   @IsString()
   @IsNotEmpty()
-  nombre: string;
+  tipo: string;
 
   //Descripcion del plan, debe ser una cadena de texto no vacia
   @IsString()
@@ -24,4 +24,10 @@ export class CreatePlanDto {
   @IsNumber()
   @Min(0)
   precio: number;
+
+  //Limite de equipos, es opcional y debe ser un numero entero positivo si se proporciona
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  limite_equipos?: number;
 }

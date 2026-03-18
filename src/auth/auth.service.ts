@@ -8,8 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Usuario } from '../entities/Usuario.entity'; // Ajusta la ruta según tu estructura
 import { Rol } from '../entities/Rol.entity';
-import { RegisterDTO } from './dto/register.auth.dto'; // Ajusta la ruta según tu estructura
-import { LoginDTO } from './dto/login.auth.dto';
+import { RegisterDTO } from './dto/register-auth.dto'; // Ajusta la ruta según tu estructura
+import { LoginDTO } from './dto/login-auth.dto';
 
 //Servicio de autenticacion
 @Injectable()
@@ -37,7 +37,7 @@ export class AuthService {
         }
 
         //1. Buscar si el rol existe (Por defecto asignamos rol ID 1 o buscamos por nombre 'Usuario')
-        const defaultRole = await this.rolRepo.findOne({ where: { nombre: 'TRABAJADOR' } }); 
+        const defaultRole = await this.rolRepo.findOne({ where: { nombre: 'CLIENTE_TRABAJADOR' } }); 
         
         if (!defaultRole) throw new HttpException('Rol por defecto no encontrado', HttpStatus.CONFLICT);
 

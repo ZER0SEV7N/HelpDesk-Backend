@@ -7,45 +7,60 @@ import {
   Param,
   Delete,
   UseGuards,
-} from '@nestjs/common';
+} from '@nestjs/common';  
 import { PlanesService } from './planes.service';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RoleGuard } from '../auth/guards/role.guard'; //Guard para roles
+import { Roles } from '../auth/decorators/role.decorator'; //Decorador para roles
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'; //Guard para JWT
 
+//Controlador Planes
 @Controller('planes')
 export class PlanesController {
   constructor(private readonly planesService: PlanesService) {}
 
-  /** Listar todos los planes y precios (público, para mostrar en landing/pricing) */
+  /*GET /planes
+  Publico: Lista de todos los planes y precios para mostrar en landing/pricing */
   @Get()
   findAll() {
     return this.planesService.findAll();
   }
 
-  /** Ver un plan por ID (público) */
+  /** *GET /planes/:id
+   * PÚBLICO: Ver detalle de un plan específico
+   */
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.planesService.findOne(+id);
   }
 
-  /** Crear plan (protegido) */
+  /** *POST /planes
+   * PROTEGIDO: Solamente el administrador puede crear un nuevo plan
+   */
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('ADMIN')
   create(@Body() createPlanDto: CreatePlanDto) {
     return this.planesService.create(createPlanDto);
   }
 
-  /** Actualizar plan (protegido) */
+  /** * PATCH /planes/:id
+   * PROTEGIDO: Solo el Administrador puede cambiar precios o límites
+   */
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('ADMINISTRADOR')
   update(@Param('id') id: string, @Body() updatePlanDto: UpdatePlanDto) {
     return this.planesService.update(+id, updatePlanDto);
   }
 
-  /** Eliminar plan (protegido) */
+  /** * DELETE /planes/:id
+   * PROTEGIDO: Solo el Administrador puede eliminar planes obsoletos
+   */
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('ADMINISTRADOR')
   remove(@Param('id') id: string) {
     return this.planesService.remove(+id);
   }

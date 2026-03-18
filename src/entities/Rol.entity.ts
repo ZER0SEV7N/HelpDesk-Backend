@@ -4,6 +4,16 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, CreateDateColumn } from 'typeorm';
 import { Usuario } from './Usuario.entity';
 //Definicion de la entidad Rol
+
+//ROLES:
+//1 - ADMININISTRADOR
+//2 - SOPORTE_TECNICO
+//3 - SOPORTE_INSITU
+//4 - CLIENTE_EMPRESA
+//5 - CLIENTE_SUCURSAL
+//6 - CLIENTE_TRABAJADOR
+
+
 @Entity('rol')
 export class Rol {
     //Columna para el ID del rol

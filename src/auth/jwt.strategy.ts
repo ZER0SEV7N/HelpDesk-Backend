@@ -28,6 +28,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     async validate(payload: any) {
         //En tu AuthService.login el payload tiene { sub, role }
         return { userId: payload.sub, 
-            rol: payload.rol };
+            rol: payload.role };
     }
 }

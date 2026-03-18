@@ -25,6 +25,5 @@ export class RegisterDTO{
     @IsString()
     @IsNotEmpty()
     @MinLength(6,{message :'La contraseña debe tener al menos 6 caracteres' })
-    @MaxLength(40)
     contrasena: string; //Contraseña
 }

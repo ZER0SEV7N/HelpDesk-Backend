@@ -7,8 +7,8 @@ import {
     Post , Res} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Response } from 'express';
-import {LoginDTO } from './dto/login.auth.dto';
-import { RegisterDTO } from './dto/register.auth.dto';
+import {LoginDTO } from './dto/login-auth.dto';
+import { RegisterDTO } from './dto/register-auth.dto';
 
 //Controlador para manejar las rutas de autenticacion (registro y login)
 @Controller('auth')

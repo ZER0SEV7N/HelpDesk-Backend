@@ -3,6 +3,7 @@
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Rol } from './Rol.entity';
+import { Tickets } from './Tickets.entity';
 import { Clientes } from './Clientes.entity';
 import { Sucursales } from './Sucursales.entity';
 
@@ -57,4 +58,7 @@ export class Usuario {
     @ManyToOne(() => Sucursales, (sucursal) => sucursal.usuarios)
     @JoinColumn({ name: 'id_sucursal' })
     sucursal?: Sucursales;
+
+    @OneToMany(() => Tickets, ticket => ticket.soporte)
+    tickets_soporte: Tickets[];
 }

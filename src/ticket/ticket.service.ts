@@ -29,40 +29,31 @@ export class TicketService {
   //----------------------------------
   async createTicket(dto: CreateTicketDto, user: any) {
     //Verificar rol del usuario
-    if(user.role !== 'TRABAJADOR') {
-      throw new ForbiddenException('No tienes permisos para crear un ticket');
-    }
+    if(user.role !== 'TRABAJADOR' ) throw new ForbiddenException('Solo los trabajadores pueden crear tickets');
+    
+    //Validar que el ticket sea de software en el caso de que se haya marcado.
+    if (dto.es_software && !dto.id_software) throw new BadRequestException('Debe seleccionar un software si el incidente es de software');
+    
+    //Si el ticket no es de software, asegurarse de que no se haya enviado un id_software
+    if(!dto.es_software) dto.id_software = undefined;
 
-    //Validar coherencia software
-    if (dto.es_software && !dto.id_software) {
-      throw new BadRequestException(
-        'Debe seleccionar un software si el incidente es de software',
-      );
-    }
-
-    if(!dto.es_software) {
-      dto.id_software = undefined; // Aseguramos que no se guarde un software si no es de software
-    }
-
-    //Generar PIN unico para el ticket
+    //Generar un PIN unico para el ticket
     const pin = await this.GenerateUniquePin();
-
-    //Crear el nuevo ticket
-    const test: Tickets = new Tickets();
-
-    const newTicket: Tickets = this.ticketRepo.create({
+    
+    //Crear el nuevo ticket.
+    const newTicket = this.ticketRepo.create({
       pin,
       asunto: dto.asunto,
       detalle: dto.detalle,
-      estado: TicketStatus.PENDIENTE, //Estado inicial del ticket
+      estado: TicketStatus.PENDIENTE,
       id_equipo: dto.id_equipo,
-      id_cliente: user.userId, //El cliente es el usuario que crea el ticket
+      id_cliente: user.userId, 
       id_software: dto.id_software,
       es_software: dto.es_software,
       imagen_url: dto.imagen_url,
     });
 
-    //Guardar el ticket en la base de datos
+    //
     return await this.ticketRepo.save(newTicket);
   }
 
@@ -92,23 +83,15 @@ export class TicketService {
       .createQueryBuilder('ticket')
       .leftJoinAndSelect('ticket.soporte', 'soporte')
       .leftJoinAndSelect('ticket.equipo', 'equipo')
-      .leftJoinAndSelect('equipo.empresa', 'empresa')
+      .leftJoinAndSelect('equipo.cliente', 'cliente_dueno')
       .leftJoinAndSelect('equipo.sucursal', 'sucursal');
 
     //Aplicar los filtros segun el estado del ticket
-    if(filters.estado) {
-      query.andWhere('ticket.estado = :estado', { estado: filters.estado });
-    }
-
+    if(filters.estado) query.andWhere('ticket.estado = :estado', { estado: filters.estado });
     //Aplicar el filtro por PIN si se proporciona
-    if(filters.pin) {
-      query.andWhere('ticket.pin = :pin', { pin: filters.pin });
-    }
-
+    if(filters.pin) query.andWhere('ticket.pin = :pin', { pin: filters.pin });
     //Aplicar el filtro por el nombre del trabajador asignado si se proporciona
-    if(filters.soporte) {
-      query.andWhere('soporte.nombre LIKE :soporte', { soporte: `%${filters.soporte}%` });
-    }
+    if(filters.soporte) query.andWhere('soporte.nombre LIKE :soporte', { soporte: `%${filters.soporte}%` });
 
     //Aplicar el filtro por la fecha de creacion si se proporciona
     if(filters.fecha_creacion) {
@@ -121,38 +104,31 @@ export class TicketService {
     //Retricciones por rol
     switch (user.role) {
       case 'TRABAJADOR':
-        query.andWhere('ticket.id_cliente = :id', {
-          id: user.userId,
-        });
+        //Solo ve los tickets que él mismo creó
+        query.andWhere('ticket.id_cliente = :id', { id: user.userId });
         break;
-
-      case 'SOPORTE_IN_SITU':
-        query.andWhere('ticket.id_soporte = :id', {
-          id: user.userId,
-        });
+      case 'SOPORTE_TECNICO':
+      case 'SOPORTE_SITU':
+        //Solo ve los tickets que tiene asignados
+        query.andWhere('ticket.id_soporte = :id', { id: user.userId });
         break;
-
       case 'CLIENTE_EMPRESA':
-        query.andWhere('empresa.id_empresa = :empresaId', {
-          empresaId: user.empresaId,
-        });
+        //El dueño de la empresa puede ver TODOS los tickets de su empresa, sin importar quién los creó
+        query.andWhere('cliente_dueno.id_cliente = :clienteId', { clienteId: user.clienteId });
         break;
-      }
+      //El ADMINISTRADOR no tiene restricciones en el switch, ve todo.
+    }
     const tickets = await query.getMany();
 
-    // -------------------------
-    // Formatear respuesta para el frontend
-    // -------------------------
     return tickets.map(t => ({
-      //pin: t.pin,
+      id_ticket: t.id_ticket,
+      pin: t.pin,
       asunto: t.asunto,
       estado: t.estado,
-      trabajador: t.soporte
-        ? `${t.soporte.nombre} ${t.soporte.apellido}`
-        : '------',
+      trabajador: t.soporte ? `${t.soporte.nombre} ${t.soporte.apellido}` : 'Sin asignar',
       equipo: t.equipo.tipo,
-      //empresa: t.equipo.empresa.nombre_cliente,
-      ///sucursal: t.equipo.sucursal.nombre,
+      cliente: t.equipo.cliente.nombre_principal, // El nombre de la empresa o persona natural
+      sucursal: t.equipo.sucursal ? t.equipo.sucursal.nombre_sucursal : 'Principal',
       fecha_creacion: t.fecha_creacion,
     }));
   }
@@ -164,12 +140,10 @@ export class TicketService {
   //--------------------------------------
   async getTicketById(id: number, user: any){
     const ticket = await this.ticketRepo.findOne({
-      where: {id_ticket: id},
-      relations: ['equipo', 'cliente', 'soporte'],
+      where: { id_ticket: id },
+      relations: ['equipo', 'cliente', 'soporte'], 
     });
-    if (!ticket) {
-      throw new NotFoundException(`Ticket con ID ${id} no encontrado`);
-    }
+    if (!ticket) throw new NotFoundException(`Ticket con ID ${id} no encontrado`);
     return ticket; 
   }
 
@@ -218,9 +192,7 @@ export class TicketService {
     if(ticket.id_soporte !== user.userId) {
       throw new ForbiddenException('No tienes permisos para iniciar este ticket');
     }
-
     ticket.estado = TicketStatus.EN_PROGRESO;
-
     return await this.ticketRepo.save(ticket);
   }
 
@@ -242,7 +214,7 @@ export class TicketService {
     if(ticket.id_soporte !== user.userId) {
       throw new ForbiddenException('No tienes permisos para iniciar este ticket');
     }
-
+    //Al resolver el ticket, se cambia su estado a CERRADO
     ticket.estado = TicketStatus.CERRADO;
 
     return await this.ticketRepo.save(ticket);
@@ -274,7 +246,7 @@ export class TicketService {
     if (ticket.estado !== TicketStatus.CERRADO) {
       throw new BadRequestException('Solo tickets cerrados pueden reabrirse');
     }
-
+    //Al reabrir el ticket, se cambia su estado a REABIERTO
     ticket.estado = TicketStatus.REABIERTO;
 
     return this.ticketRepo.save(ticket);
@@ -289,36 +261,23 @@ export class TicketService {
     if (user.role === 'TRABAJADOR') {
       query.where('ticket.id_cliente = :id', { id: user.userId });
     }
-    const total = await query.getCount();
     
-    const cerrados = await query.clone()
-        .andWhere('ticket.estado = :estado', { estado: TicketStatus.CERRADO })
-        .getCount();
+    const total = await query.getCount();
+    const cerrados = await query.clone().andWhere('ticket.estado = :estado', { estado: TicketStatus.CERRADO }).getCount();
+    const pendientes = await query.clone().andWhere('ticket.estado = :estado', { estado: TicketStatus.PENDIENTE }).getCount();
+    const enProgreso = await query.clone().andWhere('ticket.estado = :estado', { estado: TicketStatus.EN_PROGRESO }).getCount();
 
-    const pendientes = await query.clone()
-        .andWhere('ticket.estado = :estado', { estado: TicketStatus.PENDIENTE })
-        .getCount();
-
-    const enProgreso = await query.clone()
-        .andWhere('ticket.estado = :estado', { estado: TicketStatus.EN_PROGRESO })
-        .getCount();
-
-    return {
-      total,
-      cerrados,
-      pendientes,
-      enProgreso,
-    };
+    return { total, cerrados, pendientes, enProgreso };
   }
 
   async update(id: number, updateTicketDto: UpdateTicketDto) {
-    const ticket = await this.getTicketById(id, null); // Usamos getTicketById
+    const ticket = await this.getTicketById(id, null); 
     Object.assign(ticket, updateTicketDto);
     return this.ticketRepo.save(ticket);
   }
 
   async remove(id: number) {
-    const ticket = await this.getTicketById(id, null); // Usamos getTicketById
+    const ticket = await this.getTicketById(id, null); 
     return this.ticketRepo.remove(ticket);
   }
 }
