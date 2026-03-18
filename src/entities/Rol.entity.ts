@@ -13,7 +13,6 @@ import { Usuario } from './Usuario.entity';
 //5 - CLIENTE_SUCURSAL
 //6 - CLIENTE_TRABAJADOR
 
-
 @Entity('rol')
 export class Rol {
     //Columna para el ID del rol
