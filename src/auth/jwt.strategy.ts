@@ -1,33 +1,38 @@
-//src/auth/jwt.strategy.ts
-//Modulo Encargado de la estrategia JWT para autenticacion
-//----------------------------------------------------------
-//Importaciones necesarias:
-import { Injectable } from '@nestjs/common'; //Decorador Injectable de NestJS
-import { PassportStrategy } from '@nestjs/passport'; //Para crear estrategias de autenticacion
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport'; 
 import { Request } from 'express';
-import { Strategy, ExtractJwt } from 'passport-jwt'; //Estrategia JWT de Passport
+// Asegúrate de importar ExtractJwt
+import { Strategy, ExtractJwt } from 'passport-jwt'; 
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor() {
+    constructor(private configService: ConfigService) {
         super({
-            //Funcion para extraer el token JWT del header Authorization
-            jwtFromRequest: (req: Request) =>{
-                let token = null;
-                if(req && req.cookies) {
-                    token = req.cookies['jwt']; //Extrae el token de las cookies
-                }
-                return token;
-            }, 
-            ignoreExpiration: false, //No ignora la expiracion del token
-            secretOrKey: 'Token_Secreto' //Clave secreta para firmar el token. (Mas adelante se cambia por el .env)
+            // Le damos una lista de lugares donde buscar el token
+            jwtFromRequest: ExtractJwt.fromExtractors([
+                // Opción 1: Buscar en las Cookies (Para tu frontend web)
+                (req: Request) => {
+                    let token = null;
+                    if (req && req.cookies) {
+                        token = req.cookies['jwt']; 
+                    }
+                    console.log('🔴 Token de Cookie:', token);
+                    return token;
+                },
+                // Opción 2: Buscar en la cabecera Authorization (Para Thunder Client/Móviles)
+                ExtractJwt.fromAuthHeaderAsBearerToken(),
+            ]), 
+            ignoreExpiration: false, 
+            secretOrKey: configService.get<string>('JWT_SECRET')! 
         });
     }
 
-    //Funcion para validar el token JWT y extraer la carga util (payload)
     async validate(payload: any) {
-        //En tu AuthService.login el payload tiene { sub, role }
-        return { userId: payload.sub, 
-            rol: payload.role };
+        console.log('🔵 Payload descifrado:', payload); 
+        return { 
+            userId: payload.sub, 
+            role: payload.role  
+        };
     }
 }

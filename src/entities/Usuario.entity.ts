@@ -8,7 +8,7 @@ import { Clientes } from './Clientes.entity';
 import { Sucursales } from './Sucursales.entity';
 
 //Definicion de la entidad Usuario
-@Entity('usuario')
+@Entity('usuarios')
 export class Usuario {
     //Columna para el ID del usuario
     @PrimaryGeneratedColumn({ name: 'id_usuario' })

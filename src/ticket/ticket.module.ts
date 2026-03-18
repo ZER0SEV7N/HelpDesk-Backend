@@ -12,5 +12,6 @@ import { Rol } from 'src/entities/Rol.entity';
   imports: [TypeOrmModule.forFeature([Tickets, Rol]), AuthModule],
   controllers: [TicketController],
   providers: [TicketService],
+  exports: [TicketService],
 })
 export class TicketModule {}
