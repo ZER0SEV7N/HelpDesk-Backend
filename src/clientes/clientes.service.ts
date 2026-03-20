@@ -1,33 +1,48 @@
 //src/clientes/clientes.service.ts
 //Servicio para la gestion de clientes
 //Importaciones necesarias:
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateEmpresaDto } from './dto/create-empresa.dto';
+import { Clientes } from 'src/entities/Clientes.entity';
+import { CreateClienteDto } from './dto/create-cliente.dto';
 
 //Definicion del servicio ClientesService
 @Injectable()
 export class ClientesService {
-    /*
     constructor(
-        @InjectRepository(Empresa)
-        private empresaRepo: Repository<Empresa>,
+        @InjectRepository(Clientes)
+        private clientesRepo: Repository<Clientes>,
     ) {}
 
     //Crear una nueva empresa
-    async create(CreateEmpresaDto: CreateEmpresaDto) {
-        const nuevaEmpresa = this.empresaRepo.create(CreateEmpresaDto);
-        return this.empresaRepo.save(nuevaEmpresa);
+    async create(dto: CreateClienteDto) {
+        const exists = await this.clientesRepo.findOne({
+            where: {numero_documento: dto.numero_documento}
+        });
+
+        if(exists) throw new ConflictException(`Ya existe un cliente con ese documento ${dto.numero_documento}`);
+
+        const nuevoCliente = this.clientesRepo.create(dto)
+        return this.clientesRepo.save(nuevoCliente);
     }
 
     //Listar todas las empresas
     async findAll() {
-        return this.empresaRepo.find();
+        return await this.clientesRepo.find({
+        relations: ['sucursales', 'plan'],
+        });
     }
 
-    //Eliminar una Empresa
-    async Delete() {
+    //Encontrar un cliente
+    async findOne(id: number) {
+        const cliente = await this.clientesRepo.findOne({
+            where: {id_cliente: id},
+            relations: ['sucursales', 'equipos', 'plan'],
+        });
+    
+        if(!cliente) throw new NotFoundException(`Cliente con ID ${id} no encontrado`);
+        return cliente;
+    }
 
-    }*/
 }
