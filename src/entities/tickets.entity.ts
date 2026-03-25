@@ -1,7 +1,7 @@
 //src/entities/Tickets.entity.ts
 //Modulo de entidad para la tabla ticket
 //importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn, OneToMany, UpdateDateColumn } from 'typeorm';
 import { Equipos } from './Equipos.entity';
 import { Usuario } from './Usuario.entity';
 
@@ -43,62 +43,57 @@ export class Tickets {
     estado: TicketStatus; //Estado del ticket
 
    // ---------------------------------------------------------
-  // Relación con Equipos
-  // ---------------------------------------------------------
-  @Column()
-  id_equipo: number;
+    // Relación con Equipos
+    // ---------------------------------------------------------
+    @Column()
+    id_equipo: number;
 
-  @ManyToOne(() => Equipos, { eager: false })
-  @JoinColumn({ name: 'id_equipo' })
-  equipo: Equipos;
-
-  // ---------------------------------------------------------
-  // Usuario que crea el ticket (cliente / trabajador)
-  // ---------------------------------------------------------
-  @Column()
-  id_cliente: number;
-
-  @ManyToOne(() => Usuario, { eager: false })
-  @JoinColumn({ name: 'id_cliente' })
-  cliente: Usuario;
-
-  // ---------------------------------------------------------
-  // Soporte asignado (nullable)
-  // ---------------------------------------------------------
-  @Column({ nullable: true })
-  id_soporte?: number;
-
-  @ManyToOne(() => Usuario, { nullable: true })
-  @JoinColumn({ name: 'id_soporte' })
-  soporte?: Usuario;
-
-  // ---------------------------------------------------------
-  // Incidencia relacionada a software (opcional)
-  // ---------------------------------------------------------
-  @Column({ nullable: true })
-  id_software?: number;
-
-  // Flag para identificar incidencia de software
-  @Column({ default: false })
-  es_software?: boolean;
-
-  // ---------------------------------------------------------
-  // Evidencia (imagen opcional)
-  // ---------------------------------------------------------
-  @Column({ nullable: true })
-  imagen_url?: string;
-
-  // ---------------------------------------------------------
-  // Fecha de creación
-  // ---------------------------------------------------------
-  @CreateDateColumn({ name: 'fecha_creacion' })
-  fecha_creacion: Date;
+    @ManyToOne(() => Equipos, { eager: false })
+    @JoinColumn({ name: 'id_equipo' })
+    equipo: Equipos;
 
     // ---------------------------------------------------------
-    // Fecha de Actualización
+    // Usuario que crea el ticket (cliente / trabajador)
     // ---------------------------------------------------------
-    @CreateDateColumn({ name: 'fecha_actualizacion' })
-    fecha_actualizacion: Date;
+    @Column()
+    id_cliente: number;
 
+    @ManyToOne(() => Usuario, { eager: false })
+    @JoinColumn({ name: 'id_cliente' })
+    cliente: Usuario;
+
+    // ---------------------------------------------------------
+    // Soporte asignado (nullable)
+    // ---------------------------------------------------------
+    @Column({ nullable: true })
+    id_soporte?: number;
+
+    @ManyToOne(() => Usuario, { nullable: true })
+    @JoinColumn({ name: 'id_soporte' })
+    soporte?: Usuario;
+
+    // ---------------------------------------------------------
+    // Incidencia relacionada a software (opcional)
+    // ---------------------------------------------------------
+    @Column({ nullable: true })
+    id_software?: number;
+
+    // Flag para identificar incidencia de software
+    @Column({ default: false })
+    es_software?: boolean;
+
+    // ---------------------------------------------------------
+    // Evidencia (imagen opcional)
+    // ---------------------------------------------------------
+    @Column({ nullable: true })
+    imagen_url?: string;
+
+      //Fecha de creacion
+      @CreateDateColumn({ name: 'created_at' })
+      created_at: Date;
+  
+      //Fecha de actualizacion
+      @UpdateDateColumn({ name: 'updated_at' })
+      updated_at: Date;
 
 }

@@ -82,6 +82,7 @@ CREATE TABLE sucursales (
     telefono VARCHAR(20) NOT NULL,
     direccion VARCHAR(255) NOT NULL,
     id_cliente INT NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_sucursal_cliente FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE CASCADE
@@ -95,6 +96,7 @@ CREATE TABLE area (
     telefono VARCHAR(20) NOT NULL,
     correo VARCHAR(100) NOT NULL,
     id_sucursal INT,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_area_sucursal FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal) ON DELETE CASCADE

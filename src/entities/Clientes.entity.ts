@@ -65,10 +65,12 @@ export class Clientes {
     @Column({ default: true })
     is_active: boolean; //Indica si el cliente está activo o no
 
-    @CreateDateColumn()
+    //Fecha de creacion
+    @CreateDateColumn({ name: 'created_at' })
     created_at: Date;
 
-    @UpdateDateColumn()
+    //Fecha de actualizacion
+    @UpdateDateColumn({ name: 'updated_at' })
     updated_at: Date;
 
     //Relacion con la tabla sucursal (Un cliente puede estar asociado a una sucursal)

@@ -1,7 +1,7 @@
 //src/entities/Usuario.entity.ts
 //Modulo de entidad para la tabla Usuario
 //importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Rol } from './Rol.entity';
 import { Tickets } from './Tickets.entity';
 import { Clientes } from './Clientes.entity';
@@ -42,6 +42,14 @@ export class Usuario {
     @ManyToOne(() => Rol, (rol) => rol.usuarios)
     @JoinColumn({ name: 'id_rol' })
     rol: Rol;
+
+    //Fecha de creacion
+    @CreateDateColumn({ name: 'created_at' })
+    created_at: Date;
+
+    //Fecha de actualizacion
+    @UpdateDateColumn({ name: 'updated_at' })
+    updated_at: Date;
 
     @Column({ nullable: true })
     id_cliente?: number; //Llave foranea a la tabla Cliente
