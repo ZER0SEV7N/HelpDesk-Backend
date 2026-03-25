@@ -41,6 +41,9 @@ export class Hardware {
     @Column( { nullable: true } )
     rev_programada: Date; //Fecha de la proxima revision programada
 
+    @Column({ default: true })
+    is_active: boolean; //Indica si el cliente está activo o no
+
     //Relacion con la tabla RegistroHardware (Un hardware puede tener muchos registros de hardware)
     @ManyToOne(() => RegistroHardware, (rh) => rh.hw, { nullable: true })
     @JoinColumn({ name: 'id_RH' })

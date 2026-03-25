@@ -62,6 +62,9 @@ export class Clientes {
     @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
     fecha_registro: Date; //Fecha de registro del cliente
 
+    @Column({ default: true })
+    is_active: boolean; //Indica si el cliente está activo o no
+
     @CreateDateColumn()
     created_at: Date;
 

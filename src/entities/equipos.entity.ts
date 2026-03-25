@@ -42,6 +42,9 @@ export class Equipos {
     @Column({ name: 'rev_programada', type: 'date', nullable: true })
     revProgramada: Date;
 
+    @Column({ default: true })
+    is_active: boolean; //Indica si el cliente está activo o no
+
     //Relaciones Polimorficas
     @Column()
     id_cliente: number;

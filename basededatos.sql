@@ -34,6 +34,7 @@ CREATE TABLE software (
     fecha_instalancion DATE NOT NULL,
     fecha_caducidad DATE NOT NULL CHECK (fecha_caducidad >= fecha_instalancion + INTERVAL 1 YEAR),
     proveedor varchar(100) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -49,6 +50,7 @@ CREATE TABLE hardware (
     descripcion TEXT,
     ult_revision DATE,
     rev_programada DATE,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -66,6 +68,7 @@ CREATE TABLE clientes (
     id_plan INT,
     fecha_finalizacion_plan DATE,
     fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     constraint fk_clientes_plan foreign key (id_plan) references planes(id_plan) on delete set null 
@@ -127,6 +130,7 @@ CREATE TABLE equipos (
     rev_programada DATE,
     id_cliente INT NOT NULL,
     id_sucursal INT,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_equipos_cliente FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE CASCADE,
@@ -157,6 +161,7 @@ CREATE TABLE registro_hardware (
     CONSTRAINT fk_rh_hardware FOREIGN KEY (id_hardware) REFERENCES hardware(id_hardware) ON DELETE CASCADE
 );
 
+-- Crear la tabla de tickets
 CREATE TABLE tickets (
     id_tickets INT AUTO_INCREMENT PRIMARY KEY,
     pin VARCHAR(6) NOT NULL UNIQUE,
