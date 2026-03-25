@@ -45,4 +45,26 @@ export class ClientesService {
         return cliente;
     }
 
+    //Actualizar los datos de un cliente
+    async update(id: number, dto: CreateClienteDto){
+        const cliente = await this.clientesRepo.findOne({ where: {id_cliente: id}});
+        if(!cliente) throw new NotFoundException(`Cliente con el ID ${id} no ha sido encontrado`);
+
+        //Verificar que el documento no esté duplicado
+        if(dto.numero_documento && dto.numero_documento !== cliente.numero_documento){
+            const exists = await this.clientesRepo.findOne({
+                where: {numero_documento: dto.numero_documento}
+            });
+            if(exists) throw new ConflictException(`Ya existe un cliente con ese documento ${dto.numero_documento}`);
+        }
+        Object.assign(cliente, dto);
+        return this.clientesRepo.save(cliente);
+    }
+
+    //
+
+    //Actualizar el contrato de un cliente
+    async updatePlan(id: number, id_plan: number ){
+        //Verificar que el plan actual
+    }
 }

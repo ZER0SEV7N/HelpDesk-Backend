@@ -38,6 +38,9 @@ export class Software {
     @Column({ length: 100 })
     proveedor: string; //Proveedor del Software
 
+    @Column({ default: true })
+    is_active: boolean; //Indica si el cliente está activo o no
+
     //Relacion con la tabla Software_equipos (Un software puede estar en muchos equipos)
     @OneToMany(() => Software_equipos, (se) => se.soft)
     se: Software_equipos[];
