@@ -49,20 +49,20 @@ export class ClientesService {
         }
     }
 
-    //Notificar a los clientes cuyo plan se vencera en 5 dias
+    //Notificar a los clientes cuyo plan se vencera en 7 dias
     @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
     async notifyExpiringPlans() {
-        console.log('Consultando planes que vencen en 5 dias');
+        console.log('Consultando planes que vencen en 7 dias');
         const today = new Date();
-        const fiveDaysFromNow = new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000);
-        //Buscar clientes activo cuya fecha de finalizacion es dentro de 5 dias
+        const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+        //Buscar clientes activo cuya fecha de finalizacion es dentro de 7 dias
         const clientesExpirando = await this.clientesRepo.find({
             where: {
                 is_active: true,
-                fecha_finalizacion_plan: LessThan(fiveDaysFromNow),
+                fecha_finalizacion_plan: LessThan(sevenDaysFromNow),
             }
         });
-        console.log(`Se encontraron ${clientesExpirando.length} clientes con planes que expiran en 5 dias`);
+        console.log(`Se encontraron ${clientesExpirando.length} clientes con planes que expiran en 7 dias`);
         //Aqui se podria implementar la logica para enviar notificaciones a los clientes (ej: correo electronico)
     }
 
@@ -92,9 +92,9 @@ export class ClientesService {
         const sucursalPrincipal = this.sucursalesRepo.create({
             nombre_sucursal: suc.nombre_sucursal || 'Sucursal Principal',
             encargado: suc.encargado || 'Por Asignar',
-            telefono: suc.telefono || dto.telefono || 'sin especificar',
-            correo: suc.correo || dto.correo ||'sin especificar@example.com',
-            direccion: suc.direccion || dto.direccion || 'sin especificar',
+            telefono: suc.telefono || 'sin especificar',
+            correo: suc.correo  ||'sin especificar@example.com',
+            direccion: suc.direccion || 'sin especificar',
             cliente: clienteGuardado
         });
         await this.sucursalesRepo.save(sucursalPrincipal);
@@ -193,7 +193,6 @@ export class ClientesService {
                 //await this.usuariosRepo.update({ id_sucursal: In(idsSucursales) }, { is_active: true });
             }
         }
-
         await this.clientesRepo.save(cliente);
         return { 
             message: `Plan del cliente ${cliente.nombre_principal} actualizado a ${plan.Tipo} con fecha de finalización ${nuevaFechaFin}. El cliente ha sido reactivado junto con sus sucursales y áreas asociadas.`,
