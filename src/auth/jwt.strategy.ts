@@ -9,18 +9,19 @@ import { ConfigService } from '@nestjs/config';
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(private configService: ConfigService) {
         super({
-            // Le damos una lista de lugares donde buscar el token
             jwtFromRequest: ExtractJwt.fromExtractors([
-                // Opción 1: Buscar en las Cookies (Para tu frontend web)
+                // 1er intento: Buscar en la Cookie
                 (req: Request) => {
-                    let token = null;
-                    if (req && req.cookies) {
-                        token = req.cookies['jwt']; 
-                    }
-                    console.log('🔴 Token de Cookie:', token);
-                    return token;
+                    let token = req?.cookies?.['jwt'];
+                    console.log('🔴 Token en Cookie:', token ? '¡Encontrado!' : 'Vacío');
+                    
+                    // Novedad: Espiamos las cabeceras para ver si Thunder Client hizo su trabajo
+                    console.log('🟡 Cabecera Authorization:', req?.headers?.authorization ? '¡Llegó un Bearer!' : 'Vacía');
+                    
+                    // ¡CLAVE! Si no hay token en la cookie, devolvemos null explícitamente para que pase al intento 2
+                    return token ? token : null; 
                 },
-                // Opción 2: Buscar en la cabecera Authorization (Para Thunder Client/Móviles)
+                // 2do intento: Buscar en el Bearer Token
                 ExtractJwt.fromAuthHeaderAsBearerToken(),
             ]), 
             ignoreExpiration: false, 

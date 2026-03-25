@@ -37,7 +37,7 @@ export class AuthService {
         }
 
         //1. Buscar si el rol existe (Por defecto asignamos rol ID 1 o buscamos por nombre 'Usuario')
-        const defaultRole = await this.rolRepo.findOne({ where: { nombre: 'CLIENTE_TRABAJADOR' } }); 
+        const defaultRole = await this.rolRepo.findOne({ where: { nombre: 'ADMINISTRADOR' } }); 
         
         if (!defaultRole) throw new HttpException('Rol por defecto no encontrado', HttpStatus.CONFLICT);
 

@@ -3,7 +3,7 @@
 //Importaciones necesarias:
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ClientesService } from './clientes.service';
-import { CreateEmpresaDto } from './dto/create-cliente.dto';
+import { CreateClienteDto } from './dto/create-cliente.dto';
 
 //Definicion del controlador ClientesController
 @Controller('clientes')

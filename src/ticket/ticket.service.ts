@@ -129,7 +129,6 @@ export class TicketService {
       equipo: t.equipo.tipo,
       cliente: t.equipo.cliente.nombre_principal, // El nombre de la empresa o persona natural
       sucursal: t.equipo.sucursal ? t.equipo.sucursal.nombre_sucursal : 'Principal',
-      fecha_creacion: t.fecha_creacion,
     }));
   }
 
