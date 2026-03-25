@@ -12,7 +12,7 @@ import { RegistroHardware } from './entities/RegistroHardware.entity';
 import { Software_equipos } from './entities/Software_equipos.entity';
 import { Area } from './entities/Area.entity';
 
-export const entities = [
+export const AllEntities = [
     Usuario,
     Rol,
     Equipos,

@@ -46,7 +46,6 @@ export class Equipos {
     @Column()
     id_cliente: number;
 
-
     @ManyToOne(() => Clientes, (cliente) => cliente.equipos, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'id_cliente' })
     cliente: Clientes;

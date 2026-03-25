@@ -3,7 +3,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Hardware } from './Hardware.entity';
 //Definicion de la entidad RegistroHardware
-@Entity('registroHardware')
+@Entity('registro_hardware')
 export class RegistroHardware {
   //Columna para el ID del registro de hardware
   @PrimaryGeneratedColumn()
