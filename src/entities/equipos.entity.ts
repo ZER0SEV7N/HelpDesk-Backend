@@ -1,80 +1,99 @@
-//src/entities/Equipos.entity.ts
-//Modulo de entidad para la tabla Equipos
-//importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-//importar relaciones foraneas
+// src/entities/Equipos.entity.ts
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
 import { Planes } from './Planes.entity';
 import { Tickets } from './Tickets.entity';
 import { Clientes } from './Clientes.entity';
 import { Sucursales } from './Sucursales.entity';
 
-//Definicion de la entidad Equipos
+// Importa las entidades Hardware y Software desde la misma carpeta entities
+import { Hardware } from './Hardware.entity';
+import { Software } from './Software.entity';
+
 @Entity('equipos')
 export class Equipos {
-    //Columna para el ID del equipo
-    @PrimaryGeneratedColumn({ name: 'id_equipo' })
-    id_equipo: number; //Llave primaria auto-generada
+  @PrimaryGeneratedColumn({ name: 'id_equipo' })
+  id_equipo: number;
 
-    //Columna para el tipo de equipo
-    @Column({ length: 50})
-    tipo: string; //Tipo de equipo
+  @Column({ length: 50 })
+  tipo: string;
 
-    //Columna para la marca del equipo
-    @Column({ length: 50})
-    marca: string; //Marca del equipo
+  @Column({ length: 50 })
+  marca: string;
 
-    //Columna para el numero de serie
-    @Column({ name: 'num_serie', length: 100})
-    numero_serie: string; //Numero de serie del equipo
+  @Column({ name: 'num_serie', length: 100 })
+  numero_serie: string;
 
-    //Columna para el nombre de usuario
-    @Column({ name: 'nombre_usuario', length: 100, nullable: true})
-    nombre_usuario: string; //Nombre de usuario del equipo
+  @Column({ name: 'nombre_usuario', length: 100, nullable: true })
+  nombre_usuario: string;
 
-    //Columna de Area de trabajo
-    @Column({ name: 'area', length: 100, nullable: true })
-    area: string; //Area de trabajo del equipo
+  @Column({ name: 'area', length: 100, nullable: true })
+  area: string;
 
-    // Fechas importantes para el módulo de "Cronograma de Citas"
-    @Column({ name: 'ult_revision', type: 'date', nullable: true })
-    ultRevision: Date;
+  @Column({ name: 'ult_revision', type: 'date', nullable: true })
+  ultRevision: Date;
 
-    @Column({ name: 'rev_programada', type: 'date', nullable: true })
-    revProgramada: Date;
+  @Column({ name: 'rev_programada', type: 'date', nullable: true })
+  revProgramada: Date;
 
-    @Column({ default: true })
-    is_active: boolean; //Indica si el cliente está activo o no
+  @Column({ default: true })
+  is_active: boolean;
 
-    //Relaciones Polimorficas
-    @Column()
-    id_cliente: number;
+  @Column()
+  id_cliente: number;
 
-    @ManyToOne(() => Clientes, (cliente) => cliente.equipos, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'id_cliente' })
-    cliente: Clientes;
+  @ManyToOne(() => Clientes, (cliente) => cliente.equipos, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'id_cliente' })
+  cliente: Clientes;
 
-    @Column({ nullable: true })
-    id_sucursal?: number;
+  @Column({ nullable: true })
+  id_sucursal?: number;
 
-    @ManyToOne(() => Sucursales, (sucursal) => sucursal.equipos, { nullable: true, onDelete: 'SET NULL' })
-    @JoinColumn({ name: 'id_sucursal' })
-    sucursal?: Sucursales;
+  @ManyToOne(() => Sucursales, (sucursal) => sucursal.equipos, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'id_sucursal' })
+  sucursal?: Sucursales;
 
-    @Column({ nullable: true })
-    id_plan?: number;
+  @Column({ nullable: true })
+  id_plan?: number;
 
-    @ManyToOne(() => Planes, { nullable: true })
-    @JoinColumn({ name: 'id_plan' })
-    plan?: Planes;
+  @ManyToOne(() => Planes, { nullable: true })
+  @JoinColumn({ name: 'id_plan' })
+  plan?: Planes;
 
-    //Fecha de creacion
-    @CreateDateColumn({ name: 'created_at' })
-    created_at: Date;
+  @CreateDateColumn({ name: 'created_at' })
+  created_at: Date;
 
-    //Fecha de actualizacion
-    @UpdateDateColumn({ name: 'updated_at' })
-    updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at' })
+  updated_at: Date;
 
-    @OneToMany(() => Tickets, ticket => ticket.equipo)
-    ticket: Tickets[];
+  @OneToMany(() => Tickets, ticket => ticket.equipo)
+  ticket: Tickets[];
+
+  // --- Relaciones ManyToMany con Hardware y Software ---
+  @ManyToMany(() => Hardware)
+  @JoinTable({
+    name: 'equipos_hardware', // tabla intermedia
+    joinColumn: { name: 'equipo_id', referencedColumnName: 'id_equipo' },
+    inverseJoinColumn: { name: 'hardware_id', referencedColumnName: 'id_hardware' }, 
+  })
+  hardware: Hardware[];
+
+  @ManyToMany(() => Software)
+  @JoinTable({
+    name: 'equipos_software', // tabla intermedia
+    joinColumn: { name: 'equipo_id', referencedColumnName: 'id_equipo' },
+    inverseJoinColumn: { name: 'software_id', referencedColumnName: 'id_software' }, 
+  })
+  software: Software[];
 }

@@ -1,87 +1,101 @@
-//src/equipos/equipos.service.ts
-//Modulo para manejar la logica de negocio relacionada con los equipos
-//-----Funcionalidades
-// - Crear un nuevo equipo
-// - Obtener la lista de equipos
-// - Obtener un equipo por su ID
-// - Actualizar un equipo existente
-// - Eliminar un equipo
-//Importaciones necesarias
-
-import { BadRequestException, Injectable } from '@nestjs/common';
+// src/equipos/equipos.service.ts
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-//ENTIDADES necesarias
+import { Repository, In } from 'typeorm';
 import { Equipos } from '../entities/Equipos.entity';
-
-import { Planes } from 'src/entities/Planes.entity';
-//DTO necesarios
 import { CreateEquipoDTO } from './dto/create-equipos.dto';
 import { UpdateEquipoDto } from './dto/update-equipos.dto';
 
+// Importa las entidades Hardware y Software
+import { Hardware } from '../entities/Hardware.entity';
+import { Software } from '../entities/Software.entity';
 
-//Decorador para marcar la clase como un servicio con codigo inyectable
 @Injectable()
 export class EquiposService {
-  //Constructor para los repositorios de las entidades
   constructor(
-    //Repo Equipos
     @InjectRepository(Equipos)
-    private equiposRepo: Repository<Equipos>,
+    private readonly equiposRepository: Repository<Equipos>,
 
+    @InjectRepository(Hardware)
+    private readonly hardwareRepository: Repository<Hardware>,
+
+    @InjectRepository(Software)
+    private readonly softwareRepository: Repository<Software>,
   ) {}
-  /*
-  //Metodo para crear un nuevo equipo en la base de datos
-  //Recibe un DTO con los datos del nuevo equipo
-  //POST /equipos
-  async create(createEquipoDTO: CreateEquipoDTO): Promise<Equipos> {
-    //Validar el propietario del equipo
-    const propetrarios = [
-      createEquipoDTO.id_empresa,
-      createEquipoDTO.id_microempresa,
-      createEquipoDTO.id_personanatural,
-    ].filter(Boolean);
 
-    //Verificar que solo haya un propietario
-    if (propetrarios.length > 1) {
-      throw new BadRequestException(
-        'El equipo debe tener exactamente un propietario',
-      );
+  // Crear un nuevo equipo
+  async create(createEquipoDto: CreateEquipoDTO) {
+    const equipo = this.equiposRepository.create(createEquipoDto as Partial<Equipos>);
+
+    // --- Asignar hardware si se proporcionan IDs ---
+    if (createEquipoDto.hardwareIds && createEquipoDto.hardwareIds.length > 0) {
+      const hardwares = await this.hardwareRepository.find({
+        where: { id_hardware: In(createEquipoDto.hardwareIds) },
+      });
+      equipo.hardware = hardwares;
     }
-    
-    //Buscar relaciones si existen
-    const empresa = createEquipoDTO.id_empresa
-      ? await this.empresaRepo.findOneBy({
-          id_empresa: createEquipoDTO.id_empresa,
-        })
-      : null;
-    const microEmpresa = createEquipoDTO.id_microempresa
-      ? await this.microEmpresaRepo.findOneBy({
-          id_microempresa: createEquipoDTO.id_microempresa,
-        })
-      : null;
-    const personaNatural = createEquipoDTO.id_personanatural
-      ? await this.personaNaturalRepo.findOneBy({
-          id_PersonaNatural: createEquipoDTO.id_personanatural,
-        })
-      : null;
-    const plan = createEquipoDTO.id_plan
-      ? await this.planesRepo.findOneBy({ id_plan: createEquipoDTO.id_plan })
-      : null;
 
-    //Crear el nuevo equipo
-    const nuevoEquipo = this.equiposRepo.create({
-      tipo: createEquipoDTO.tipo,
-      marca: createEquipoDTO.marca,
-      numero_serie: createEquipoDTO.numero_serie,
-      nombre_usuario: createEquipoDTO.nombre_usuario,
-      area: createEquipoDTO.area,
-      ultRevision: createEquipoDTO.ultRevision,
-      revProgramada: createEquipoDTO.revProgramada,
+    // --- Asignar software si se proporcionan IDs ---
+    if (createEquipoDto.softwareIds && createEquipoDto.softwareIds.length > 0) {
+      const softwares = await this.softwareRepository.find({
+        where: { id_software: In(createEquipoDto.softwareIds) },
+      });
+      equipo.software = softwares;
+    }
 
+    return this.equiposRepository.save(equipo);
+  }
+
+  // Listar todos los equipos
+  async findAll() {
+    return this.equiposRepository.find({ relations: ['hardware', 'software'] });
+  }
+
+  // Obtener un equipo por ID
+  async findOne(id: number) {
+    const equipo = await this.equiposRepository.findOne({
+      where: { id_equipo: id },
+      relations: ['hardware', 'software'],
     });
+    if (!equipo) {
+      throw new NotFoundException(`Equipo con id ${id} no encontrado`);
+    }
+    return equipo;
+  }
 
-    //Guardar el nuevo equipo en la base de datos
-    return await this.equiposRepo.save(nuevoEquipo);
-  }*/
+  // Actualizar un equipo existente
+  async update(id: number, updateEquipoDto: UpdateEquipoDto) {
+    const equipo = await this.equiposRepository.preload({
+      id_equipo: id,
+      ...(updateEquipoDto as Partial<Equipos>),
+    });
+    if (!equipo) {
+      throw new NotFoundException(`Equipo con id ${id} no encontrado`);
+    }
+
+    // --- Actualizar hardware si se proporcionan IDs ---
+    if (updateEquipoDto.hardwareIds) {
+      const hardwares = await this.hardwareRepository.find({
+        where: { id_hardware: In(updateEquipoDto.hardwareIds) },
+      });
+      equipo.hardware = hardwares;
+    }
+
+    // --- Actualizar software si se proporcionan IDs ---
+    if (updateEquipoDto.softwareIds) {
+      const softwares = await this.softwareRepository.find({
+        where: { id_software: In(updateEquipoDto.softwareIds) },
+      });
+      equipo.software = softwares;
+    }
+
+    return this.equiposRepository.save(equipo);
+  }
+
+  // Eliminar un equipo
+  async remove(id: number) {
+    const equipo = await this.findOne(id);
+    await this.equiposRepository.remove(equipo);
+    return { message: `Equipo con id ${id} eliminado correctamente` };
+  }
 }

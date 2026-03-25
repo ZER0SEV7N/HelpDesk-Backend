@@ -1,58 +1,69 @@
-//src/equipos/dto/create-equipos.dto.ts
-//DTO para crear un nuevo equipo
-//Importaciones necesarias
-import { IsNumber, IsString, IsOptional, IsDateString } from 'class-validator'
+// src/equipos/dto/create-equipos.dto.ts
+// DTO para crear un nuevo equipo
+// Importaciones necesarias para validación de datos
+import { IsNumber, IsString, IsOptional, IsDateString, IsArray } from 'class-validator';
 
 export class CreateEquipoDTO {
-
-    //Propiedad para el tipo de equipo
+    // Propiedad para el tipo de equipo (Ej: Laptop, Desktop, Monitor)
     @IsString()
     tipo: string;
 
-    //Propiedad para la Marca
+    // Propiedad para la marca del equipo
     @IsString()
     marca: string;
 
-    //Propiedad para el numero de serie
+    // Propiedad para el número de serie del equipo
     @IsString()
     numero_serie: string;
 
-    //Propiedad para el nombre de usuario
+    // Propiedad para el nombre de usuario asignado al equipo
     @IsString()
     nombre_usuario: string;
 
-    //Propiedad para el area de trabajo
+    // Propiedad para el área de trabajo o departamento del equipo
     @IsString()
     area: string;
 
-    //Propiedad para la fecha de ultima revision
+    // Propiedad opcional: fecha de la última revisión del equipo
+    // Se valida que sea un string en formato ISO (YYYY-MM-DD)
     @IsOptional()
     @IsDateString()
     ultRevision?: Date;
 
-    //Propiedad para la fecha de revision programada
+    // Propiedad opcional: fecha de la próxima revisión programada
+    // Se valida que sea un string en formato ISO (YYYY-MM-DD)
     @IsOptional()
     @IsDateString()
     revProgramada?: Date;
 
-    //Propiedad para el ID de la empresa (opcional, ya que un equipo puede no estar asociado a una empresa)
+    // Propiedad opcional: ID de la empresa asociada al equipo
     @IsOptional()
     @IsNumber()
     id_empresa?: number;
 
-    //Propiedad para el ID de la microempresa (opcional, ya que un equipo puede no estar asociado a una microempresa)
+    // Propiedad opcional: ID de la microempresa asociada al equipo
     @IsOptional()
     @IsNumber()
     id_microempresa?: number;
 
-    //Propiedad para el ID del plan (opcional, ya que un equipo puede no tener un plan asociado)
+    // Propiedad opcional: ID del plan asociado al equipo
     @IsOptional()
     @IsNumber()
     id_plan?: number;
 
-    //Propiedad para el ID de la persona natural (opcional, ya que un equipo puede no estar asociado a una persona natural)
+    // Propiedad opcional: ID de la persona natural asociada al equipo
     @IsOptional()
     @IsNumber()
     id_personanatural?: number;
 
+    // --- Nuevas propiedades opcionales para relaciones ---
+    @IsOptional()
+    @IsArray()
+    @IsNumber({}, { each: true })
+    hardwareIds?: number[]; // IDs de hardware asociados
+
+    @IsOptional()
+    @IsArray()
+    @IsNumber({}, { each: true })
+    softwareIds?: number[]; // IDs de software asociados
 }
