@@ -17,18 +17,18 @@ export enum TicketStatus {
 //Definicion de la entidad Tickets
 @Entity('tickets')
 export class Tickets {
-    //Columna para el ID de Tickets
-    @PrimaryGeneratedColumn({name: 'id_tickets'})
-    id_ticket: number; //Llave primaria auto-generada
 
-    //Columna para el PIN de ticket (Codigo unico para cada ticket)
-    //Generar un PIN unico para cada ticket (puede ser un numero aleatorio o un string alfanumerico)
+    //Columna para el ID de Tickets
+    @PrimaryGeneratedColumn({ name: 'id_tickets' })
+    id_ticket: number;
+
+    //Columna para el PIN de ticket
     @Column({ type: 'varchar', unique: true, length: 6 })
-    pin: string; //PIN unico del ticket
+    pin: string;
 
     //Columna para el Asunto del ticket
-    @Column({  })
-    asunto: string; //Asunto del ticket
+    @Column({ type: 'varchar', length: 255 })
+    asunto: string;
 
     //Columna para el detalle del ticket
     @Column({ type: 'text' })
@@ -40,7 +40,7 @@ export class Tickets {
         enum: TicketStatus,
         default: TicketStatus.PENDIENTE,
     })
-    estado: TicketStatus; //Estado del ticket
+    estado: TicketStatus;
 
    // ---------------------------------------------------------
     // Relación con Equipos
