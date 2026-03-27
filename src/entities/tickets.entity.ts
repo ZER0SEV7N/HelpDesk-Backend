@@ -4,6 +4,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn, OneToMany, UpdateDateColumn } from 'typeorm';
 import { Equipos } from './Equipos.entity';
 import { Usuario } from './Usuario.entity';
+import { Clientes } from './Clientes.entity';
 
 //Definir los estados posibles de un ticket
 export enum TicketStatus {
@@ -58,9 +59,9 @@ export class Tickets {
     @Column()
     id_cliente: number;
 
-    @ManyToOne(() => Usuario, { eager: false })
+    @ManyToOne(() => Clientes, { eager: false }) 
     @JoinColumn({ name: 'id_cliente' })
-    cliente: Usuario;
+    cliente: Clientes;
 
     // ---------------------------------------------------------
     // Soporte asignado (nullable)

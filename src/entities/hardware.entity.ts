@@ -45,9 +45,8 @@ export class Hardware {
     is_active: boolean; //Indica si el cliente está activo o no
 
     //Relacion con la tabla RegistroHardware (Un hardware puede tener muchos registros de hardware)
-    @ManyToOne(() => RegistroHardware, (rh) => rh.hw, { nullable: true })
-    @JoinColumn({ name: 'id_RH' })
-    rh: RegistroHardware;
+    @OneToMany(() => RegistroHardware, (rh) => rh.hardware)
+    registros: RegistroHardware[];
 
     //Fecha de creacion
     @CreateDateColumn({ name: 'created_at' })

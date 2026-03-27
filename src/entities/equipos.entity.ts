@@ -18,8 +18,9 @@ import { Clientes } from './Clientes.entity';
 import { Sucursales } from './Sucursales.entity';
 
 // Importa las entidades Hardware y Software desde la misma carpeta entities
-import { Hardware } from './Hardware.entity';
-import { Software } from './Software.entity';
+import { Software_equipos } from './SoftwareEquipos.entity';
+
+import { RegistroHardware } from './RegistroHardware.entity';
 
 @Entity('equipos')
 export class Equipos {
@@ -64,13 +65,6 @@ export class Equipos {
   @JoinColumn({ name: 'id_sucursal' })
   sucursal?: Sucursales;
 
-  @Column({ nullable: true })
-  id_plan?: number;
-
-  @ManyToOne(() => Planes, { nullable: true })
-  @JoinColumn({ name: 'id_plan' })
-  plan?: Planes;
-
   @CreateDateColumn({ name: 'created_at' })
   created_at: Date;
 
@@ -81,19 +75,9 @@ export class Equipos {
   ticket: Tickets[];
 
   // --- Relaciones ManyToMany con Hardware y Software ---
-  @ManyToMany(() => Hardware)
-  @JoinTable({
-    name: 'equipos_hardware', // tabla intermedia
-    joinColumn: { name: 'equipo_id', referencedColumnName: 'id_equipo' },
-    inverseJoinColumn: { name: 'hardware_id', referencedColumnName: 'id_hardware' }, 
-  })
-  hardware: Hardware[];
+  @OneToMany(() => RegistroHardware, (rh) => rh.equipo)
+  historial_hardware: RegistroHardware[];
 
-  @ManyToMany(() => Software)
-  @JoinTable({
-    name: 'equipos_software', // tabla intermedia
-    joinColumn: { name: 'equipo_id', referencedColumnName: 'id_equipo' },
-    inverseJoinColumn: { name: 'software_id', referencedColumnName: 'id_software' }, 
-  })
-  software: Software[];
+  @OneToMany(() => Software_equipos, (se) => se.equipo)
+  software_instalado: Software_equipos[];
 }

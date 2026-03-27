@@ -1,101 +1,126 @@
 // src/equipos/equipos.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Equipos } from '../entities/Equipos.entity';
+import { Usuario } from '../entities/Usuario.entity'; // Necesario para buscar los datos del usuario que consulta
 import { CreateEquipoDTO } from './dto/create-equipos.dto';
 import { UpdateEquipoDto } from './dto/update-equipos.dto';
-
-// Importa las entidades Hardware y Software
-import { Hardware } from '../entities/Hardware.entity';
-import { Software } from '../entities/Software.entity';
 
 @Injectable()
 export class EquiposService {
   constructor(
     @InjectRepository(Equipos)
-    private readonly equiposRepository: Repository<Equipos>,
+    private readonly equiposRepo: Repository<Equipos>,
 
-    @InjectRepository(Hardware)
-    private readonly hardwareRepository: Repository<Hardware>,
-
-    @InjectRepository(Software)
-    private readonly softwareRepository: Repository<Software>,
+    // Inyectamos al usuario para poder revisar a qué empresa pertenece
+    @InjectRepository(Usuario)
+    private readonly usuarioRepo: Repository<Usuario>,
   ) {}
 
-  // Crear un nuevo equipo
-  async create(createEquipoDto: CreateEquipoDTO) {
-    const equipo = this.equiposRepository.create(createEquipoDto as Partial<Equipos>);
-
-    // --- Asignar hardware si se proporcionan IDs ---
-    if (createEquipoDto.hardwareIds && createEquipoDto.hardwareIds.length > 0) {
-      const hardwares = await this.hardwareRepository.find({
-        where: { id_hardware: In(createEquipoDto.hardwareIds) },
-      });
-      equipo.hardware = hardwares;
-    }
-
-    // --- Asignar software si se proporcionan IDs ---
-    if (createEquipoDto.softwareIds && createEquipoDto.softwareIds.length > 0) {
-      const softwares = await this.softwareRepository.find({
-        where: { id_software: In(createEquipoDto.softwareIds) },
-      });
-      equipo.software = softwares;
-    }
-
-    return this.equiposRepository.save(equipo);
+  // --------------------------------------------------------
+  // 1. REGISTRAR UN NUEVO EQUIPO (Solo los datos de la PC)
+  // --------------------------------------------------------
+  async create(dto: CreateEquipoDTO) {
+    const equipo = this.equiposRepo.create(dto as Partial<Equipos>);
+    return await this.equiposRepo.save(equipo);
+    // Nota: El hardware y software se le instala DESPUÉS usando los endpoints de hardware y software.
   }
 
-  // Listar todos los equipos
-  async findAll() {
-    return this.equiposRepository.find({ relations: ['hardware', 'software'] });
+  // --------------------------------------------------------
+  // 2. LISTAR EQUIPOS CON FILTRO INTELIGENTE DE ROLES
+  // --------------------------------------------------------
+  async findAll(userToken: any) {
+    // 1. Buscamos al usuario real en la BD para saber su id_cliente e id_sucursal
+    const usuarioReal = await this.usuarioRepo.findOneBy({ id_usuario: userToken.userId });
+    if (!usuarioReal) throw new NotFoundException('Usuario no válido');
+
+    // 2. Preparamos la consulta con todas las relaciones bonitas
+    const query = this.equiposRepo.createQueryBuilder('equipo')
+      .leftJoinAndSelect('equipo.cliente', 'cliente')
+      .leftJoinAndSelect('equipo.sucursal', 'sucursal')
+      .leftJoinAndSelect('equipo.historial_hardware', 'historial_hardware')
+      .leftJoinAndSelect('historial_hardware.hardware', 'hardware')
+      .leftJoinAndSelect('equipo.software_instalado', 'software_instalado')
+      .leftJoinAndSelect('software_instalado.soft', 'soft')
+      .where('equipo.is_active = :isActive', { isActive: true });
+
+    // 3. Aplicamos el candado según el rol
+    switch (userToken.role) {
+      case 'ADMINISTRADOR':
+      case 'SOPORTE_TECNICO':
+      case 'SOPORTE_INSITU':
+        // El equipo de Zaint puede ver TODOS los equipos registrados
+        break; 
+
+      case 'CLIENTE_EMPRESA':
+        // El gerente solo ve los equipos de su empresa
+        query.andWhere('equipo.id_cliente = :idCliente', { idCliente: usuarioReal.id_cliente });
+        break;
+
+      case 'CLIENTE_SUCURSAL':
+        // El encargado solo ve los equipos de su sucursal específica
+        query.andWhere('equipo.id_sucursal = :idSucursal', { idSucursal: usuarioReal.id_sucursal });
+        break;
+
+      case 'CLIENTE_TRABAJADOR':
+        // El empleado normal solo ve el equipo que tiene su nombre asignado
+        query.andWhere('equipo.nombre_usuario = :nombre', { nombre: usuarioReal.nombre });
+        break;
+
+      default:
+        throw new ForbiddenException('No tienes permisos para ver el inventario.');
+    }
+
+    return await query.getMany();
   }
 
-  // Obtener un equipo por ID
-  async findOne(id: number) {
-    const equipo = await this.equiposRepository.findOne({
-      where: { id_equipo: id },
-      relations: ['hardware', 'software'],
-    });
+  // --------------------------------------------------------
+  // 3. OBTENER DETALLE DE UN EQUIPO ESPECÍFICO
+  // --------------------------------------------------------
+  async findOne(id: number, userToken: any) {
+    // Reutilizamos la lógica del findAll para asegurar que el usuario tenga permiso de ver ESTE equipo específico
+    const equiposPermitidos = await this.findAll(userToken);
+    const equipo = equiposPermitidos.find(e => e.id_equipo === id);
+
     if (!equipo) {
-      throw new NotFoundException(`Equipo con id ${id} no encontrado`);
+      throw new NotFoundException(`Equipo con id ${id} no encontrado o no tienes permiso para verlo`);
     }
+
     return equipo;
   }
 
-  // Actualizar un equipo existente
-  async update(id: number, updateEquipoDto: UpdateEquipoDto) {
-    const equipo = await this.equiposRepository.preload({
+  // --------------------------------------------------------
+  // 4. ACTUALIZAR DATOS DE LA COMPUTADORA
+  // --------------------------------------------------------
+  async update(id: number, dto: UpdateEquipoDto, userToken: any) {
+    // Validamos que el equipo exista y tengamos permiso de tocarlo
+    await this.findOne(id, userToken); 
+
+    const equipo = await this.equiposRepo.preload({
       id_equipo: id,
-      ...(updateEquipoDto as Partial<Equipos>),
+      ...(dto as Partial<Equipos>),
     });
+
     if (!equipo) {
       throw new NotFoundException(`Equipo con id ${id} no encontrado`);
     }
 
-    // --- Actualizar hardware si se proporcionan IDs ---
-    if (updateEquipoDto.hardwareIds) {
-      const hardwares = await this.hardwareRepository.find({
-        where: { id_hardware: In(updateEquipoDto.hardwareIds) },
-      });
-      equipo.hardware = hardwares;
-    }
-
-    // --- Actualizar software si se proporcionan IDs ---
-    if (updateEquipoDto.softwareIds) {
-      const softwares = await this.softwareRepository.find({
-        where: { id_software: In(updateEquipoDto.softwareIds) },
-      });
-      equipo.software = softwares;
-    }
-
-    return this.equiposRepository.save(equipo);
+    return await this.equiposRepo.save(equipo);
   }
 
-  // Eliminar un equipo
-  async remove(id: number) {
-    const equipo = await this.findOne(id);
-    await this.equiposRepository.remove(equipo);
-    return { message: `Equipo con id ${id} eliminado correctamente` };
+  // --------------------------------------------------------
+  // 5. ELIMINAR UN EQUIPO (Soft Delete)
+  // --------------------------------------------------------
+  async remove(id: number, userToken: any) {
+    // Validamos permisos
+    const equipo = await this.findOne(id, userToken);
+
+    if (!equipo.is_active) throw new BadRequestException('El equipo ya está inactivo');
+
+    equipo.is_active = false;
+    await this.equiposRepo.save(equipo);
+
+    return { message: `Equipo con id ${id} dado de baja correctamente del sistema` };
   }
 }

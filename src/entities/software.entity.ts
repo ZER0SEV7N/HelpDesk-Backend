@@ -1,7 +1,7 @@
 //Modulo de entidad para la tabla Software
 //importaciones necesarias:
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { Software_equipos } from './Software_equipos.entity'; // Importa la entidad relacionada
+import { Software_equipos } from './SoftwareEquipos.entity'; // Importa la entidad relacionada
 
 //Definicion de la entidad Software
 @Entity('software')

@@ -7,7 +7,7 @@ import { NotFoundException } from '@nestjs/common';
 import { SoftwareService } from './software.service';
 import { CreateSoftwareDto } from './dto/create-software.dto';
 import { UpdateSoftwareDto } from './dto/update-software.dto';
-import { Software } from '../entities/Software.entity';
+import { Software } from '../../entities/Software.entity';
 
 describe('SoftwareService', () => {
   let service: SoftwareService;

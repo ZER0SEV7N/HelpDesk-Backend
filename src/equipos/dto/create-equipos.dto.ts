@@ -1,69 +1,52 @@
 // src/equipos/dto/create-equipos.dto.ts
-// DTO para crear un nuevo equipo
-// Importaciones necesarias para validación de datos
-import { IsNumber, IsString, IsOptional, IsDateString, IsArray } from 'class-validator';
+import { IsNumber, IsString, IsOptional, IsDateString, IsNotEmpty } from 'class-validator';
 
 export class CreateEquipoDTO {
-    // Propiedad para el tipo de equipo (Ej: Laptop, Desktop, Monitor)
+    // --------------------------------------------------------
+    // DATOS FÍSICOS DEL EQUIPO
+    // --------------------------------------------------------
     @IsString()
-    tipo: string;
+    @IsNotEmpty()
+    tipo: string; // Ej: Laptop, Desktop, Servidor
 
-    // Propiedad para la marca del equipo
     @IsString()
-    marca: string;
+    @IsNotEmpty()
+    marca: string; // Ej: Dell, Lenovo, HP
 
-    // Propiedad para el número de serie del equipo
     @IsString()
-    numero_serie: string;
+    @IsNotEmpty()
+    numero_serie: string; // Etiqueta de servicio o serial
 
-    // Propiedad para el nombre de usuario asignado al equipo
+    // --------------------------------------------------------
+    // ASIGNACIÓN (Opcionales, puede ser una PC nueva en bodega)
+    // --------------------------------------------------------
+    @IsOptional()
     @IsString()
-    nombre_usuario: string;
+    nombre_usuario?: string; // Ej: "Juan Perez"
 
-    // Propiedad para el área de trabajo o departamento del equipo
+    @IsOptional()
     @IsString()
-    area: string;
+    area?: string; // Ej: "Contabilidad"
 
-    // Propiedad opcional: fecha de la última revisión del equipo
-    // Se valida que sea un string en formato ISO (YYYY-MM-DD)
+    // --------------------------------------------------------
+    // FECHAS DE MANTENIMIENTO
+    // --------------------------------------------------------
     @IsOptional()
     @IsDateString()
-    ultRevision?: Date;
+    ult_revision?: Date;
 
-    // Propiedad opcional: fecha de la próxima revisión programada
-    // Se valida que sea un string en formato ISO (YYYY-MM-DD)
     @IsOptional()
     @IsDateString()
-    revProgramada?: Date;
+    rev_programada?: Date;
 
-    // Propiedad opcional: ID de la empresa asociada al equipo
+    // --------------------------------------------------------
+    // RELACIONES EXACTAS DE LA BASE DE DATOS
+    // --------------------------------------------------------
+    @IsNumber()
+    @IsNotEmpty()
+    id_cliente: number; // ¡Obligatorio! El equipo siempre es de Zaint o de una Empresa cliente
+
     @IsOptional()
     @IsNumber()
-    id_empresa?: number;
-
-    // Propiedad opcional: ID de la microempresa asociada al equipo
-    @IsOptional()
-    @IsNumber()
-    id_microempresa?: number;
-
-    // Propiedad opcional: ID del plan asociado al equipo
-    @IsOptional()
-    @IsNumber()
-    id_plan?: number;
-
-    // Propiedad opcional: ID de la persona natural asociada al equipo
-    @IsOptional()
-    @IsNumber()
-    id_personanatural?: number;
-
-    // --- Nuevas propiedades opcionales para relaciones ---
-    @IsOptional()
-    @IsArray()
-    @IsNumber({}, { each: true })
-    hardwareIds?: number[]; // IDs de hardware asociados
-
-    @IsOptional()
-    @IsArray()
-    @IsNumber({}, { each: true })
-    softwareIds?: number[]; // IDs de software asociados
+    id_sucursal?: number; // Para saber exactamente en qué local está la máquina
 }
