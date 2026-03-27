@@ -1,32 +1,64 @@
-//Servicio para la gestion de hardware
-//Importaciones necesarias:
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Hardware } from '../entities/Hardware.entity';
-import { CreateHardwareDto } from './dto/create-hardware.dto';
-import { RegistroHardware } from '../entities/RegistroHardware.entity';
-import { UpdateHardwareDto } from './dto/update-hardware.dto';
+// Servicio para la gestion de hardware
+
+// Importaciones necesarias desde NestJS y TypeORM
+import { Injectable, NotFoundException } from '@nestjs/common'; // Decorador para servicios e excepción para manejo de errores
+import { InjectRepository } from '@nestjs/typeorm'; // Permite inyectar repositorios de TypeORM
+import { Repository } from 'typeorm'; // Clase base para trabajar con la base de datos
+import { Hardware } from '../entities/Hardware.entity'; // Entidad Hardware
+import { CreateHardwareDto } from './dto/create-hardware.dto'; // DTO para crear hardware
+import { RegistroHardware } from '../entities/RegistroHardware.entity'; // Entidad relacionada
+import { UpdateHardwareDto } from './dto/update-hardware.dto'; // DTO para actualizar hardware
 
 @Injectable()
 export class HardwareService {
+
+  // Constructor donde se inyectan los repositorios de las entidades
+  constructor(
+    @InjectRepository(Hardware)
+    private readonly hardwareRepository: Repository<Hardware>,
+
+    @InjectRepository(RegistroHardware)
+    private readonly registroHardwareRepository: Repository<RegistroHardware>,
+  ) {}
+
+  // Metodo para crear un nuevo hardware
   create(createHardwareDto: CreateHardwareDto) {
-    return 'This action adds a new hardware';
+    const hardware = this.hardwareRepository.create(createHardwareDto);
+    return this.hardwareRepository.save(hardware);
   }
 
+  // Metodo para obtener todos los registros de hardware
   findAll() {
-    return `This action returns all hardware`;
+    return this.hardwareRepository.find();
   }
 
+  // Metodo para obtener un hardware por su ID
   findOne(id: number) {
-    return `This action returns a #${id} hardware`;
+    return this.hardwareRepository.findOne({ where: { id_hardware: id } });
   }
 
-  update(id: number, updateHardwareDto: UpdateHardwareDto) {
-    return `This action updates a #${id} hardware`;
+  // Metodo para actualizar un hardware existente
+  async update(id: number, updateHardwareDto: UpdateHardwareDto) {
+
+    // Busca el hardware por su ID
+    const hardware = await this.hardwareRepository.findOne({ where: { id_hardware: id } });
+    if (!hardware) {
+      throw new NotFoundException(`Hardware con id ${id} no encontrado`);
+    }
+
+    Object.assign(hardware, updateHardwareDto);
+
+    // Guarda los cambios en la base de datos
+    return this.hardwareRepository.save(hardware);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} hardware`;
+  // Metodo para eliminar un hardware
+  async remove(id: number) {
+
+    const hardware = await this.hardwareRepository.findOne({ where: { id_hardware: id } });
+
+    if (!hardware) {
+      throw new NotFoundException(`Hardware con id ${id} no encontrado`);
+    }
   }
 }

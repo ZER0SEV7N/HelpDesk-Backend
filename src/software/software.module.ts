@@ -4,7 +4,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SoftwareService } from './software.service';
 import { SoftwareController } from './software.controller';
-import { Software } from './entities/software.entity';
+import { Software } from '../entities/Software.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Software])],
