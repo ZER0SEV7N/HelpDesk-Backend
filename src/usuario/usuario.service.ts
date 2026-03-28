@@ -12,6 +12,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Usuario } from '../entities/Usuario.entity';
+import { Sucursales } from 'src/entities/Sucursales.entity';
+import { Clientes } from 'src/entities/Clientes.entity';
 import { UpdateProfileDTO } from './dto/update-profile.dto';
 import { Rol } from '../entities/Rol.entity';
 import { RegisterEmployeeDto } from './dto/register-employee.dto';
@@ -22,6 +24,8 @@ export class UsuarioService {
     constructor(
         @InjectRepository(Usuario) private usuarioRepo: Repository<Usuario>,
         @InjectRepository(Rol) private rolRepo: Repository<Rol>,
+        @InjectRepository(Sucursales) private sucursalRepo: Repository<Sucursales>,
+        @InjectRepository(Clientes) private clientesRepo: Repository<Clientes>,
     ) {}
 
     //Metodo para actualizar el perfil del usuario
@@ -82,6 +86,22 @@ export class UsuarioService {
         await this.validateEmailUnique(dto.correo);
         const rol = await this.validateRoleExists(dto.rolNombre);
 
+        let cliente: Clientes | null = null;
+        let sucursal: Sucursales | null = null;
+
+        if (dto.id_cliente) {
+            cliente = await this.clientesRepo.findOne({ where: { id_cliente: dto.id_cliente } });
+            if (!cliente) throw new NotFoundException(`Cliente/Empresa con ID ${dto.id_cliente} no existe`);
+        }
+
+        if (dto.id_sucursal) {
+            sucursal = await this.sucursalRepo.findOne({ where: { id_sucursal: dto.id_sucursal } });
+            if (!sucursal) throw new NotFoundException(`Sucursal con ID ${dto.id_sucursal} no existe`);
+            
+            // Regla de negocio: La sucursal debe pertenecer a la empresa indicada
+            if (cliente && sucursal.id_cliente !== cliente.id_cliente)  throw new BadRequestException('La sucursal indicada no pertenece a la empresa seleccionada');
+            
+        }
         //Encriptar contraseña  
         const hashedPassword = await bcrypt.hash(dto.contrasena, 10);
         //Crear nuevo usuario
@@ -92,6 +112,8 @@ export class UsuarioService {
             telefono: dto.telefono,
             contrasena: hashedPassword,
             rol: rol,
+            id_cliente: cliente ? cliente.id_cliente : null, // <-- Asignamos la empresa
+            id_sucursal: sucursal ? sucursal.id_sucursal : null, // <-- Asignamos la sucursal
             is_active: true,
         });
         const savedUser = await this.usuarioRepo.save(newUser);

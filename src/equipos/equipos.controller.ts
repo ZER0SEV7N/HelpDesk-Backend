@@ -78,4 +78,33 @@ export class EquiposController {
   ) {
     return this.equiposService.remove(id, req.user);
   }
+
+  // --------------------------------------------------------
+  // 6. ASIGNAR EQUIPO A UN TRABAJADOR
+  // PATCH http://localhost:3000/equipos/1/asignar
+  // --------------------------------------------------------
+  @Patch(':id/asignar')
+  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
+  asignarEquipo(
+      @Param('id', ParseIntPipe) id: number,
+      @Body('nombre_usuario') nombre_usuario: string,
+      @Body('area') area: string,
+      @Body('id_sucursal') id_sucursal: number, // Opcional, por si se mueve de edificio
+      @Request() req: any
+  ) {
+      return this.equiposService.assignToWorker(id, nombre_usuario, area, id_sucursal, req.user);
+  }
+
+  // --------------------------------------------------------
+  // 7. LIBERAR EQUIPO (El empleado lo devuelve)
+  // PATCH http://localhost:3000/equipos/1/liberar
+  // --------------------------------------------------------
+  @Patch(':id/liberar')
+  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
+  liberarEquipo(
+      @Param('id', ParseIntPipe) id: number,
+      @Request() req: any
+  ) {
+      return this.equiposService.unassignFromWorker(id, req.user);
+  }
 }
