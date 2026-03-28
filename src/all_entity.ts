@@ -9,10 +9,10 @@ import { Clientes } from './entities/Clientes.entity';
 import { Sucursales } from './entities/Sucursales.entity';
 import { Hardware } from './entities/Hardware.entity';
 import { RegistroHardware } from './entities/RegistroHardware.entity';
-import { Software_equipos } from './entities/Software_equipos.entity';
+import { Software_equipos } from './entities/SoftwareEquipos.entity';
 import { Area } from './entities/Area.entity';
 
-export const entities = [
+export const AllEntities = [
     Usuario,
     Rol,
     Equipos,

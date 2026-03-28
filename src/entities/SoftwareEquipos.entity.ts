@@ -17,9 +17,21 @@ export class Software_equipos {
     @JoinColumn({ name: 'id_software' })
     soft: Software;
 
-    @ManyToOne(() => Equipos) // Asegúrate de agregar @OneToMany en Equipo si lo necesitas
+   @ManyToOne(() => Equipos, (equipo) => equipo.software_instalado)
     @JoinColumn({ name: 'id_equipos' })
     equipo: Equipos;
+    
+    @Column({ name: 'fecha_instalacion', type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+    fecha_instalacion: Date;
+
+    @Column({ length: 100, nullable: true })
+    licencia_asignada: string; // Si este equipo usa un serial específico (ej. un Windows OEM)
+
+    @Column({ default: true })
+    is_active: boolean; // ¿Sigue instalado? (Si se formatea, se pasa a false)
+
+    @Column({ nullable: true })
+    observaciones: string; // Ej: "Se instaló por el ticket #150"
 
     //Fecha de creacion
     @CreateDateColumn({ name: 'created_at' })

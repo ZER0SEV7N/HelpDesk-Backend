@@ -8,8 +8,6 @@ import { ConfigModule } from '@nestjs/config';
 import { HardwareModule } from './equipos/hardware/hardware.module';
 import { TicketModule } from './ticket/ticket.module';
 import { EquiposModule } from './equipos/equipos.module';
-import { ChatGateway } from './chat/chat.gateway';
-import { ChatService } from './chat/chat.service';
 import { ChatModule } from './chat/chat.module';
 import { UsuarioModule } from './usuario/usuario.module';
 
@@ -22,7 +20,8 @@ import { UsuarioModule } from './usuario/usuario.module';
       HardwareModule, 
       TicketModule, 
       EquiposModule, 
-      ChatModule, UsuarioModule, 
+      ChatModule, 
+      UsuarioModule, 
     ],
     
   controllers: [AppController],

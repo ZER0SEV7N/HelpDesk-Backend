@@ -1,19 +1,10 @@
 //src/entities/Tickets.entity.ts
 //Modulo de entidad para la tabla ticket
-
-import { 
-  Entity, 
-  Column, 
-  PrimaryGeneratedColumn, 
-  JoinColumn, 
-  ManyToOne, 
-  CreateDateColumn, 
-  UpdateDateColumn, 
-  OneToMany 
-} from 'typeorm';
-
+//importaciones necesarias:
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn, OneToMany, UpdateDateColumn } from 'typeorm';
 import { Equipos } from './Equipos.entity';
 import { Usuario } from './Usuario.entity';
+import { Clientes } from './Clientes.entity';
 
 //Definir los estados posibles de un ticket
 export enum TicketStatus {
@@ -52,7 +43,9 @@ export class Tickets {
     })
     estado: TicketStatus;
 
+   // ---------------------------------------------------------
     // Relación con Equipos
+    // ---------------------------------------------------------
     @Column()
     id_equipo: number;
 
@@ -60,15 +53,19 @@ export class Tickets {
     @JoinColumn({ name: 'id_equipo' })
     equipo: Equipos;
 
-    // Usuario que crea el ticket
+    // ---------------------------------------------------------
+    // Usuario que crea el ticket (cliente / trabajador)
+    // ---------------------------------------------------------
     @Column()
     id_cliente: number;
 
-    @ManyToOne(() => Usuario, { eager: false })
+    @ManyToOne(() => Clientes, { eager: false }) 
     @JoinColumn({ name: 'id_cliente' })
-    cliente: Usuario;
+    cliente: Clientes;
 
-    // Soporte asignado
+    // ---------------------------------------------------------
+    // Soporte asignado (nullable)
+    // ---------------------------------------------------------
     @Column({ nullable: true })
     id_soporte?: number;
 
@@ -76,22 +73,29 @@ export class Tickets {
     @JoinColumn({ name: 'id_soporte' })
     soporte?: Usuario;
 
-    // Incidencia software
+    // ---------------------------------------------------------
+    // Incidencia relacionada a software (opcional)
+    // ---------------------------------------------------------
     @Column({ nullable: true })
     id_software?: number;
 
+    // Flag para identificar incidencia de software
     @Column({ default: false })
-    es_software: boolean;
+    es_software?: boolean;
 
-    // Evidencia
+    // ---------------------------------------------------------
+    // Evidencia (imagen opcional)
+    // ---------------------------------------------------------
     @Column({ nullable: true })
     imagen_url?: string;
-    
-    // Fecha de creación
-    @CreateDateColumn({ name: 'fecha_creacion' })
-    fecha_creacion: Date;
 
-    // Fecha de actualización
-    @UpdateDateColumn({ name: 'fecha_actualizacion' })
-    fecha_actualizacion: Date;
+      //Fecha de creacion
+      @CreateDateColumn({ name: 'created_at' })
+      created_at: Date;
+  
+      //Fecha de actualizacion
+      @UpdateDateColumn({ name: 'updated_at' })
+      updated_at: Date;
+
+
 }

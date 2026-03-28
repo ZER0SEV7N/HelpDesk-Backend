@@ -1,39 +1,47 @@
-//src/hardware/dto/create-hardware.dto.ts
-//DTO para crear hardware
-//Importaciones necesarias:
-import { IsString, IsNotEmpty, IsDateString, IsOptional } from 'class-validator';
+// src/hardware/dto/create-hardware.dto.ts
+import {
+  IsString,
+  IsNotEmpty,
+  IsDateString,
+  IsOptional,
+} from 'class-validator';
 
-//Definicion del DTO CreateHardwareDto
 export class CreateHardwareDto {
-    @IsString()
-    @IsNotEmpty()
-    tipo_equipo: string; //Tipo de hardware (Ejemplo: Laptop, Desktop, Monitor, etc.)
+  // --------------------------------------------------------
+  // DATOS PRINCIPALES DE LA PIEZA
+  // --------------------------------------------------------
+  @IsString()
+  @IsNotEmpty()
+  tipo_equipo: string; // Ej: "Disco Duro SSD", "Memoria RAM", "Monitor"
 
-    @IsString()
-    @IsNotEmpty()
-    numero_serie: string; //Numero de serie del hardware
+  @IsString()
+  @IsNotEmpty()
+  numero_serie: string; // El serial único del fabricante
 
-    @IsDateString()
-    @IsNotEmpty()
-    fecha_compra: Date; //Fecha de compra del hardware
+  @IsString()
+  @IsNotEmpty()
+  marca: string; // Ej: "Western Digital", "Corsair"
 
-    @IsString()
-    @IsNotEmpty()
-    marca: string; //Marca del hardware
+  @IsString()
+  @IsNotEmpty()
+  proveedor: string; // Ej: "PC Factory", "Amazon"
 
-    @IsString()
-    @IsNotEmpty()
-    proveedor: string; //Proveedor del hardware
+  @IsString()
+  @IsNotEmpty()
+  descripcion: string; // Ej: "SSD NVMe de 1TB para servidores"
 
-    @IsString()
-    @IsNotEmpty()
-    descripcion: string; //Descripcion del hardware
+  @IsDateString()
+  @IsNotEmpty()
+  fecha_compra: string; // Cuándo ingresó a tu inventario
 
-    @IsDateString()
-    @IsOptional()
-    ult_revision?: Date; //Fecha de la ultima revision del hardware
+  // --------------------------------------------------------
+  // FECHAS DE MANTENIMIENTO (Opcionales al registrar)
+  // --------------------------------------------------------
+  @IsDateString()
+  @IsOptional()
+  ult_revision?: string;
 
-    @IsDateString()
-    @IsOptional()
-    rev_programada?: Date; //Fecha de la proxima revision programada
+  @IsDateString()
+  @IsOptional()
+  rev_programada?: string;
 }

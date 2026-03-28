@@ -42,8 +42,8 @@ describe('SoftwareController', () => {
       licencia: 'ABC-123-XYZ',
       correo: 'soporte@empresa.com',
       contraseña: 'secreto123',
-      fecha_instalacion: new Date('2026-01-10'),
-      fecha_caducidad: new Date('2027-01-10'),
+      fecha_instalacion: ('2026-01-10'),
+      fecha_caducidad:('2027-01-10'),
       proveedor: 'Microsoft',
     };
 

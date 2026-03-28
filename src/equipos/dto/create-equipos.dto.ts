@@ -1,58 +1,52 @@
-//src/equipos/dto/create-equipos.dto.ts
-//DTO para crear un nuevo equipo
-//Importaciones necesarias
-import { IsNumber, IsString, IsOptional, IsDateString } from 'class-validator'
+// src/equipos/dto/create-equipos.dto.ts
+import { IsNumber, IsString, IsOptional, IsDateString, IsNotEmpty } from 'class-validator';
 
 export class CreateEquipoDTO {
-
-    //Propiedad para el tipo de equipo
+    // --------------------------------------------------------
+    // DATOS FÍSICOS DEL EQUIPO
+    // --------------------------------------------------------
     @IsString()
-    tipo: string;
+    @IsNotEmpty()
+    tipo: string; // Ej: Laptop, Desktop, Servidor
 
-    //Propiedad para la Marca
     @IsString()
-    marca: string;
+    @IsNotEmpty()
+    marca: string; // Ej: Dell, Lenovo, HP
 
-    //Propiedad para el numero de serie
     @IsString()
-    numero_serie: string;
+    @IsNotEmpty()
+    numero_serie: string; // Etiqueta de servicio o serial
 
-    //Propiedad para el nombre de usuario
+    // --------------------------------------------------------
+    // ASIGNACIÓN (Opcionales, puede ser una PC nueva en bodega)
+    // --------------------------------------------------------
+    @IsOptional()
     @IsString()
-    nombre_usuario: string;
+    nombre_usuario?: string; // Ej: "Juan Perez"
 
-    //Propiedad para el area de trabajo
+    @IsOptional()
     @IsString()
-    area: string;
+    area?: string; // Ej: "Contabilidad"
 
-    //Propiedad para la fecha de ultima revision
+    // --------------------------------------------------------
+    // FECHAS DE MANTENIMIENTO
+    // --------------------------------------------------------
     @IsOptional()
     @IsDateString()
-    ultRevision?: Date;
+    ult_revision?: Date;
 
-    //Propiedad para la fecha de revision programada
     @IsOptional()
     @IsDateString()
-    revProgramada?: Date;
+    rev_programada?: Date;
 
-    //Propiedad para el ID de la empresa (opcional, ya que un equipo puede no estar asociado a una empresa)
+    // --------------------------------------------------------
+    // RELACIONES EXACTAS DE LA BASE DE DATOS
+    // --------------------------------------------------------
+    @IsNumber()
+    @IsNotEmpty()
+    id_cliente: number; // ¡Obligatorio! El equipo siempre es de Zaint o de una Empresa cliente
+
     @IsOptional()
     @IsNumber()
-    id_empresa?: number;
-
-    //Propiedad para el ID de la microempresa (opcional, ya que un equipo puede no estar asociado a una microempresa)
-    @IsOptional()
-    @IsNumber()
-    id_microempresa?: number;
-
-    //Propiedad para el ID del plan (opcional, ya que un equipo puede no tener un plan asociado)
-    @IsOptional()
-    @IsNumber()
-    id_plan?: number;
-
-    //Propiedad para el ID de la persona natural (opcional, ya que un equipo puede no estar asociado a una persona natural)
-    @IsOptional()
-    @IsNumber()
-    id_personanatural?: number;
-
+    id_sucursal?: number; // Para saber exactamente en qué local está la máquina
 }

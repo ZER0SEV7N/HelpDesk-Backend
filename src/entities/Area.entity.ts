@@ -1,7 +1,7 @@
 //src/entities/area.entity.ts
 //Modulo de entidad para la tabla Area
 //importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Sucursales } from './Sucursales.entity';
 
 //Definicion de la entidad Area
@@ -30,6 +30,17 @@ export class Area {
     //Columna de sucursal
     @Column({ nullable: true })
     id_sucursal?: number; //Llave foranea a la tabla Sucursales
+
+    @Column({ default: true })
+    is_active: boolean; //Indica si el cliente está activo o no
+
+    //Fecha de creacion
+    @CreateDateColumn({ name: 'created_at' })
+    created_at: Date;
+
+    //Fecha de actualizacion
+    @UpdateDateColumn({ name: 'updated_at' })
+    updated_at: Date;
 
     //Relacion con la tabla Sucursales (Un area puede pertenecer a muchas sucursales)
     @ManyToOne(() => Sucursales, {nullable: true, onDelete: 'CASCADE'})

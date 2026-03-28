@@ -1,5 +1,5 @@
 //Entidad Sucursal
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Clientes } from './Clientes.entity';
 import { Equipos } from './Equipos.entity';
 import { Usuario } from './Usuario.entity';
@@ -36,16 +36,31 @@ export class Sucursales {
     @Column()
     id_cliente: number; //Llave foranea a la tabla Cliente
 
+    @Column({ default: true })
+    is_active: boolean; //Indica si el cliente está activo o no
+
+    //Fecha de creacion
+    @CreateDateColumn({ name: 'created_at' })
+    created_at: Date;
+
+    //Fecha de actualizacion
+    @UpdateDateColumn({ name: 'updated_at' })
+    updated_at: Date;
+
+    //Relacion con la tabla Cliente (Una sucursal pertenece a un cliente)
     @ManyToOne(() => Clientes, (cliente) => cliente.sucursales, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'id_cliente' })
     cliente: Clientes;
 
+    //Relacion con la tabla Equipos (Una sucursal puede tener muchos equipos)
     @OneToMany(() => Equipos, (equipo) => equipo.sucursal)
     equipos: Equipos[];
 
+    //Relacion con la tabla Usuario (Una sucursal puede tener muchos usuarios)
     @OneToMany(() => Usuario, (usuario) => usuario.sucursal)
     usuarios: Usuario[];
 
+    //Relacion con la tabla Area (Una sucursal puede tener muchas areas)
     @OneToMany(() => Area, (area) => area.sucursal)
     areas: Area[];
 }
