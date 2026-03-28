@@ -123,4 +123,37 @@ export class EquiposService {
 
     return { message: `Equipo con id ${id} dado de baja correctamente del sistema` };
   }
+
+  //6. Asignar un equipo a un trabajador
+  async assignToWorker(id: number, nombre_usuario: string, area: string, id_sucursal: number, userToken: any) {
+    //Buscar un equipo validando que el usuario tenga permiso
+    const equipo = await this.findOne(id, userToken);
+
+    //Actualizar los datos de ubicacion y dueño
+    equipo.nombre_usuario = nombre_usuario;
+    equipo.area = area;
+
+    //Si el gerente o encargado decide mover la pc a otra sucursal, se actualiza la sucursal
+    if(id_sucursal) equipo.id_sucursal = id_sucursal;
+
+    const equipoActualizado = await this.equiposRepo.save(equipo);
+    return { 
+        message: `Equipo asignado exitosamente a ${nombre_usuario} en el área de ${area}`,
+        equipo: equipoActualizado
+    };
+  }
+
+  //Liberar un equipo de un trabajador (dejarlo sin dueño)
+  async unassignFromWorker(id: number, userToken: any) {
+    //Buscar un equipo validando que el usuario tenga permiso
+    const equipo = await this.findOne(id, userToken);
+    //Actualizar los datos de ubicacion y dueño
+    equipo.nombre_usuario = 'Sin asignar';
+    equipo.area = 'Sin asignar';
+    const equipoActualizado = await this.equiposRepo.save(equipo);
+    return { 
+        message: `Equipo liberado exitosamente`,
+        equipo: equipoActualizado
+    };
+  }
 }
