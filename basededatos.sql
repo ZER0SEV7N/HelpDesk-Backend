@@ -235,7 +235,7 @@ INSERT sucursales VALUES
 -- 5. Insertar Administrador por Defecto (Tu cuenta de Zaint)
 -- La contraseña encriptada es: 123456
 INSERT usuarios VALUES
-(NULL, 'Daniel', 'Singer', 'admin@zaint.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjQsJM1U02', '987654321', 1, 1, NULL, NULL, NOW(), NOW());
+(NULL, 'Daniel', 'Singer', 'admin@zaint.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '987654321', 1, 1, NULL, NULL, NOW(), NOW());
 
 -- 6. Insertar Equipos de Prueba
 INSERT equipos VALUES

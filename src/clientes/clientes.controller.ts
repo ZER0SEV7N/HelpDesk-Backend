@@ -21,7 +21,7 @@ export class ClientesController {
     //Alcance: Solo el administrador puede crear un nuevo cliente
     //----------------------------------------
     @Post()
-    @Roles('ADMINISTRADOR')
+    //@Roles('ADMINISTRADOR')
     create(@Body('cliente') clienteDto: CreateClienteDto,
             @Body('sucursal') sucursalDto: Partial<CreateSucursalDto>) {
         return this.clientesService.create(clienteDto, sucursalDto);

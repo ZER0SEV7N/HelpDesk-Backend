@@ -76,7 +76,7 @@ export class UsuarioService {
 
     //Metodo para registrar un nuevo empleado (Solo Admin)
     //POST /usuario/register-employee
-    async registerEmployee(dto: RegisterEmployeeDto, creatorRole: string) {
+    /*async registerEmployee(dto: RegisterEmployeeDto, creatorRole: string) {
         //Verificar si el rol es de administrador
         if (creatorRole !== 'ADMINISTRADOR') {
             throw new BadRequestException('No tienes permisos para registrar usuarios');
@@ -119,7 +119,7 @@ export class UsuarioService {
         const savedUser = await this.usuarioRepo.save(newUser);
         const { contrasena, ...result } = savedUser;
         return result;
-    }
+    }*/
 
     //Metodo para el administrador pueda asignar roles de manera manual
     //PATCH /usuario/:id/rol
