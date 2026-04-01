@@ -17,6 +17,7 @@ import { Clientes } from 'src/entities/Clientes.entity';
 import { UpdateProfileDTO } from './dto/update-profile.dto';
 import { Rol } from '../entities/Rol.entity';
 import { RegisterEmployeeDto } from './dto/register-employee.dto';
+import { ReassignUserDto } from './dto/reassign-user.dto';
 
 //Servicio para manejar la logica de negocio relacionada con los usuarios
 @Injectable()
@@ -140,6 +141,50 @@ export class UsuarioService {
         user.is_active = false;
         await this.usuarioRepo.save(user);
         return { message: `Cuenta del usuario ${user.nombre} desactivada` };
+    }
+
+    //Metodo para reactivar la cuenta de un usuario (Solo Admin)
+    //PATCH /usuario/:id/activate
+    async activateUser(userId: number) {
+        const user = await this.validateUserExists(userId);
+        user.is_active = true;
+        await this.usuarioRepo.save(user);
+        return { message: `Cuenta del usuario ${user.nombre} reactivada` };
+    }
+
+    //Metodo para reasignar un usuario a otra empresa o sucursal (Solo Admin)
+    //PATCH /usuario/:id/reassign
+    async reassignUser(userId: number, dto: ReassignUserDto) {
+        const user = await this.usuarioRepo.findOne({ 
+            where: { id_usuario: userId },
+            relations: ['rol'] 
+        });
+        if (!user) throw new NotFoundException('Usuario no encontrado');
+    
+        if(user.rol.nombre === 'ADMINISTRADOR') throw new BadRequestException('No se puede reasignar a un usuario con rol ADMINISTRADOR');
+
+        if(dto.id_cliente){
+            const cliente = await this.clientesRepo.findOne({ where: { id_cliente: dto.id_cliente } });
+            if(!cliente) throw new NotFoundException(`Cliente/Empresa con ID ${dto.id_cliente} no existe`);
+            user.id_cliente = cliente.id_cliente;
+
+            if(!dto.id_sucursal) user.id_sucursal = undefined; // Si no se proporciona sucursal, se desasigna cualquier sucursal previa
+        }
+
+        if(dto.id_sucursal){
+            const sucursal = await this.sucursalRepo.findOne({ where: { id_sucursal: dto.id_sucursal } });
+            if(!sucursal) throw new NotFoundException(`Sucursal con ID ${dto.id_sucursal} no existe`);
+            
+            const targetClienteId = dto.id_cliente || user.id_cliente; // Priorizar el cliente del DTO
+            if(sucursal.id_cliente !== targetClienteId) throw new BadRequestException('La sucursal indicada no pertenece a la empresa seleccionada');
+            user.id_sucursal = sucursal.id_sucursal;
+        }
+
+        await this.usuarioRepo.save(user);
+        const { contrasena, ...result } = user;
+        return { message: `Usuario ${user.nombre} reasignado exitosamente`,
+                 user: result
+        };
     }
 
     //Metodos de Validaciones

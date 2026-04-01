@@ -20,6 +20,6 @@ import { DatabaseModule } from 'src/database/database.module';
         TicketModule,
     ],
     providers: [ChatService, ChatGateway],
-    exports: [ChatService],
+    exports: [ChatService, ChatGateway],
 })
 export class ChatModule {}

@@ -10,11 +10,14 @@ import { SucursalService } from './sucursal.service';
 import { AreaService } from './area.service';
 import { Usuario } from 'src/entities/Usuario.entity';
 import { Planes } from 'src/entities/Planes.entity';
+import { Equipos } from 'src/entities/Equipos.entity';
+import { ChatModule } from 'src/chat/chat.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Clientes, Sucursales, Area, Usuario, Planes]),
-    AuthModule
+    TypeOrmModule.forFeature([Clientes, Sucursales, Area, Usuario, Planes, Equipos]),
+    AuthModule,
+    ChatModule
   ],
   controllers: [ClientesController],
   providers: [ClientesService, SucursalService, AreaService],

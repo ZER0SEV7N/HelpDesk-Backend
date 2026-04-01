@@ -3,7 +3,7 @@
 //Importaciones necesarias:
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThan, In } from 'typeorm';
+import { Repository, LessThan, In, Between } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Clientes } from 'src/entities/Clientes.entity';
 import { Planes } from 'src/entities/Planes.entity';
@@ -11,6 +11,9 @@ import { Sucursales } from 'src/entities/Sucursales.entity';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { CreateSucursalDto } from './dto/create-sucursal.dto';
 import { Area } from 'src/entities/Area.entity';
+import { Usuario } from 'src/entities/Usuario.entity';
+import { Equipos } from 'src/entities/Equipos.entity';
+import { ChatGateway } from 'src/chat/chat.gateway';
 
 //Definicion del servicio ClientesService
 @Injectable()
@@ -24,6 +27,11 @@ export class ClientesService {
         private sucursalesRepo: Repository<Sucursales>,
         @InjectRepository(Area)
         private areaRepo: Repository<Area>,
+        @InjectRepository(Usuario)
+        private usuariosRepo: Repository<Usuario>,
+        @InjectRepository(Equipos)
+        private equiposRepo: Repository<Equipos>,
+        private readonly chatGateway: ChatGateway,
     ) {}
 
     //Tarea programada para desactivar clientes cuyo plan se ha vencido
@@ -53,17 +61,44 @@ export class ClientesService {
     @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
     async notifyExpiringPlans() {
         console.log('Consultando planes que vencen en 7 dias');
+        //Calcular la fecha dentro de 7 dias
         const today = new Date();
-        const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+        today.setHours(0, 0, 0, 0);
+        const sevenDaysFromNow = new Date(today);
+        sevenDaysFromNow.setDate(today.getDate() + 7);
         //Buscar clientes activo cuya fecha de finalizacion es dentro de 7 dias
         const clientesExpirando = await this.clientesRepo.find({
             where: {
                 is_active: true,
-                fecha_finalizacion_plan: LessThan(sevenDaysFromNow),
+                fecha_finalizacion_plan: Between(today, sevenDaysFromNow),
             }
         });
-        console.log(`Se encontraron ${clientesExpirando.length} clientes con planes que expiran en 7 dias`);
-        //Aqui se podria implementar la logica para enviar notificaciones a los clientes (ej: correo electronico)
+
+        if(clientesExpirando.length > 0){
+            for(const cliente of clientesExpirando){
+                //Implementar la logica para enviar notificaciones a los clientes (ej: correo electronico)
+                const planDate = new Date(cliente.fecha_finalizacion_plan);
+                planDate.setHours(0,0,0,0);
+                
+                //Calcular la diferencia en dias entre la fecha de finalizacion del plan y la fecha actual
+                const diffTime = planDate.getTime() - today.getTime();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+               const notificacion = {
+                tipo: 'Alerta_Plan',
+                titulo: diffDays === 0 ? 'Tu plan vence hoy' : `Tu plan vence en ${diffDays} día(s)`,
+                Mensaje: diffDays === 0 
+                        ? 'Su servicio se suspenderá esta medianoche. Por favor, renueve su plan.' 
+                        : `Faltan ${diffDays} días para que su plan actual caduque.`,
+                fecha: new Date(),
+                leido: false,
+               };
+               this.chatGateway.server
+                    .to(`empresa_${cliente.id_cliente}`)
+                    .emit('nueva_notificacion', notificacion);
+            }
+        }
+        else console.log('No se encontraron clientes con planes que expiran en 7 dias');
     }
 
     //Crear una nueva empresa
@@ -157,7 +192,8 @@ export class ClientesService {
             //Desactivar todas las áreas asociadas a las sucursales del cliente
             await this.areaRepo.update({ id_sucursal: In(sucursalIds) }, { is_active: false });
             //Apagón de Usuarios:
-            //await this.usuariosRepo.update({ id_sucursal: In(idsSucursales) }, { is_active: false });
+            await this.usuariosRepo.update({ id_cliente: id }, { is_active: false });
+            await this.equiposRepo.update({ id_cliente: id }, { is_active: false });
         }
         return { message: `Cliente ${cliente.nombre_principal} y sus sucursales han sido desactivados` };
 
@@ -189,8 +225,9 @@ export class ClientesService {
                 await this.sucursalesRepo.update(sucursalIds, { is_active: true });
                 //Reactivar todas las áreas asociadas a las sucursales del cliente
                 await this.areaRepo.update({ id_sucursal: In(sucursalIds) }, { is_active: true });
-                //Reactivar Usuarios:
-                //await this.usuariosRepo.update({ id_sucursal: In(idsSucursales) }, { is_active: true });
+                //Reactivación de Usuarios:
+                await this.usuariosRepo.update({ id_cliente: id }, { is_active: true });
+                await this.equiposRepo.update({ id_cliente: id }, { is_active: true });
             }
         }
         await this.clientesRepo.save(cliente);

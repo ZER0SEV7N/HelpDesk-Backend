@@ -91,14 +91,22 @@ export class AuthService {
             token,
         };
     }
-    // Añade esto al final de tu AuthService
-async verifyToken(token: string) {
-    try {
-        // Esto verifica que el token sea válido y no haya expirado
-        const payload = await this.jwtService.verifyAsync(token);
-        return payload;
-    } catch (error) {
-        throw new UnauthorizedException('Token inválido o expirado');
+
+    //Metodo para logout
+    async logout() {
+        // En una implementación basada en JWT, el logout se maneja en el cliente eliminando el token.
+        // Si quieres invalidar tokens en el servidor, necesitarías implementar una lista de revocación de tokens.
+        return { message: 'Logout exitoso' };
     }
-}
+
+    // Añade esto al final de tu AuthService
+    async verifyToken(token: string) {
+        try {
+            // Esto verifica que el token sea válido y no haya expirado
+            const payload = await this.jwtService.verifyAsync(token);
+            return payload;
+        } catch (error) {
+            throw new UnauthorizedException('Token inválido o expirado');
+        }
+    }
 }

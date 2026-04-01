@@ -48,6 +48,7 @@ export class TicketService {
       estado: TicketStatus.PENDIENTE,
       id_equipo: dto.id_equipo,
       id_cliente: user.userId, 
+      id_trabajador: user.userId,
       id_software: dto.id_software,
       es_software: dto.es_software,
       imagen_url: dto.imagen_url,
@@ -103,9 +104,10 @@ export class TicketService {
 
     //Retricciones por rol
     switch (user.role) {
-      case 'TRABAJADOR':
-        //Solo ve los tickets que él mismo creó
-        query.andWhere('ticket.id_cliente = :id', { id: user.userId });
+      case 'CLIENTE_TRABAJADOR':
+        // Solo ve los tickets que él mismo creó Y que pertenecen a su empresa actual
+        query.andWhere('ticket.id_trabajador = :id', { id: user.userId })
+             .andWhere('ticket.id_cliente = :clienteId', { clienteId: user.clienteId });
         break;
       case 'SOPORTE_TECNICO':
       case 'SOPORTE_SITU':
@@ -257,8 +259,13 @@ export class TicketService {
   async getDashboardMetrics(user: any){
     const query = this.ticketRepo.createQueryBuilder('ticket');
     //Verificar rol del usuario para mostrar solo los tickets relevantes
-    if (user.role === 'TRABAJADOR') {
-      query.where('ticket.id_cliente = :id', { id: user.userId });
+    if (user.role === 'CLIENTE_TRABAJADOR') {
+      query.where('ticket.id_trabajador = :id', { id: user.userId }); // Usamos el ID correcto
+    } else if (user.role === 'SOPORTE_TECNICO' || user.role === 'SOPORTE_INSITU') {
+      query.where('ticket.id_soporte = :id', { id: user.userId });
+    } else if (user.role === 'CLIENTE_EMPRESA') {
+      // Ojo: asumiendo que tienes el clienteId en tu payload del JWT
+      query.where('ticket.id_cliente = :id', { id: user.clienteId }); 
     }
     
     const total = await query.getCount();

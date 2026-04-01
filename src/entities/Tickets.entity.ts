@@ -63,6 +63,12 @@ export class Tickets {
     @JoinColumn({ name: 'id_cliente' })
     cliente: Clientes;
 
+    @Column()
+    id_trabajador: number; 
+
+    @ManyToOne(() => Usuario, { eager: false }) 
+    @JoinColumn({ name: 'id_trabajador' })
+    trabajador: Usuario;
     // ---------------------------------------------------------
     // Soporte asignado (nullable)
     // ---------------------------------------------------------
@@ -92,6 +98,4 @@ export class Tickets {
     //Fecha de creacion
     @CreateDateColumn({ name: 'created_at' })
     created_at: Date;
-
-
 }

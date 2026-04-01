@@ -13,6 +13,7 @@ import { RegisterEmployeeDto } from './dto/register-employee.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/role.decorator';
+import { ReassignUserDto } from './dto/reassign-user.dto';
 
 @Controller('usuario')
 export class UsuarioController {
@@ -73,5 +74,25 @@ export class UsuarioController {
   @Roles('ADMINISTRADOR')
   deactivateUser(@Param('id', ParseIntPipe) id: number){
     return this.usuarioService.deactivateUser(id);
+  }
+
+  //Activar cuenta de un usuario (Solo Admin)
+  //PATCH /usuario/:id/activar
+  //Alcance: Solo el administrador puede activar la cuenta de un usuario
+  @Patch(':id/activar')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('ADMINISTRADOR')
+  activateUser(@Param('id', ParseIntPipe) id: number){
+    return this.usuarioService.activateUser(id);
+  }
+
+  //Reasignar un usuario a otra sucursal o cliente (Solo Admin)
+  //PATCH /usuario/:id/reasignar
+  //Alcance: Solo el administrador puede reasignar un usuario a otra sucursal o cliente
+  @Patch(':id/reasignar')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('ADMINISTRADOR')
+  reassignUser(@Param('id', ParseIntPipe) id: number, @Body() dto: ReassignUserDto){
+    return this.usuarioService.reassignUser(id, dto);
   }
 }

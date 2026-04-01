@@ -36,7 +36,7 @@ CREATE TABLE software (
     correo VARCHAR(100) NOT NULL,
     contrasena varchar(255) NOT NULL,
     fecha_instalacion DATE NOT NULL,
-    fecha_caducidad DATE NOT NULL CHECK (fecha_caducidad >= fecha_instalacion + INTERVAL 1 YEAR),
+    fecha_caducidad DATE NOT NULL,
     proveedor varchar(100) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -156,7 +156,7 @@ CREATE TABLE equipos (
 CREATE TABLE software_equipos (
     id_software_equipos INT AUTO_INCREMENT PRIMARY KEY,
     id_software INT NOT NULL,
-    id_equipos INT NOT NULL,
+    id_equipo INT NOT NULL,
     fecha_instalacion DATETIME DEFAULT CURRENT_TIMESTAMP, 
     licencia_asignada VARCHAR(100),                      
     is_active BOOLEAN DEFAULT TRUE,                       
@@ -164,7 +164,7 @@ CREATE TABLE software_equipos (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_se_software FOREIGN KEY (id_software) REFERENCES software(id_software) ON DELETE CASCADE,
-    CONSTRAINT fk_se_equipos FOREIGN KEY (id_equipos) REFERENCES equipos(id_equipo) ON DELETE CASCADE
+    CONSTRAINT fk_se_equipos FOREIGN KEY (id_equipo) REFERENCES equipos(id_equipo) ON DELETE CASCADE
 );
 
 -- Relación: Historial de piezas/hardware instaladas (CON ID_EQUIPO)
@@ -194,6 +194,7 @@ CREATE TABLE tickets (
     estado ENUM('Pendiente', 'Asignado', 'En Progreso', 'Reabierto', 'Cerrado') DEFAULT 'Pendiente',
     id_equipo INT NOT NULL,
     id_cliente INT NOT NULL,
+    id_trabajador INT NOT NULL,
     id_soporte INT,
     id_software INT, 
     es_software BOOLEAN DEFAULT FALSE,
@@ -201,6 +202,7 @@ CREATE TABLE tickets (
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_tickets_equipo FOREIGN KEY (id_equipo) REFERENCES equipos(id_equipo),
     CONSTRAINT fk_tickets_clientes FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),
+    CONSTRAINT fk_tickets_trabajador FOREIGN KEY (id_trabajador) REFERENCES usuarios(id_usuario),
     CONSTRAINT fk_tickets_soporte FOREIGN KEY (id_soporte) REFERENCES usuarios(id_usuario),
     CONSTRAINT fk_tickets_software FOREIGN KEY (id_software) REFERENCES software(id_software) ON DELETE SET NULL
 );

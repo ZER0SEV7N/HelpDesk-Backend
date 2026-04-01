@@ -17,7 +17,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import * as cookie from 'cookie';
 import { AuthService } from '../auth/auth.service'; 
-import { TicketService } from '../ticket/ticket.service'; // Asegúrate de que la ruta coincida
+import { TicketService } from '../ticket/ticket.service'; 
 import { UnauthorizedException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from '../entities/Usuario.entity';
@@ -27,7 +27,7 @@ import { env } from 'process';
 
 @WebSocketGateway({
   cors: {
-    origin: env.HTTP_ORIGIN || 'http://localhost:3000', // URL de tu Frontend
+    origin: env.HTTP_ORIGIN || 'http://localhost:3000', 
     credentials: true,
   },
 })
@@ -60,8 +60,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       const payload = await this.authService.verifyToken(token); 
       
-      // Guardamos la info del usuario en el socket
-      // Estructura: { sub: id_usuario, role: string, email: string }
+      if (payload.clienteId) {
+          client.join(`empresa_${payload.clienteId}`); 
+      }
+      client.join(`user_${payload.sub}`);
+
+      //Guardamos la info del usuario en el socket
+      //Estructura: { sub: id_usuario, role: string, email: string }
       client.data.user = payload; 
       
       this.logger.log(`Conectado: ${payload.role} - ID: ${payload.sub}`);
