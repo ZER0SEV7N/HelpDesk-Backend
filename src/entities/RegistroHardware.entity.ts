@@ -1,6 +1,6 @@
 //Entidad RegistroHardware
 //Definicion de la entidad RegistroHardware
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn,CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Hardware } from './Hardware.entity';
 import { Equipos } from './Equipos.entity';
 //Definicion de la entidad RegistroHardware

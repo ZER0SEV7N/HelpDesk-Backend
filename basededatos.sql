@@ -116,7 +116,7 @@ CREATE TABLE usuarios (
     nombre VARCHAR(50) NOT NULL,
     apellido VARCHAR(50) NOT NULL,
     correo VARCHAR(255) NOT NULL UNIQUE,
-    contrasena VARCHAR(255) NOT NULL,
+    contraseña VARCHAR(255) NOT NULL,
     telefono VARCHAR(15),
     is_active BOOLEAN DEFAULT TRUE,
     id_rol INT,

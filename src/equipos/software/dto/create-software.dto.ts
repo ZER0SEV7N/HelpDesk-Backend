@@ -21,7 +21,7 @@ export class CreateSoftwareDto {
     //Contraseña del software (cuenta/licencia)
     @IsString()
     @IsNotEmpty()
-    contrasenia: string;
+    contraseña: string;
 
     // Fecha de instalación del software (formato ISO: YYYY-MM-DD)
     // Se recomienda usar string para que @IsDateString valide correctamente

@@ -6,13 +6,10 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
-  ManyToMany,
-  JoinTable,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-import { Planes } from './Planes.entity';
 import { Tickets } from './Tickets.entity';
 import { Clientes } from './Clientes.entity';
 import { Sucursales } from './Sucursales.entity';

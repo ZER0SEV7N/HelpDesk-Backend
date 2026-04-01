@@ -1,6 +1,6 @@
 //Modulo de entidad para la tabla Cliente
 //importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Usuario } from './Usuario.entity';
 import { Equipos } from './Equipos.entity';
 import { Sucursales } from './Sucursales.entity';

@@ -13,6 +13,6 @@ export class LoginDTO {
   //Contrasena del usuario
   @IsString() //Valida que sea una cadena de texto
   @IsNotEmpty() //Valida que no este vacio 
-  contrasena: string;
+  contraseña: string;
 }
 

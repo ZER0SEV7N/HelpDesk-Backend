@@ -1,6 +1,6 @@
 //Modulo de entidad para la tabla Software
 //importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Software_equipos } from './SoftwareEquipos.entity'; // Importa la entidad relacionada
 
 //Definicion de la entidad Software
@@ -23,8 +23,8 @@ export class Software {
     correo: string; //Correo del Software
 
     //Columna para la contraseña
-    @Column({ name: 'contrasena', length: 255 })
-    contrasenia: string;//Contraseña del Software
+    @Column({ name: 'contraseña', length: 255 })
+    contraseña: string;//Contraseña del Software
 
     //Columna para la fecha de instalacion
     @Column({ name: 'fecha_instalacion', type: 'date' })
