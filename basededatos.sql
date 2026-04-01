@@ -157,10 +157,10 @@ CREATE TABLE software_equipos (
     id_software_equipos INT AUTO_INCREMENT PRIMARY KEY,
     id_software INT NOT NULL,
     id_equipos INT NOT NULL,
-    fecha_instalacion DATETIME DEFAULT CURRENT_TIMESTAMP, -- NUEVO
-    licencia_asignada VARCHAR(100),                       -- NUEVO
-    is_active BOOLEAN DEFAULT TRUE,                       -- NUEVO
-    observaciones TEXT,                                   -- NUEVO
+    fecha_instalacion DATETIME DEFAULT CURRENT_TIMESTAMP, 
+    licencia_asignada VARCHAR(100),                      
+    is_active BOOLEAN DEFAULT TRUE,                       
+    observaciones TEXT,                                   
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_se_software FOREIGN KEY (id_software) REFERENCES software(id_software) ON DELETE CASCADE,
@@ -175,7 +175,7 @@ CREATE TABLE registro_hardware (
     serie VARCHAR(100) NOT NULL,
     proveedor VARCHAR(255) NOT NULL,
     id_hardware INT NOT NULL,
-    id_equipo INT NOT NULL, -- NUEVO: Para saber a qué PC se le puso la pieza
+    id_equipo INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_rh_hardware FOREIGN KEY (id_hardware) REFERENCES hardware(id_hardware) ON DELETE CASCADE,

@@ -64,7 +64,7 @@ export class ChatService {
         //Si Redis esta vacio o no tiene mensajes, obtenemos todo el historial de MongoDB
         this.logger.log(`Cache vacia para ticket ${ticketId}, obteniendo historial completo de MongoDB`);
         //Obtener mensajes de MongoDB
-        const mensajesMongo = await this.mensajeModel.find({ ticketId }).sort({ createdAt: 1 }).exec();
+        const mensajesMongo = await this.mensajeModel.find({ ticketId }).sort({ createdAt: 1 }).lean().exec();
         if (mensajesMongo.length > 0) {
             const stringifiedMessages = mensajesMongo.map(msg => JSON.stringify(msg));
             await this.redis.rpush(redisKey, ...stringifiedMessages);

@@ -48,12 +48,12 @@ export class UsuarioController {
   //Registrar un nuego empleado (Solo Admin)
   //POST /usuario/registrar-empleado
   //Alcance: Solo el administrador puede registrar un nuevo empleado
-  /*@Post('registrar-empleado')
+  @Post('registrar-empleado')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles('ADMINISTRADOR')
   registerEmployee(@Body() dto: RegisterEmployeeDto, @Req() req: any){
     return this.usuarioService.registerEmployee(dto, req.user.role);
-  }*/
+  }
 
   //Asignar rol a un usuario (Solo Admin)
   //PATCH /usuario/:id/rol

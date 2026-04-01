@@ -159,9 +159,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // Preparamos el objeto para MongoDB basándonos en tu DTO
     const messagePayload = {
       ticketId: Number(data.ticketId),
-      senderId: user.sub,
-      role: user.role,
-      content: data.content,
+      userId: user.sub,
+      contenido: data.content,
       // No mandamos timestamp, Mongoose maneja el createdAt automáticamente si lo definiste en el schema
     };
 

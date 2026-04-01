@@ -22,13 +22,19 @@ export class SoftwareService {
     private readonly equiposRepo: Repository<Equipos>,
   ) {}
 
-  // Crear un nuevo registro de software
+  //Crear un nuevo registro de software
   async create(createSoftwareDto: CreateSoftwareDto) {
-    // Convertimos las fechas de string a Date para que TypeORM acepte los valores
+    const instalacion = new Date(createSoftwareDto.fecha_instalacion)
+    const caducidad = new Date(createSoftwareDto.fecha_caducidad)
+
+    if (isNaN(instalacion.getTime()) || isNaN(caducidad.getTime())) {
+      throw new BadRequestException('Fechas inválidas. Asegúrate de que sean strings en formato ISO.');
+    }
+    //Convertimos las fechas de string a Date para que TypeORM acepte los valores
     const dtoWithDates: Partial<Software> = {
       ...createSoftwareDto,
-      fecha_instalacion: new Date(createSoftwareDto.fecha_instalacion),
-      fecha_caducidad: new Date(createSoftwareDto.fecha_caducidad),
+      fecha_instalacion: instalacion ,
+      fecha_caducidad: caducidad,
     };
 
     // Creamos la entidad a partir del DTO

@@ -9,7 +9,6 @@ import { CreateHardwareDto } from './dto/create-hardware.dto'; // DTO para crear
 import { RegistroHardware } from '../../entities/RegistroHardware.entity'; // Entidad relacionada
 import { UpdateHardwareDto } from './dto/update-hardware.dto'; // DTO para actualizar hardware
 import { Equipos } from 'src/entities/Equipos.entity';
-import { serialize } from 'v8';
 
 @Injectable()
 export class HardwareService {

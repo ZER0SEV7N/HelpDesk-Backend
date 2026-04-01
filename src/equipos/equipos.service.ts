@@ -42,7 +42,8 @@ export class EquiposService {
       .leftJoinAndSelect('equipo.historial_hardware', 'historial_hardware')
       .leftJoinAndSelect('historial_hardware.hardware', 'hardware')
       .leftJoinAndSelect('equipo.software_instalado', 'software_instalado')
-      .leftJoinAndSelect('software_instalado.soft', 'soft')
+      .leftJoin('software_instalado.soft', 'soft')
+      .addSelect(['soft.id_software', 'soft.nombre_software', 'soft.licencia'])
       .where('equipo.is_active = :isActive', { isActive: true });
 
     // 3. Aplicamos el candado según el rol

@@ -1,7 +1,7 @@
 //src/clientes/clientes.controller.ts
 //Controlador para la gestion de clientes
 //Importaciones necesarias:
-import { Controller, Post, Get, Patch, Param, Body, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Param, Body, UseGuards, ParseIntPipe, ValidationPipe } from '@nestjs/common';
 import { ClientesService } from './clientes.service';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { CreateSucursalDto } from './dto/create-sucursal.dto';
@@ -21,8 +21,8 @@ export class ClientesController {
     //Alcance: Solo el administrador puede crear un nuevo cliente
     //----------------------------------------
     @Post()
-    //@Roles('ADMINISTRADOR')
-    create(@Body('cliente') clienteDto: CreateClienteDto,
+    @Roles('ADMINISTRADOR')
+    create(@Body('cliente', new ValidationPipe({ validateCustomDecorators: true })) clienteDto: CreateClienteDto,
             @Body('sucursal') sucursalDto: Partial<CreateSucursalDto>) {
         return this.clientesService.create(clienteDto, sucursalDto);
     } 

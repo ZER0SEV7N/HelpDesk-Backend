@@ -18,7 +18,7 @@ export class Software_equipos {
     soft: Software;
 
    @ManyToOne(() => Equipos, (equipo) => equipo.software_instalado)
-    @JoinColumn({ name: 'id_equipos' })
+    @JoinColumn({ name: 'id_equipo' })
     equipo: Equipos;
     
     @Column({ name: 'fecha_instalacion', type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })

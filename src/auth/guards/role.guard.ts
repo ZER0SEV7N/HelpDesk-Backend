@@ -23,6 +23,9 @@ export class RoleGuard implements CanActivate {
     
     const { user } = context.switchToHttp().getRequest(); //Obtiene el usuario del request
 
+    if (!user || !user.role) return false; //Deniega el acceso limpiamente (403 Forbidden)
+
+
     return requiredRoles.includes(user.role); //Verifica si el rol del usuario esta en los roles requeridos
 
     }

@@ -76,7 +76,7 @@ export class UsuarioService {
 
     //Metodo para registrar un nuevo empleado (Solo Admin)
     //POST /usuario/register-employee
-    /*async registerEmployee(dto: RegisterEmployeeDto, creatorRole: string) {
+    async registerEmployee(dto: RegisterEmployeeDto, creatorRole: string) {
         //Verificar si el rol es de administrador
         if (creatorRole !== 'ADMINISTRADOR') {
             throw new BadRequestException('No tienes permisos para registrar usuarios');
@@ -112,14 +112,14 @@ export class UsuarioService {
             telefono: dto.telefono,
             contrasena: hashedPassword,
             rol: rol,
-            id_cliente: cliente ? cliente.id_cliente : null, // <-- Asignamos la empresa
-            id_sucursal: sucursal ? sucursal.id_sucursal : null, // <-- Asignamos la sucursal
+            id_cliente: cliente ? cliente.id_cliente : undefined, // <-- Asignamos la empresa
+            id_sucursal: sucursal ? sucursal.id_sucursal : undefined, // <-- Asignamos la sucursal
             is_active: true,
         });
         const savedUser = await this.usuarioRepo.save(newUser);
         const { contrasena, ...result } = savedUser;
         return result;
-    }*/
+    }
 
     //Metodo para el administrador pueda asignar roles de manera manual
     //PATCH /usuario/:id/rol

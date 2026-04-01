@@ -52,6 +52,7 @@ export class AuthController {
         //Retonar el usuario autenticado y su rol (opcional, puede ser util para el frontend)
         return {
             message: 'Login exitoso',
+            token: token,
             user: {
                 nombre: user.nombre,
                 apellido: user.apellido,

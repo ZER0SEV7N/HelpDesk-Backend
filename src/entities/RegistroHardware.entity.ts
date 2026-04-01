@@ -11,8 +11,8 @@ export class RegistroHardware {
   id_RH: number; //Llave primaria auto-generada
 
   //Columna fecha de instalacion
-  @Column()
-  fecha_instalacion: Date; //Fecha de instalacion del hardware
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  fecha_instalacion: Date;
 
   //descripcion del hardware
   @Column('text')

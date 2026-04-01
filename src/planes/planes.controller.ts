@@ -40,7 +40,7 @@ export class PlanesController {
    */
   @Post()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('ADMIN')
+  @Roles('ADMINISTRADOR')
   create(@Body() createPlanDto: CreatePlanDto) {
     return this.planesService.create(createPlanDto);
   }
