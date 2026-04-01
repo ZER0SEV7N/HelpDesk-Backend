@@ -27,7 +27,7 @@ export class Usuario {
     correo: string; //Correo electronico del usuario
 
     //Columna para la contrasena
-    @Column({ name: 'contraseña' })
+    @Column({ name: 'contrasena' })
     contrasena: string;
 
     //Columna para telefono
