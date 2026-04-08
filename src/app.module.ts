@@ -10,6 +10,7 @@ import { TicketModule } from './ticket/ticket.module';
 import { EquiposModule } from './equipos/equipos.module';
 import { ChatModule } from './chat/chat.module';
 import { UsuarioModule } from './usuario/usuario.module';
+import { PlanesModule } from './planes/planes.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -22,6 +23,8 @@ import { UsuarioModule } from './usuario/usuario.module';
       EquiposModule, 
       ChatModule, 
       UsuarioModule, 
+      PlanesModule,
+      
     ],
     
   controllers: [AppController],

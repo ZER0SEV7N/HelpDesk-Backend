@@ -134,7 +134,7 @@ CREATE TABLE equipos (
     id_equipo INT AUTO_INCREMENT PRIMARY KEY,
     tipo VARCHAR(50) NOT NULL,
     marca VARCHAR(50) NOT NULL,
-    num_serie VARCHAR(100) NOT NULL,
+    num_serie VARCHAR(100) UNIQUE,
     nombre_usuario VARCHAR(100),
     area VARCHAR(100),
     ult_revision DATE,
@@ -239,6 +239,7 @@ INSERT sucursales VALUES
 -- La contraseña encriptada es: 123456
 INSERT usuarios VALUES
 (NULL, 'Daniel', 'Singer', 'admin@zaint.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '987654321', 1, 1, NULL, NULL, NOW(), NOW());
+(NULL, 'Carlos', 'Mendoza', 'example@gmail.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '123456789', 1, 4, 1, 1, NOW(), NOW());
 
 -- 6. Insertar Equipos de Prueba
 INSERT equipos VALUES

@@ -22,6 +22,15 @@ export class UsuarioController {
   //Modificar su propio perfil de usuario
   //PATCH /usuario/perfil
   //Alcance: Todos los roles pueden modificar su propio perfil.
+  //Solicita
+  /*{
+  "currentPassword": "contraseñaActual",
+  "nombre": "NuevoNombre",
+  "apellido": "NuevoApellido",
+  "correo": "Correo",
+  "telefono": "Telefono",
+  "nuevaContraseña": "NuevaContraseña"
+  }*/
   @Patch('perfil')
   @UseGuards(JwtAuthGuard)
   updateProfile(@Req() req: any, @Body() dto: UpdateProfileDTO){
@@ -29,7 +38,7 @@ export class UsuarioController {
   }
 
   //Obtener tu propio perfil de usuario
-  //GET /usuario
+  //GET /usuario/perfil
   //Alcance: Todos los roles pueden obtener su propio perfil.
   @Get('perfil')
   @UseGuards(JwtAuthGuard)
@@ -37,62 +46,71 @@ export class UsuarioController {
       return this.usuarioService.getProfile(req.user.userId);
   }
 
-  //Listar todos los usuarios (Solo Admin)
+  //Listar todos los usuarios (Solo Cliente_Empresa y Cliente_Sucursal)
   //GET /usuario/list
   @Get('list')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('ADMINISTRADOR')
-  listUsers() {
-      return this.usuarioService.listUsers();
+  @Roles('CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
+  listUsers(@Req() req: any) {
+      return this.usuarioService.listUsers(req.user);
   }
 
-  //Registrar un nuego empleado (Solo Admin)
+  //Registrar un nuego empleado 
   //POST /usuario/registrar-empleado
-  //Alcance: Solo el administrador puede registrar un nuevo empleado
+  //Alcance: Solo la empresa puede registrar un nuevo empleado
   @Post('registrar-empleado')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('ADMINISTRADOR')
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   registerEmployee(@Body() dto: RegisterEmployeeDto, @Req() req: any){
-    return this.usuarioService.registerEmployee(dto, req.user.role);
+    return this.usuarioService.registerEmployee(dto, req.user);
   }
 
-  //Asignar rol a un usuario (Solo Admin)
+  //Asignar rol a un usuario
   //PATCH /usuario/:id/rol
-  //Alcance: Solo el administrador puede asignar roles a otros usuarios
+  //Alcance: Solo el administrador puede asignar o cambiar el rol de un usuario. 
+  //La empresa puede asignar roles a sus propios empleados pero no puede cambiar roles de usuarios que no le pertenecen.
   @Patch(':id/rol')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('ADMINISTRADOR')
-  assignRole(@Param('id', ParseIntPipe) id: number, @Body('rolNombre') rolNombre: string){
-    return this.usuarioService.assignRole(id, rolNombre);
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
+  assignRole(@Param('id', ParseIntPipe) id: number, 
+            @Body('rolNombre') rolNombre: string,
+            @Req() req: any){
+    return this.usuarioService.assignRole(id, rolNombre, req.user);
   }
 
-  //Desactivar cuenta de un usuario (Solo Admin)
+  //Desactivar cuenta de un usuario 
   //PATCH /usuario/:id/desactivar
-  //Alcance: Solo el administrador puede desactivar la cuenta de un usuario
+  //Alcance: el administrador puede desactivar cualquier usuario. 
+  // La empresa puede desactivar solo a sus propios empleados.
   @Patch(':id/desactivar')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('ADMINISTRADOR')
-  deactivateUser(@Param('id', ParseIntPipe) id: number){
-    return this.usuarioService.deactivateUser(id);
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
+  deactivateUser(@Param('id', ParseIntPipe) id: number,
+                @Req() req: any){
+    return this.usuarioService.deactivateUser(id, req.user);
   }
 
-  //Activar cuenta de un usuario (Solo Admin)
+  //Activar cuenta de un usuario 
   //PATCH /usuario/:id/activar
-  //Alcance: Solo el administrador puede activar la cuenta de un usuario
+  //Alcance: el administrador puede activar las cuentas de los usuarios que desactivó. 
+  //La empresa puede activar las cuentas de sus propios empleados que desactivó, pero no puede activar usuarios que no le pertenecen.
   @Patch(':id/activar')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('ADMINISTRADOR')
-  activateUser(@Param('id', ParseIntPipe) id: number){
-    return this.usuarioService.activateUser(id);
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
+  activateUser(@Param('id', ParseIntPipe) id: number,
+                @Req() req: any){
+    return this.usuarioService.activateUser(id, req.user);
   }
 
-  //Reasignar un usuario a otra sucursal o cliente (Solo Admin)
+  //Reasignar un usuario a otra sucursal o cliente 
   //PATCH /usuario/:id/reasignar
   //Alcance: Solo el administrador puede reasignar un usuario a otra sucursal o cliente
   @Patch(':id/reasignar')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('ADMINISTRADOR')
-  reassignUser(@Param('id', ParseIntPipe) id: number, @Body() dto: ReassignUserDto){
-    return this.usuarioService.reassignUser(id, dto);
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
+  reassignUser(@Param('id', ParseIntPipe) id: number, 
+              @Body() dto: ReassignUserDto,
+              @Req() req: any){
+    return this.usuarioService.reassignUser(id, dto, req.user);
   }
 }

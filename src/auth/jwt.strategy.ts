@@ -34,7 +34,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         console.log('🔵 Payload descifrado:', payload); 
         return { 
             userId: payload.sub, 
-            role: payload.role  
+            role: payload.role,  
+            clienteId: payload.clienteId,
+            sucursalId: payload.sucursalId
         };
     }
 }
