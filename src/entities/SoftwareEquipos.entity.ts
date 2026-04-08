@@ -1,6 +1,6 @@
 //Modulo de entidad para la tabla Software equipos
 //importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 //importar relacion con software
 import { Software } from './Software.entity';
 import { Equipos } from './Equipos.entity';

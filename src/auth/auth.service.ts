@@ -42,14 +42,14 @@ export class AuthService {
         if (!defaultRole) throw new HttpException('Rol por defecto no encontrado', HttpStatus.CONFLICT);
 
         // 2. Encriptar contraseña
-        const hashedPassword = await bcrypt.hash(dto.contrasena, 10);
+        const hashedPassword = await bcrypt.hash(dto.contraseña, 10);
 
         // 3. Crear usuario
         const newUser = this.usuariosRepo.create({
             nombre: dto.nombre,
             apellido: dto.apellido,
             correo: dto.correo,
-            contrasena: hashedPassword,
+            contraseña: hashedPassword,
             telefono: dto.telefono,
             rol: defaultRole,
             is_active: true,
@@ -70,8 +70,8 @@ export class AuthService {
 
         //Verificar contraseña
         const isPasswordValid = await bcrypt.compare(
-            dto.contrasena,      
-            user.contrasena, 
+            dto.contraseña,      
+            user.contraseña, 
         );
 
         if (!isPasswordValid) {

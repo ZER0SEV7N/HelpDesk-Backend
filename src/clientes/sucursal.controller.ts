@@ -10,7 +10,7 @@ import { RoleGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/role.decorator';
 
 @Controller('sucursales')
-@UseGuards(JwtAuthGuard, RoleGuard) // Protegemos todas las rutas con autenticación y control de roles
+@UseGuards(JwtAuthGuard, RoleGuard) 
 export class SucursalController {
     constructor(private readonly sucursalService: SucursalService) {}
 

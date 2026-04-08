@@ -1,7 +1,12 @@
 //src/entities/Tickets.entity.ts
 //Modulo de entidad para la tabla ticket
-//importaciones necesarias:
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, CreateDateColumn } from 'typeorm';
+
+import { 
+  Entity, Column, PrimaryGeneratedColumn, 
+  JoinColumn, ManyToOne, 
+  CreateDateColumn, UpdateDateColumn 
+} from 'typeorm';
+
 import { Equipos } from './Equipos.entity';
 import { Usuario } from './Usuario.entity';
 import { Clientes } from './Clientes.entity';
@@ -98,4 +103,8 @@ export class Tickets {
     //Fecha de creacion
     @CreateDateColumn({ name: 'created_at' })
     created_at: Date;
+
+    //Fecha de actualizacion
+    @UpdateDateColumn({ name: 'updated_at' })
+    updated_at: Date;
 }
