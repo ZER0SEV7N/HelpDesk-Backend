@@ -22,7 +22,7 @@ export class AuthController {
     - Apellido: string
     - correo: string
     - telefono: string 
-    - contrasena: string */
+    - contraseña: string */
     @Post('register')
     register(@Body() dto: RegisterDTO) {
         return this.authService.register(dto);
@@ -32,7 +32,7 @@ export class AuthController {
     //POST: /auth/login
     /*Parametros esperados:
     - correo: string
-    - contrasena: string */
+    - contraseña: string */
     @Post('login')
     async login(@Body() dto: LoginDTO,
         //Permite acceder al objeto de respuesta para setear cookies

@@ -1,7 +1,7 @@
 //helpDesk-Backend/src/usuario/usuario.service.ts
 //Servicio para manejar la logica de negocio relacionada con los usuarios
 //Funcionalidades:
-//1. Actualizar perfil del usuario (nombre, apellido, correo, telefono, contrasena)
+//1. Actualizar perfil del usuario (nombre, apellido, correo, telefono, contraseña)
 //2. Eliminar cuenta del usuario (cambiar estado a inactivo) Solo Admin
 //3. Obtener perfil del usuario
 //4. Listar usuarios (Solo Admin)
@@ -30,15 +30,15 @@ export class UsuarioService {
 
     //Metodo para actualizar el perfil del usuario
     //PATCH /usuario/profile
-    //TODOS los usuarios pueden actualizar su perfil, pero deben proporcionar su contrasena actual para validar su identidad
+    //TODOS los usuarios pueden actualizar su perfil, pero deben proporcionar su contraseña actual para validar su identidad
     async updateProfile(userId: number, dto: UpdateProfileDTO) {
         const user = await this.validateUserExists(userId);
 
-        //Validar contrasena actual
+        //Validar contraseña actual
         const isPasswordValid = await bcrypt.compare(dto.currentPassword, user.contraseña);
         if (!isPasswordValid) throw new UnauthorizedException('Contraseña actual incorrecta');
 
-        //Si se proporciona nueva contrasena, encriptarla
+        //Si se proporciona nueva contraseña, encriptarla
         if (dto.newPassword) user.contraseña = await bcrypt.hash(dto.newPassword, 10);
 
         //Actualizar campos opcionales
@@ -52,7 +52,7 @@ export class UsuarioService {
         //Guardar los cambios
         await this.usuarioRepo.save(user);
 
-        //Retornamos el usuario sin la contrasena por seguridad
+        //Retornamos el usuario sin la contraseña por seguridad
         const { contraseña, ...result } = user;
         return result;
     }
@@ -62,7 +62,7 @@ export class UsuarioService {
     async getProfile(userId: number) {
         const user = await this.usuarioRepo.findOne({ where: { id_usuario: userId }, relations: ['rol'] });
         if (!user) throw new NotFoundException('Usuario no encontrado');
-        //Retornamos el usuario sin la contrasena por seguridad
+        //Retornamos el usuario sin la contraseña por seguridad
         const { contraseña, ...result } = user;
         return result;
     }
@@ -71,7 +71,7 @@ export class UsuarioService {
     //GET /usuario/list
     async listUsers() {
         const users = await this.usuarioRepo.find({ relations: ['rol'] });
-        // Excluye la contrasena de cada usuario.
+        // Excluye la contraseña de cada usuario.
         // Se usa desestructuracion explicita dentro del callback para que
         // TypeScript infiera correctamente el tipo (evita el error ts(2339))
         return users.map((user) => {
@@ -108,7 +108,7 @@ export class UsuarioService {
             if (cliente && sucursal.id_cliente !== cliente.id_cliente) throw new BadRequestException('La sucursal indicada no pertenece a la empresa seleccionada');
         }
 
-        //Encriptar contrasena
+        //Encriptar contraseña
         const hashedPassword = await bcrypt.hash(dto.contraseña, 10);
 
         // Construir el objeto con tipado explicito Partial<Usuario> para evitar
@@ -129,7 +129,7 @@ export class UsuarioService {
         const newUser = this.usuarioRepo.create(userData);
         const savedUser = await this.usuarioRepo.save(newUser);
 
-        //Retornar el nuevo usuario sin exponer la contrasena
+        //Retornar el nuevo usuario sin exponer la contraseña
         const { contraseña, ...result } = savedUser;
         return result;
     }

@@ -10,7 +10,7 @@ export class LoginDTO {
   @IsString() //Valida que sea una cadena de texto
   correo: string;
 
-  //Contrasena del usuario
+  //Contraseña del usuario
   @IsString() //Valida que sea una cadena de texto
   @IsNotEmpty() //Valida que no este vacio 
   contraseña: string;
