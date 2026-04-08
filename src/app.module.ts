@@ -10,20 +10,21 @@ import { TicketModule } from './ticket/ticket.module';
 import { EquiposModule } from './equipos/equipos.module';
 import { ChatModule } from './chat/chat.module';
 import { UsuarioModule } from './usuario/usuario.module';
+import { SoftwareModule } from './equipos/software/software.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({
-      isGlobal: true}),
-      DatabaseModule, 
-      ClientesModule, 
-      AuthModule, 
-      HardwareModule, 
-      TicketModule, 
-      EquiposModule, 
-      ChatModule, 
-      UsuarioModule, 
-    ],
-    
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
+    ClientesModule,
+    AuthModule,
+    HardwareModule,
+    TicketModule,
+    EquiposModule,
+    ChatModule,
+    UsuarioModule,
+    SoftwareModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

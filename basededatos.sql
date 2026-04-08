@@ -134,7 +134,7 @@ CREATE TABLE equipos (
     id_equipo INT AUTO_INCREMENT PRIMARY KEY,
     tipo VARCHAR(50) NOT NULL,
     marca VARCHAR(50) NOT NULL,
-    num_serie VARCHAR(100) NOT NULL,
+    num_serie VARCHAR(100) UNIQUE NOT NULL,
     nombre_usuario VARCHAR(100),
     area VARCHAR(100),
     ult_revision DATE,
