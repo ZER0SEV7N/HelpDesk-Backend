@@ -29,6 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         });
     }
 
+    //Este método se llama automáticamente después de que el token ha sido verificado
     async validate(payload: any) {
         console.log('🔵 Payload descifrado:', payload); 
         return { 

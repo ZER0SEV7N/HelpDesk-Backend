@@ -68,6 +68,6 @@ export class AuthController {
     logout(@Res({ passthrough: true}) res: Response) {
         //Eliminar la cookie JWT del cliente
         res.clearCookie('jwt');
-        return { message: 'Logout exitoso' };
+        return { message: 'Logout exitoso, Esperamos que vuelva pronto' };
     }
 }

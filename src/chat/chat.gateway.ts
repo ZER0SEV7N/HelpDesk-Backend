@@ -35,7 +35,7 @@ import { env } from 'process';
 //ChatGateway implementa las interfaces para manejar conexiones y desconexiones
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  server: Server;
+  server!: Server;
   private logger = new Logger('ChatGateway');
 
   //Constructor
@@ -71,7 +71,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       
       this.logger.log(`Conectado: ${payload.role} - ID: ${payload.sub}`);
     } catch (error) {
-      this.logger.error(`Conexión rechazada: ${error.message}`);
+      const mensaje = error instanceof Error ? error.message : 'Error desconocido';
+      this.logger.error(`Conexión rechazada: ${mensaje}`);
       client.disconnect();
     }
   }
@@ -178,7 +179,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // 2. Persistir en la base de datos (Mongo) y caché (Redis)
     try {
       await this.chatService.guardarMensaje(messagePayload as any);
-    } catch (error) {
+    } catch (error : any) {
       this.logger.error(`Fallo al guardar mensaje del ticket ${data.ticketId}: ${error.message}`);
     }
   }

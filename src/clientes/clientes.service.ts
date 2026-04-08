@@ -110,12 +110,28 @@ export class ClientesService {
 
         if(exists) throw new ConflictException(`Ya existe un cliente con ese documento ${dto.numero_documento}`);
 
-        if(dto.id_plan){
-            const planExists = await this.planesRepo.findOne({ where: {id_plan: dto.id_plan}});
-            if(!planExists) throw new NotFoundException(`El plan con el ID ${dto.id_plan} no ha sido encontrado`);
+        const planIdAsignar = dto.id_plan ? dto.id_plan : 1; // Plan 1 por defecto
+        const planExists = await this.planesRepo.findOne({ where: { id_plan: planIdAsignar }});
+        if(!planExists) throw new NotFoundException(`El plan con el ID ${planIdAsignar} no existe en el sistema`);
+        //Asignar fecha de finalizacion del plan, si no se proporciona se asigna 30 dias a partir de la fecha actual
+        let fechaFinalizacion: Date;
+
+        if(dto.fecha_finalizacion_plan){
+            fechaFinalizacion = new Date(dto.fecha_finalizacion_plan);
+            if (isNaN(fechaFinalizacion.getTime())) 
+                throw new BadRequestException('La fecha de finalización enviada no es un formato válido.');
+        } else {
+            // Salvavidas: Si el Admin olvida poner la fecha, le damos 1 año por defecto
+            fechaFinalizacion = new Date();
+            fechaFinalizacion.setFullYear(fechaFinalizacion.getFullYear() + 1); 
         }
         //Crear el cliente
-        const nuevoCliente = this.clientesRepo.create(dto)
+        const nuevoCliente = this.clientesRepo.create({
+            ...dto,
+            id_plan: planExists.id_plan,
+            fecha_finalizacion_plan: fechaFinalizacion,
+            is_active: true
+        });
         const clienteGuardado = await this.clientesRepo.save(nuevoCliente);
 
         //Validar que el ID del cliente en el DTO de sucursal coincida con el cliente creado (si se proporciona)

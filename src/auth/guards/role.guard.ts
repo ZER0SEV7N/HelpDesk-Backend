@@ -9,7 +9,7 @@ import { ROLES_KEY } from '../decorators/role.decorator';
 @Injectable()
 export class RoleGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
-
+    //Este método se ejecuta antes de que el controlador maneje la solicitud
     canActivate(context: ExecutionContext): boolean {
         const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
             context.getHandler(),
@@ -27,6 +27,5 @@ export class RoleGuard implements CanActivate {
 
 
     return requiredRoles.includes(user.role); //Verifica si el rol del usuario esta en los roles requeridos
-
     }
 }
