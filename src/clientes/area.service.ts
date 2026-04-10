@@ -85,4 +85,10 @@ export class AreaService {
         
         return sucursal;
     }
+
+    async findAll() {
+        return await this.areaRepo.find({
+            relations: ['sucursal'],
+        });
+    }
 }

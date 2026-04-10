@@ -11,6 +11,8 @@ import { EquiposModule } from './equipos/equipos.module';
 import { ChatModule } from './chat/chat.module';
 import { UsuarioModule } from './usuario/usuario.module';
 import { SoftwareModule } from './equipos/software/software.module';
+import { PlanesModule } from './planes/planes.module';
+import { AreaModule } from './clientes/area.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { SoftwareModule } from './equipos/software/software.module';
     ChatModule,
     UsuarioModule,
     SoftwareModule,
+    PlanesModule,
+    AreaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

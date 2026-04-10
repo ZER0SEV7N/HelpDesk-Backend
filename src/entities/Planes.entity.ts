@@ -13,7 +13,7 @@ export class Planes {
 
   /** Nombre del plan (ej: Básico, Premium, Empresarial) */
   @Column({ length: 100 })
-  Tipo: string;
+  tipo: string;
 
   /** Descripción de lo que incluye el plan */
   @Column('text')

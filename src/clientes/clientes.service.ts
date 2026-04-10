@@ -248,7 +248,7 @@ export class ClientesService {
         }
         await this.clientesRepo.save(cliente);
         return { 
-            message: `Plan del cliente ${cliente.nombre_principal} actualizado a ${plan.Tipo} con fecha de finalización ${nuevaFechaFin}. El cliente ha sido reactivado junto con sus sucursales y áreas asociadas.`,
+            message: `Plan del cliente ${cliente.nombre_principal} actualizado a ${plan.tipo} con fecha de finalización ${nuevaFechaFin}. El cliente ha sido reactivado junto con sus sucursales y áreas asociadas.`,
             cliente: cliente
         };
     }

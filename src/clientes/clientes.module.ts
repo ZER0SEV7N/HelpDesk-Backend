@@ -12,6 +12,7 @@ import { Usuario } from 'src/entities/Usuario.entity';
 import { Planes } from 'src/entities/Planes.entity';
 import { Equipos } from 'src/entities/Equipos.entity';
 import { ChatModule } from 'src/chat/chat.module';
+import { SucursalController } from 'src/clientes/sucursal.controller';
 
 @Module({
   imports: [
@@ -19,7 +20,10 @@ import { ChatModule } from 'src/chat/chat.module';
     AuthModule,
     ChatModule
   ],
-  controllers: [ClientesController],
+  controllers: [
+    ClientesController,
+    SucursalController // 👈 ESTA ES LA CLAVE
+  ],
   providers: [ClientesService, SucursalService, AreaService],
 })
 export class ClientesModule {}
