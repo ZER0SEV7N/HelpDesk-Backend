@@ -24,6 +24,7 @@ CREATE TABLE planes (
     descripcion TEXT NOT NULL,
     precio DECIMAL(10, 2) DEFAULT 0.00,
     limite_equipos INT,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -74,7 +75,10 @@ CREATE TABLE clientes (
     correo VARCHAR(100),
     rubro VARCHAR(100),
     id_plan INT,
+    fecha_inicio_plan DATE,
     fecha_finalizacion_plan DATE,
+    costo_negociado DECIMAL(10, 2),
+    limite_equipos_contratado INT,
     fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -223,13 +227,13 @@ INSERT rol VALUES
 
 -- 2. Insertar Planes
 INSERT planes VALUES 
-(NULL, 1, 'Básico', 'Soporte 8x5, respuesta 24h', 49.99, 20, NOW(), NOW()),
-(NULL, 2, 'Premium', 'Soporte 4h, mantenimiento preventivo', 149.99, 100, NOW(), NOW()),
-(NULL, 3, 'Tech Enterprise', 'Soporte 24/7, SLA garantizado', 399.99, 500, NOW(), NOW());
+(NULL, 1, 'Básico', 'Soporte 8x5, respuesta 24h', 49.99, 20, TRUE, NOW(), NOW()),
+(NULL, 2, 'Premium', 'Soporte 4h, mantenimiento preventivo', 149.99, 100, TRUE, NOW(), NOW()),
+(NULL, 3, 'Tech Enterprise', 'Soporte 24/7, SLA garantizado', 399.99, 500, TRUE, NOW(), NOW());
 
 -- 3. Insertar Empresa Cliente de Prueba
 INSERT clientes VALUES
-(NULL, 'JURIDICA', '20555666777', 'Innovación Global Tech', 'Av. Principal 123', '987654321', 'admin@innovaciontech.com', 'Tecnología', 3, '2027-01-01', NOW(), 1, NOW(), NOW());
+(NULL, 'JURIDICA', '20555666777', 'Innovación Global Tech', 'Av. Principal 123', '987654321', 'admin@innovaciontech.com', 'Tecnología', 3, '2026-01-01', '2027-01-01', 399.99, 500, NOW(), 1, NOW(), NOW());
 
 -- 4. Insertar Sucursal de Prueba
 INSERT sucursales VALUES

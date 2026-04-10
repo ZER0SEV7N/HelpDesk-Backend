@@ -27,9 +27,13 @@ export class Planes {
   @Column({ type: 'int', nullable: true })
   limite_equipos: number;
 
+  @Column({ default: true })
+  is_active: boolean; //Indica si el plan está activo o no
+
   @OneToMany(() => Clientes, cliente => cliente.plan)
   clientes: Clientes[];
 
+  
   //Fecha de creacion
   @CreateDateColumn({ name: 'created_at' })
   created_at: Date;

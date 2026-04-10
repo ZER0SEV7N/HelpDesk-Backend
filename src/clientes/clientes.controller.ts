@@ -79,7 +79,7 @@ export class ClientesController {
     //----------------------------------------
     @Patch(':id/plan')
     @Roles('ADMINISTRADOR')
-    updatePlan(@Param('id', ParseIntPipe) id: number, @Body('id_plan', ParseIntPipe) id_plan: number, @Body('nuevaFechaFin') nuevaFechaFin: string) {
-        return this.clientesService.updatePlan(id, id_plan, nuevaFechaFin);
+    updatePlan(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
+        return this.clientesService.updatePlan(id, dto.id_plan, dto.nuevaFechaFin, dto);
     }
 }

@@ -14,6 +14,7 @@ import { Area } from 'src/entities/Area.entity';
 import { Usuario } from 'src/entities/Usuario.entity';
 import { Equipos } from 'src/entities/Equipos.entity';
 import { ChatGateway } from 'src/chat/chat.gateway';
+import { UpdateContractDto } from './dto/update-contract.dto';
 
 //Definicion del servicio ClientesService
 @Injectable()
@@ -114,6 +115,7 @@ export class ClientesService {
         const planExists = await this.planesRepo.findOne({ where: { id_plan: planIdAsignar }});
         if(!planExists) throw new NotFoundException(`El plan con el ID ${planIdAsignar} no existe en el sistema`);
         //Asignar fecha de finalizacion del plan, si no se proporciona se asigna 30 dias a partir de la fecha actual
+        let fechaInicio = dto.fecha_inicio_plan ? new Date(dto.fecha_inicio_plan) : new Date();
         let fechaFinalizacion: Date;
 
         if(dto.fecha_finalizacion_plan){
@@ -121,15 +123,20 @@ export class ClientesService {
             if (isNaN(fechaFinalizacion.getTime())) 
                 throw new BadRequestException('La fecha de finalización enviada no es un formato válido.');
         } else {
-            // Salvavidas: Si el Admin olvida poner la fecha, le damos 1 año por defecto
-            fechaFinalizacion = new Date();
+            // Salvavidas: Si el Admin olvida poner la fecha, le damos 1 año por defecto desde la fecha de inicio
+            fechaFinalizacion = new Date(fechaInicio);
             fechaFinalizacion.setFullYear(fechaFinalizacion.getFullYear() + 1); 
         }
+
         //Crear el cliente
         const nuevoCliente = this.clientesRepo.create({
             ...dto,
             id_plan: planExists.id_plan,
+            fecha_inicio_plan: fechaInicio,
             fecha_finalizacion_plan: fechaFinalizacion,
+            // Si el DTO trae costo/límite negociado lo usamos, si no, heredamos el del plan base
+            costo_negociado: dto.costo_negociado !== undefined ? dto.costo_negociado : planExists.precio,
+            limite_equipos_contratado: dto.limite_equipos_contratado !== undefined ? dto.limite_equipos_contratado : planExists.limite_equipos,
             is_active: true
         });
         const clienteGuardado = await this.clientesRepo.save(nuevoCliente);
@@ -216,17 +223,23 @@ export class ClientesService {
     }
 
     //Actualizar el contrato de un cliente
-    async updatePlan(id: number, id_plan: number, nuevaFechaFin: string ){
+    async updatePlan(id: number, id_plan: number, nuevaFechaFin: string, dto: UpdateContractDto){
         //Verificar que el cliente exista
         const cliente = await this.clientExists(id);
 
         //Verificar que el plan exista
-        const plan = await this.planesRepo.findOne({ where: {id_plan: id_plan}});
-        if(!plan) throw new NotFoundException(`El plan con el ID ${id_plan} no ha sido encontrado`);
+        const plan = await this.planesRepo.findOne({ where: {id_plan: dto.id_plan}});
+        if(!plan) throw new NotFoundException(`El plan con el ID ${dto.id_plan} no ha sido encontrado`);
 
         //Actualizar el plan del cliente
         cliente.plan = plan;
-        cliente.fecha_finalizacion_plan = new Date(nuevaFechaFin);
+        cliente.fecha_inicio_plan = new Date(dto.nuevaFechaInicio);
+        cliente.fecha_finalizacion_plan = new Date(dto.nuevaFechaFin);
+
+        //Si el DTO incluye costo o limite negociado, se actualizan, si no, se mantienen los valores anteriores
+        if (dto.nuevoCosto !== undefined) cliente.costo_negociado = dto.nuevoCosto;
+        if (dto.nuevoLimite !== undefined) cliente.limite_equipos_contratado = dto.nuevoLimite;
+
         //Si el cliente estaba desactivado, se reactiva al actualizar su plan
         if(!cliente.is_active) { 
             cliente.is_active = true; 
@@ -246,9 +259,10 @@ export class ClientesService {
                 await this.equiposRepo.update({ id_cliente: id }, { is_active: true });
             }
         }
+
         await this.clientesRepo.save(cliente);
         return { 
-            message: `Plan del cliente ${cliente.nombre_principal} actualizado a ${plan.tipo} con fecha de finalización ${nuevaFechaFin}. El cliente ha sido reactivado junto con sus sucursales y áreas asociadas.`,
+            message: `Plan del cliente ${cliente.nombre_principal} actualizado a ${plan.tipo} con fecha de finalización ${dto.nuevaFechaFin}.`,
             cliente: cliente
         };
     }

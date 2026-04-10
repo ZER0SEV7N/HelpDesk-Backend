@@ -102,9 +102,9 @@ export class UsuarioController {
     return this.usuarioService.activateUser(id, req.user);
   }
 
-  //Reasignar un usuario a otra sucursal o cliente 
+  //Reasignar un usuario a otra sucursal cliente 
   //PATCH /usuario/:id/reasignar
-  //Alcance: Solo el administrador puede reasignar un usuario a otra sucursal o cliente
+  //Solo el administrador puede reasignar un usuario a otra sucursal o cliente
   @Patch(':id/reasignar')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')

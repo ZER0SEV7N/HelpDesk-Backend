@@ -1,7 +1,7 @@
 //scr/clientes/dto/create-empresa.dto.ts
 //DTO para la creacion de una nueva empresa
 //Importaciones necesarias:
-import { IsString, IsNotEmpty, Length, IsEmail, IsEnum, IsOptional, MaxLength, IsInt, IsDateString } from 'class-validator';
+import { IsString, IsNotEmpty, Length, IsEmail, IsEnum, IsOptional, MaxLength, IsInt, IsDateString, IsNumber } from 'class-validator';
 import { TipoCliente } from 'src/entities/Clientes.entity';
 
 export class CreateClienteDto {
@@ -45,4 +45,16 @@ export class CreateClienteDto {
     @IsDateString({}, { message: 'Debe ser una fecha válida (YYYY-MM-DD)' })
     @IsOptional()
     fecha_finalizacion_plan?: string; //Fecha de finalizacion de contrato del plan
+
+    @IsOptional()
+    @IsDateString() // o @IsString()
+    fecha_inicio_plan?: string;
+
+    @IsOptional()
+    @IsNumber()
+    costo_negociado?: number;
+
+    @IsOptional()
+    @IsNumber()
+    limite_equipos_contratado?: number;
 }

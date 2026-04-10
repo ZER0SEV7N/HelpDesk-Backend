@@ -58,6 +58,15 @@ export class Clientes {
     @Column({ name: 'fecha_finalizacion_plan', type: 'date', nullable: true })
     fecha_finalizacion_plan: Date; //Fecha de finalización del plan
 
+    @Column({ name: 'fecha_inicio_plan', type: 'date', nullable: true })
+    fecha_inicio_plan: Date; //Fecha de inicio del plan
+
+    @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+    costo_negociado: number; //Costo negociado del plan para el cliente
+
+    @Column({ nullable: true })
+    limite_equipos_contratado: number; //Límite de equipos permitido para el cliente según su plan contratado
+
     //Columna para la fecha de registro del cliente
     @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
     fecha_registro: Date; //Fecha de registro del cliente
