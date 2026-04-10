@@ -15,9 +15,8 @@ export class Planes {
   @Column({ length: 100 })
   tipo: string;
 
-  /** Descripción de lo que incluye el plan */
-  @Column('text')
-  descripcion: string;
+  @Column({ type: 'json' })
+  servicios: string[]; //Lista de servicios incluidos en el plan (ej: ["Soporte 24/7", "Acceso a portal", "Actualizaciones automáticas"])
 
   /** Precio del plan (moneda local) */
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
@@ -33,7 +32,6 @@ export class Planes {
   @OneToMany(() => Clientes, cliente => cliente.plan)
   clientes: Clientes[];
 
-  
   //Fecha de creacion
   @CreateDateColumn({ name: 'created_at' })
   created_at: Date;

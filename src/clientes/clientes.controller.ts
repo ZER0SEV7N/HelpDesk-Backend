@@ -8,6 +8,7 @@ import { CreateSucursalDto } from './dto/create-sucursal.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/role.decorator';
+import { UpdateContractDto } from './dto/update-contract.dto';
 
 //Definicion del controlador ClientesController
 @Controller('clientes')
@@ -77,9 +78,9 @@ export class ClientesController {
     //PATCH /Clientes/:id/plan
     //Alcance: Solo el administrador puede actualizar el plan de un cliente
     //----------------------------------------
-    @Patch(':id/plan')
+    @Patch(':id/contrato')
     @Roles('ADMINISTRADOR')
-    updatePlan(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
-        return this.clientesService.updatePlan(id, dto.id_plan, dto.nuevaFechaFin, dto);
+    updatePlan(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateContractDto) {
+        return this.clientesService.updatePlan(id, dto);
     }
 }

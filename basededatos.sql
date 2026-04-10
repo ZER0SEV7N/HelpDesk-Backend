@@ -21,8 +21,8 @@ CREATE TABLE planes (
     id_plan INT AUTO_INCREMENT PRIMARY KEY,
     numero_plan INT NOT NULL,
     tipo VARCHAR(100) NOT NULL,
-    descripcion TEXT NOT NULL,
     precio DECIMAL(10, 2) DEFAULT 0.00,
+    servicios JSON NOT NULL,
     limite_equipos INT,
     is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -227,9 +227,17 @@ INSERT rol VALUES
 
 -- 2. Insertar Planes
 INSERT planes VALUES 
-(NULL, 1, 'Básico', 'Soporte 8x5, respuesta 24h', 49.99, 20, TRUE, NOW(), NOW()),
-(NULL, 2, 'Premium', 'Soporte 4h, mantenimiento preventivo', 149.99, 100, TRUE, NOW(), NOW()),
-(NULL, 3, 'Tech Enterprise', 'Soporte 24/7, SLA garantizado', 399.99, 500, TRUE, NOW(), NOW());
+(NULL, 10, 'Plan de soporte Básico', 
+ '["Mantenimiento mensual de equipos", "Asistencia técnica remota", "Informe técnico de equipos"]', 
+ 49.99, 20, TRUE, NOW(), NOW()),
+
+(NULL, 20, 'Plan Premium', 
+ '["Mantenimiento quincenal", "Asistencia técnica remota y presencial", "Informe técnico detallado", "Antivirus corporativo"]', 
+ 149.99, 100, TRUE, NOW(), NOW()),
+
+(NULL, 30, 'Tech Enterprise', 
+ '["Mantenimiento semanal", "Soporte 24/7", "Asignación de técnico exclusivo", "Monitoreo de red en tiempo real"]', 
+ 399.99, 500, TRUE, NOW(), NOW());
 
 -- 3. Insertar Empresa Cliente de Prueba
 INSERT clientes VALUES

@@ -223,7 +223,7 @@ export class ClientesService {
     }
 
     //Actualizar el contrato de un cliente
-    async updatePlan(id: number, id_plan: number, nuevaFechaFin: string, dto: UpdateContractDto){
+    async updatePlan(id: number,  dto: UpdateContractDto){
         //Verificar que el cliente exista
         const cliente = await this.clientExists(id);
 
