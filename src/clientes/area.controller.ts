@@ -42,4 +42,11 @@ export class AreaController {
   deactivate(@Param('id', ParseIntPipe) id: number) {
     return this.areaService.deactivate(id);
   }
+  
+  @Get()
+  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
+  findAll() {
+  return this.areaService.findAll();
+}
+
 }

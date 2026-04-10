@@ -90,7 +90,7 @@ CREATE TABLE sucursales (
     telefono VARCHAR(20) NOT NULL,
     direccion VARCHAR(255) NOT NULL,
     correo VARCHAR(255) NOT NULL,
-    id_cliente INT NOT NULL,
+    id_cliente INT,
     is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -115,7 +115,7 @@ CREATE TABLE usuarios (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
     apellido VARCHAR(50) NOT NULL,
-    correo VARCHAR(255) NOT NULL UNIQUE,
+    correo VARCHAR(255) UNIQUE,
     contraseña VARCHAR(255) NOT NULL,
     telefono VARCHAR(15),
     is_active BOOLEAN DEFAULT TRUE,
@@ -139,7 +139,7 @@ CREATE TABLE equipos (
     area VARCHAR(100),
     ult_revision DATE,
     rev_programada DATE,
-    id_cliente INT NOT NULL,
+    id_cliente INT,
     id_sucursal INT,
     is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -174,8 +174,8 @@ CREATE TABLE registro_hardware (
     descripcion TEXT NOT NULL,
     serie VARCHAR(100) NOT NULL,
     proveedor VARCHAR(255) NOT NULL,
-    id_hardware INT NOT NULL,
-    id_equipo INT NOT NULL,
+    id_hardware INT,
+    id_equipo INT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_rh_hardware FOREIGN KEY (id_hardware) REFERENCES hardware(id_hardware) ON DELETE CASCADE,
@@ -233,13 +233,18 @@ INSERT clientes VALUES
 
 -- 4. Insertar Sucursal de Prueba
 INSERT sucursales VALUES
-(NULL, 'Sede Central', 'Carlos Mendoza', '01-444-5555', 'Av. Principal 123', 'sede.central@innovaciontech.com', 1, 1, NOW(), NOW());
+(NULL, 'Sede Central', 'Carlos Mendoza', '01-444-5555', 'Av. Principal 123', 'sede.central@innovaciontech.com', 1, 1, NOW(), NOW()),
+(NULL, 'Sucursal Norte', 'María Vargas', '01-555-6666', 'Av. Norte 456', 'norte@innovaciontech.com', 1, 1, NOW(), NOW());
 
--- 5. Insertar Administrador por Defecto (Tu cuenta de Zaint)
+-- 5. Insertar Administrador por Defecto 
 -- La contraseña encriptada es: 123456
 INSERT usuarios VALUES
-(NULL, 'Daniel', 'Singer', 'admin@zaint.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '987654321', 1, 1, NULL, NULL, NOW(), NOW());
-(NULL, 'Carlos', 'Mendoza', 'example@gmail.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '123456789', 1, 4, 1, 1, NOW(), NOW());
+(NULL, 'Daniel', 'Singer', 'admin@zaint.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '987654321', 1, 1, NULL, NULL, NOW(), NOW()), -- ADMINISTRADOR
+(NULL, 'Ana', 'López', 'ana.soporte@zaint.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '999888771', 1, 2, NULL, NULL, NOW(), NOW()), -- SOPORTE_TECNICO
+(NULL, 'Luis', 'Torres', 'luis.insitu@zaint.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '999888772', 1, 3, NULL, NULL, NOW(), NOW()), -- SOPORTE_INSITU
+(NULL, 'Carlos', 'Mendoza', 'example@gmail.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '123456789', 1, 4, 1, 1, NOW(), NOW()), -- CLIENTE_EMPRESA
+(NULL, 'María', 'Vargas', 'maria.sucursal2@empresa1.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '988333441', 1, 5, 1, 2, NOW(), NOW()), -- CLIENTE_SUCURSAL
+(NULL, 'Jorge', 'Pérez', 'jorge.sede1@empresa1.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '988555661', 1, 6, 1, 1, NOW(), NOW()); -- CLIENTE_TRABAJADOR
 
 -- 6. Insertar Equipos de Prueba
 INSERT equipos VALUES
