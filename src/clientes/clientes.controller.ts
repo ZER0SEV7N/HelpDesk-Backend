@@ -46,7 +46,7 @@ export class ClientesController {
     //Alcance: Solo el administrador puede obtener los detalles de un cliente
     //----------------------------------------
     @Get(':id')
-    @Roles('ADMINISTRADOR')
+    @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
     findOne(@Param('id', ParseIntPipe) id: number) {
         return this.clientesService.findOne(id);
     }
@@ -71,6 +71,16 @@ export class ClientesController {
     @Roles('ADMINISTRADOR')
     deactivate(@Param('id', ParseIntPipe) id: number) {
         return this.clientesService.deactivate(id);
+    }
+
+    //----------------------------------------
+    //Reactivar un cliente (Admin)
+    //PATCH /Clientes/:id/activar
+    //Alcance: Solo el administrador puede reactivar un cliente
+    @Patch(':id/activar')
+    @Roles('ADMINISTRADOR')
+    reactivate(@Param('id', ParseIntPipe) id: number) {
+        return this.clientesService.reactivate(id);
     }
 
     //----------------------------------------

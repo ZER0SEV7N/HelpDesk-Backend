@@ -32,7 +32,7 @@ export class ChatService {
             await this.redis.ltrim(redisKey, -100, -1); // Mantener solo los últimos 100 mensajes en Redis
             await this.redis.expire(redisKey, 60 * 60 * 24); // Expirar después de 24 horas
         } catch (error) {
-            this.logger.error(`Error al guardar en Redis: ${error.message}`);
+            this.logger.error(`Error al guardar en Redis: ${error instanceof Error ? error.message : String(error)}`);
         }
         return savedMensaje;
     }
