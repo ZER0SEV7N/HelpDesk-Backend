@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateSoftwareDto } from './dto/create-software.dto';
 import { UpdateSoftwareDto } from './dto/update-software.dto';
-import { Software } from '../../entities/Software.entity';
+import { Software } from '../entities/Software.entity';
 import { Software_equipos } from 'src/entities/SoftwareEquipos.entity';
 import { Equipos } from 'src/entities/Equipos.entity';
 

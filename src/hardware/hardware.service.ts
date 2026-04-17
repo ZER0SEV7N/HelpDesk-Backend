@@ -4,9 +4,9 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'; // Decorador para servicios e excepción para manejo de errores
 import { InjectRepository } from '@nestjs/typeorm'; // Permite inyectar repositorios de TypeORM
 import { Repository } from 'typeorm'; // Clase base para trabajar con la base de datos
-import { Hardware } from '../../entities/Hardware.entity'; // Entidad Hardware
+import { Hardware } from '../entities/Hardware.entity'; // Entidad Hardware
 import { CreateHardwareDto } from './dto/create-hardware.dto'; // DTO para crear hardware
-import { RegistroHardware } from '../../entities/RegistroHardware.entity'; // Entidad relacionada
+import { RegistroHardware } from '../entities/RegistroHardware.entity'; // Entidad relacionada
 import { UpdateHardwareDto } from './dto/update-hardware.dto'; // DTO para actualizar hardware
 import { Equipos } from 'src/entities/Equipos.entity';
 

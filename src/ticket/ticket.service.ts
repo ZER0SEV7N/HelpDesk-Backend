@@ -77,8 +77,11 @@ async createTicket(dto: CreateTicketDto, user: any) {
       es_software: dto.es_software,
       imagen_url: dto.imagen_url,
     });
-
-    return await this.ticketRepo.save(newTicket);
+    const ticket = await this.ticketRepo.save(newTicket);
+    return {
+      message: 'Ticket creado exitosamente',
+      ticket: this.cleanTicketResponse(ticket),
+    };
   }
 
   //-------------------------------------------
@@ -132,7 +135,10 @@ async findTickets(user: any, filters: any) {
         break;
       case 'SOPORTE_TECNICO':
       case 'SOPORTE_INSITU': // <-- CORREGIDO
-        query.andWhere('ticket.id_soporte = :id', { id: user.userId });
+        query.andWhere('(ticket.id_soporte = :id OR ticket.estado = :estadoPendiente)', { 
+            id: user.userId, 
+            estadoPendiente: TicketStatus.PENDIENTE 
+        });
         break;
     }
     

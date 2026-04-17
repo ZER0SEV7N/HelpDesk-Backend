@@ -28,7 +28,7 @@ export class ChatService {
         try{
             //Usamos una lista en Redis para almacenar los mensajes de cada ticket
             const redisKey = `ticket:${mensajeDTO.ticketId}:mensajes`;
-            await this.redis.rpush(redisKey, JSON.stringify(mensajeDTO));
+            await this.redis.rpush(redisKey, JSON.stringify({ ...mensajeDTO, createdAt: new Date() }));
             await this.redis.ltrim(redisKey, -100, -1); // Mantener solo los últimos 100 mensajes en Redis
             await this.redis.expire(redisKey, 60 * 60 * 24); // Expirar después de 24 horas
         } catch (error) {

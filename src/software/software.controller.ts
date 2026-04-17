@@ -14,9 +14,9 @@ import {
 import { SoftwareService } from './software.service';
 import { CreateSoftwareDto } from './dto/create-software.dto';
 import { UpdateSoftwareDto } from './dto/update-software.dto';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { RoleGuard } from '../../auth/guards/role.guard';
-import { Roles } from '../../auth/decorators/role.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RoleGuard } from '../auth/guards/role.guard';
+import { Roles } from '../auth/decorators/role.decorator';
 
 @Controller('software') // Prefijo de ruta para todas las solicitudes de este controlador
 @UseGuards(JwtAuthGuard, RoleGuard)
