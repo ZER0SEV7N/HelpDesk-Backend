@@ -8,6 +8,7 @@ import { CreateSucursalDto } from './dto/create-sucursal.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/role.decorator';
+import { UpdateContractDto } from './dto/update-contract.dto';
 
 //Definicion del controlador ClientesController
 @Controller('clientes')
@@ -45,7 +46,7 @@ export class ClientesController {
     //Alcance: Solo el administrador puede obtener los detalles de un cliente
     //----------------------------------------
     @Get(':id')
-    @Roles('ADMINISTRADOR')
+    @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
     findOne(@Param('id', ParseIntPipe) id: number) {
         return this.clientesService.findOne(id);
     }
@@ -73,13 +74,23 @@ export class ClientesController {
     }
 
     //----------------------------------------
+    //Reactivar un cliente (Admin)
+    //PATCH /Clientes/:id/activar
+    //Alcance: Solo el administrador puede reactivar un cliente
+    @Patch(':id/activar')
+    @Roles('ADMINISTRADOR')
+    reactivate(@Param('id', ParseIntPipe) id: number) {
+        return this.clientesService.reactivate(id);
+    }
+
+    //----------------------------------------
     //Actualizar el plan de un cliente (Admin)
     //PATCH /Clientes/:id/plan
     //Alcance: Solo el administrador puede actualizar el plan de un cliente
     //----------------------------------------
-    @Patch(':id/plan')
+    @Patch(':id/contrato')
     @Roles('ADMINISTRADOR')
-    updatePlan(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
-        return this.clientesService.updatePlan(id, dto.id_plan, dto.nuevaFechaFin, dto);
+    updatePlan(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateContractDto) {
+        return this.clientesService.updatePlan(id, dto);
     }
 }

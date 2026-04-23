@@ -222,8 +222,36 @@ export class ClientesService {
 
     }
 
+    //Reactivar un cliente (en caso de que se haya desactivado por vencimiento del plan o por error humano)
+    async reactivate(id: number) {
+        //Validar que el cliente exista
+        const cliente = await this.clientExists(id);
+        if(cliente.is_active) throw new BadRequestException('El cliente ya se encuentra activo');
+
+        cliente.is_active = true;
+        await this.clientesRepo.save(cliente);
+
+        const sucursales = await this.sucursalesRepo.find({
+            where: { id_cliente: id },
+            select: ['id_sucursal']
+        });
+
+        if(sucursales.length > 0) {
+            const sucursalIds = sucursales.map(s => s.id_sucursal);
+            //Reactivar todas las sucursales del cliente
+            await this.sucursalesRepo.update(sucursalIds, { is_active: true });
+            //Reactivar todas las áreas asociadas a las sucursales del cliente
+            await this.areaRepo.update({ id_sucursal: In(sucursalIds) }, { is_active: true });
+            //Reactivación de Usuarios:
+            await this.usuariosRepo.update({ id_cliente: id }, { is_active: true });
+            await this.equiposRepo.update({ id_cliente: id }, { is_active: true });
+        }
+        return { message: `Cliente ${cliente.nombre_principal} y sus sucursales han sido reactivados` };
+    }
+
+
     //Actualizar el contrato de un cliente
-    async updatePlan(id: number, id_plan: number, nuevaFechaFin: string, dto: UpdateContractDto){
+    async updatePlan(id: number,  dto: UpdateContractDto){
         //Verificar que el cliente exista
         const cliente = await this.clientExists(id);
 
@@ -261,9 +289,20 @@ export class ClientesService {
         }
 
         await this.clientesRepo.save(cliente);
+        const { precio, limite_equipos, created_at: plan_created, updated_at: plan_updated, is_active: plan_active, ...planLimpio } = plan;
+        
+        // 2. Limpiamos el cliente (quitamos la metadata de base de datos)
+        const { created_at, updated_at, fecha_registro, is_active, id_plan, ...clienteLimpio } = cliente;
+
+        // 3. Reconstruimos el objeto final
+        const clienteResponse = {
+            ...clienteLimpio,
+            plan: planLimpio
+        };
+        
         return { 
             message: `Plan del cliente ${cliente.nombre_principal} actualizado a ${plan.tipo} con fecha de finalización ${dto.nuevaFechaFin}.`,
-            cliente: cliente
+            cliente: clienteResponse
         };
     }
 

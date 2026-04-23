@@ -24,6 +24,7 @@ import { Usuario } from '../entities/Usuario.entity';
 import { ChatService } from './chat.service';
 import { Repository } from 'typeorm';
 import { env } from 'process';
+import { subscribe } from 'diagnostics_channel';
 
 @WebSocketGateway({
   cors: {
@@ -60,15 +61,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       const payload = await this.authService.verifyToken(token); 
       
-      if (payload.clienteId) {
-          client.join(`empresa_${payload.clienteId}`); 
-      }
+      if (payload.clienteId) client.join(`empresa_${payload.clienteId}`); 
       client.join(`user_${payload.sub}`);
 
       //Guardamos la info del usuario en el socket
       //Estructura: { sub: id_usuario, role: string, email: string }
       client.data.user = payload; 
-      
       this.logger.log(`Conectado: ${payload.role} - ID: ${payload.sub}`);
     } catch (error) {
       const mensaje = error instanceof Error ? error.message : 'Error desconocido';
@@ -77,11 +75,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  //Manejo de la desconexión de un cliente
   handleDisconnect(client: Socket) {
     this.logger.log(`Cliente desconectado: ${client.id}`);
   }
 
-  // 2. Lógica de Asignación Automática de Soporte
+  //Lógica de Asignación Automática de Soporte
   @SubscribeMessage('request_assignment')
   async handleRequestAssignment(
     @MessageBody() data: { ticketId: number },
@@ -90,12 +89,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = client.data.user;
 
     // Solo los trabajadores pueden solicitar asignación
-    if (user.role !== 'CLIENTE_TRABAJADOR' && user.role !== 'CLIENTE_SUCURSAL') {
+    if (!['CLIENTE_TRABAJADOR', 'CLIENTE_SUCURSAL', 'CLIENTE_EMPRESA'].includes(user.role)) 
       return { status: 'error', message: 'No autorizado para solicitar asignación' };
-    }
-
-    // Buscamos al técnico con menos tickets asignados (Asignación Balanceada)
-    // Nota: 'ticketsAsignados' debe ser la relación OneToMany en tu entidad Usuario
+    
+    //Buscamos al técnico con menos tickets asignados (Asignación Balanceada)
+    //Nota: 'ticketsAsignados' debe ser la relación OneToMany en tu entidad Usuario
     const bestAgent = await this.usuarioRepo
       .createQueryBuilder('u')
       .leftJoin('u.tickets_soporte', 't', 't.estado IN (:...estados)', { estados: ['Pendiente', 'Asignado', 'En Progreso'] }) 
@@ -103,18 +101,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       .select('u.id_usuario', 'id')
       .addSelect('u.nombre', 'nombre')
       .addSelect('COUNT(t.id_ticket)', 'totalTickets')
-      .where('r.nombre = :rol', { rol: 'SOPORTE_REMOTO' }) // Rol oficial
+      .where('r.nombre = :rol', { rol: 'SOPORTE_TECNICO' }) 
       .andWhere('u.is_active = :active', { active: true })
       .groupBy('u.id_usuario')
       .addGroupBy('u.nombre')
       .orderBy('totalTickets', 'ASC')
       .getRawOne();
 
-    if (!bestAgent) {
-      return { status: 'error', message: 'No hay agentes disponibles' };
-    }
+    if (!bestAgent) return { status: 'error', message: 'No hay agentes disponibles' };
 
-    // Simulamos el objeto 'user' que ellos piden en sus argumentos
+    //Simulamos el objeto 'user' que ellos piden en sus argumentos
     const authUser = { userId: user.sub, role: 'ADMINISTRADOR' }; 
     await this.ticketService.assignTicket(data.ticketId, bestAgent.id, authUser);
 
@@ -141,8 +137,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const ticket = await this.ticketService.getTicketById(Number(data.ticketId), user);
       
+      const isCreator = ticket.id_trabajador === user.sub;
+      const isAssignedTech = ticket.id_soporte === user.sub;
+      const isManagerOrAdmin = ['ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL'].includes(user.role);
+
       // Permitimos unirse al creador, al técnico asignado o al Admin
-      if (ticket.id_cliente === user.sub || ticket.id_soporte === user.sub || user.role === 'ADMINISTRADOR') {
+      if (isCreator || isAssignedTech || isManagerOrAdmin) {
         client.join(data.ticketId.toString());
         this.logger.log(`Usuario ${user.sub} se unió al chat del ticket: ${data.ticketId}`);
         return { event: 'joined', room: data.ticketId };
@@ -154,33 +154,78 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  // 4. Envío de mensajes en tiempo real
+  //Envío de mensajes en tiempo real
   @SubscribeMessage('send_message')
   async handleMessage(
-    @MessageBody() data: { ticketId: string, content: string },
+    @MessageBody() data: { ticketId: string, content: string, type?: string, fileUrl?: string },
     @ConnectedSocket() client: Socket,
   ) {
    const user = client.data.user;
 
-    // Preparamos el objeto para MongoDB basándonos en tu DTO
+    //Preparamos el objeto para MongoDB basándonos en tu DTO
     const messagePayload = {
       ticketId: Number(data.ticketId),
       userId: user.sub,
       contenido: data.content,
-      // No mandamos timestamp, Mongoose maneja el createdAt automáticamente si lo definiste en el schema
+      tipo: data.type || 'TEXTO', // Puede ser 'TEXTO', 'IMAGEN', 'DOCUMENTO'
+      url_archivo: data.fileUrl || null // La URL que te devolvió tu endpoint HTTP
     };
 
-    // 1. Emitir el mensaje inmediatamente a la sala (Velocidad en tiempo real)
-    this.server.to(data.ticketId.toString()).emit('new_message', {
+    //Emitir el mensaje inmediatamente a la sala (Velocidad en tiempo real)
+    client.broadcast.to(data.ticketId.toString()).emit('new_message', {
       ...messagePayload,
-      createdAt: new Date() // Solo para el frontend visual
+      createdAt: new Date()
     });
     
     // 2. Persistir en la base de datos (Mongo) y caché (Redis)
     try {
+      this.logger.log(`Guardando mensaje del ticket ${data.ticketId} por el usuario ${user.sub}`);
+      this.logger.debug(`Payload del mensaje: ${JSON.stringify(messagePayload)}`);
       await this.chatService.guardarMensaje(messagePayload as any);
     } catch (error : any) {
       this.logger.error(`Fallo al guardar mensaje del ticket ${data.ticketId}: ${error.message}`);
     }
+  }
+
+  //Evento para mostrar que el usuario esta escribiendo un mensaje 
+  @SubscribeMessage('typing_start')
+  handleTypingStart(
+    @MessageBody() data: { ticketId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const user = client.data.user;
+    //Emitir a la sala que este usuario está escribiendo (Excepto a él mismo)
+    client.broadcast.to(data.ticketId.toString()).emit('user_typing', {
+      userId: user.sub,
+      nombre: user.nombre || 'Alguien'
+    });
+  }
+
+  //Evento para mostrar que el usuario dejo de escribir un mensaje
+  @SubscribeMessage('typing_end')
+  handleTypingEnd(
+    @MessageBody() data: { ticketId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.broadcast.to(data.ticketId.toString()).emit('user_stopped_typing', {
+      userId: client.data.user.sub
+    });
+  }
+
+  //Evento para notificar que un ticket ha sido resuelto (Podría ser emitido desde el servicio de tickets)
+  notifyTicketResolved(ticketId: number) {
+    this.server.to(ticketId.toString()).emit('ticket_resolved', { ticketId });
+  }
+
+  //Evento para marcar como leido un mensaje (Podría ser emitido desde el cliente cuando un usuario vea un mensaje nuevo)
+  @SubscribeMessage('mark_as_read')
+  async handleMarkAsRead(
+    @MessageBody() data: { ticketId: string, lastMessageId: string},
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.broadcast.to(data.ticketId.toString()).emit('messages_read', {
+      userId: client.data.user.sub,
+      lastMessageId: data.lastMessageId
+    });
   }
 }

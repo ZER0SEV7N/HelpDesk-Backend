@@ -87,7 +87,7 @@ export class PlanesService {
     plan.is_active = false;
     await this.planesRepo.save(plan);
 
-    return { message: `El plan ${plan.tipo} ha sido archivado (Soft Delete) exitosamente.` };
+    return { message: `El ${plan.tipo} ha sido archivado (Soft Delete) exitosamente.` };
   }
 
   //REACTIVAR: Volver a poner el plan a la venta
@@ -99,6 +99,6 @@ export class PlanesService {
     plan.is_active = true;
     await this.planesRepo.save(plan);
 
-    return { message: `El plan ${plan.tipo} ha sido reactivado y está disponible nuevamente.` };
+    return { message: `El ${plan.tipo} ha sido reactivado y está disponible nuevamente.` };
   }
 }

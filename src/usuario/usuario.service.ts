@@ -29,6 +29,9 @@ export class UsuarioService {
         @InjectRepository(Clientes) private clientesRepo: Repository<Clientes>,
     ) {}
 
+    
+
+
     //Metodo para actualizar el perfil del usuario
     //PATCH /usuario/profile
     //TODOS los usuarios pueden actualizar su perfil, pero deben proporcionar su contraseña actual para validar su identidad
