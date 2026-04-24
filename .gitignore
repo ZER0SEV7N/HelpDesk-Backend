@@ -39,6 +39,9 @@ lerna-debug.log*
 .temp
 .tmp
 
+# dotenv environment variables files
+.env.*.local
+
 # Runtime data
 pids
 *.pid

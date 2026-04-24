@@ -11,6 +11,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -25,6 +26,20 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
           expiresIn: config.get<string>('JWT_EXPIRES_IN') || '1d' 
         } as any,
       }),
+    }),
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.EMAIL_HOST || 'smtp.example.com',
+        port: parseInt(process.env.EMAIL_PORT || '587'),
+        secure: process.env.EMAIL_SECURE === 'true', 
+        auth: {
+          user: process.env.EMAIL_USER || 'danielsinger07@hotmail.com',
+          pass: process.env.EMAIL_PASS || 'xvibzqjvuyhsglq',
+        },
+      },
+      defaults: {
+        from: process.env.EMAIL_FROM || '"HelpDesk" <noreply@tudominio.com>',
+      },
     }),
   ],
   controllers: [AuthController],

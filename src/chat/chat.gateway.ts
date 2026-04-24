@@ -24,7 +24,6 @@ import { Usuario } from '../entities/Usuario.entity';
 import { ChatService } from './chat.service';
 import { Repository } from 'typeorm';
 import { env } from 'process';
-import { subscribe } from 'diagnostics_channel';
 
 @WebSocketGateway({
   cors: {

@@ -70,4 +70,28 @@ export class AuthController {
         res.clearCookie('jwt');
         return { message: 'Logout exitoso, Esperamos que vuelva pronto' };
     }
+
+    //POST: auth/verify-token
+    //Metodo para verificar la validez de un token JWT (puede ser utilizado en guards o middleware)
+    @Post('verify-token')
+    async verifyToken(@Body('token') token: string) {
+        const payload = await this.authService.verifyToken(token);
+        return {
+            payload, //Retorna el payload del token (puede incluir información como el ID del usuario, rol, etc.)
+        };
+    }
+
+    //POST: auth/recover-password
+    //El usuario envia su correo para solicitar un restablecimiento de contraseña
+    @Post('recover-password')
+    async recoverPassword(@Body('correo') correo: string) {
+        await this.authService.recoverPassword(correo);
+    }
+
+    //POST: auth/reset-password
+    //El usuario envia el token de restablecimiento y la nueva contraseña para actualizar su contraseña
+    @Post('reset-password')
+    async resetPassword(@Body() body: { token: string; nuevaContraseña: string }) {
+        await this.authService.resetPassword(body.token, body.nuevaContraseña);
+    }
 }

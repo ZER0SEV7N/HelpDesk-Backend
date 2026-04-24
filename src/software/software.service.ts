@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateSoftwareDto } from './dto/create-software.dto';
@@ -102,6 +102,18 @@ export class SoftwareService {
 
       const equipo = await this.equiposRepo.findOneBy({ id_equipo });
       if (!equipo) throw new NotFoundException(`El equipo con ID ${id_equipo} no existe.`);
+
+      const yaInstalado = await this.softwareEquiposRepo.findOne({
+            where: { 
+                soft: { id_software: id_software }, 
+                equipo: { id_equipo: id_equipo },
+                is_active: true // Solo revisamos instalaciones que sigan activas
+            }
+        });
+
+        if (yaInstalado) {
+            throw new ConflictException(`El software ${software.nombre_software} ya se encuentra instalado en el equipo ${equipo.numero_serie}.`);
+        }
 
       const nuevaInstalacion = this.softwareEquiposRepo.create({
           soft: software,

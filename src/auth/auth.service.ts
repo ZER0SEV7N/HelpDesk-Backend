@@ -6,10 +6,12 @@ import { InjectRepository } from '@nestjs/typeorm'; //Para inyectar repositorios
 import { Repository } from 'typeorm'; //Repositorio de TypeORM
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { Usuario } from '../entities/Usuario.entity'; // Ajusta la ruta según tu estructura
+import { Usuario } from '../entities/Usuario.entity'; 
 import { Rol } from '../entities/Rol.entity';
-import { RegisterDTO } from './dto/register-auth.dto'; // Ajusta la ruta según tu estructura
+import { RegisterDTO } from './dto/register-auth.dto'; 
+import { MailerService } from '@nestjs-modules/mailer';
 import { LoginDTO } from './dto/login-auth.dto';
+import { env } from 'process';
 
 //Servicio de autenticacion
 @Injectable()
@@ -20,6 +22,7 @@ export class AuthService {
         @InjectRepository(Rol)
         private rolRepo: Repository<Rol>,
         private jwtService: JwtService,
+        private mailerService: MailerService
     ) {}
 
     //Metodo para registrar un usuario
@@ -93,6 +96,56 @@ export class AuthService {
             token,
         };
     }
+
+    //Metodo para solicitar un restablecimiento de contraseña (envia un correo con un token de restablecimiento)
+    async recoverPassword(correo: string) {
+        const user = await this.usuariosRepo.findOne({ where: { correo } });
+
+        if(!user) throw new HttpException('Correo no registrado', HttpStatus.NOT_FOUND);
+
+        const resetToken = this.jwtService.sign(
+            {sub: user.id_usuario},
+            {expiresIn:'30m', secret: env.JWT_RESET_SECRET || 'resetKey'}
+        );
+        
+        const frontendURL = env.FRONTEND_URL || 'http://localhost:3000';
+        const resetLink = `${frontendURL}/reset-password?token=${resetToken}`;
+
+        try{
+            await this.mailerService.sendMail({
+                to: user.correo,
+                subject: env.RESET_PASSWORD_EMAIL_SUBJECT || 'Soporte HelpDesk - Restablecimiento de contraseña',
+                html: env.RESET_PASSWORD_EMAIL_TEMPLATE || `
+                    <h2>Hola, ${user.nombre}</h2>
+                    <p>Has solicitado restablecer tu contraseña en el sistema HelpDesk.</p>
+                    <p>Haz clic en el siguiente botón para crear una nueva contraseña. Este enlace <b>expirará en 15 minutos</b>.</p>
+                    <a href="${resetLink}" style="padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Restablecer Contraseña</a>
+                    <p>Si no solicitaste este cambio, ignora este correo.</p>
+                `,
+            });
+            return { message: 'Correo de restablecimiento enviado exitosamente' };
+        } catch (error){
+            throw new HttpException('Error al enviar el correo de restablecimiento', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //Metodo para reiniciar la contraseña utilizando el token de restablecimiento
+    async resetPassword(token: string, nuevaContraseña: string){
+        try{
+            const payload = await this.jwtService.verifyAsync(token, {
+                secret: env.JWT_RESET_SECRET || 'resetKey',
+            });
+
+            const hashPassword = await bcrypt.hash(nuevaContraseña, 10);
+
+            await this.usuariosRepo.update({ id_usuario: payload.sub }, { contraseña: hashPassword });
+
+            return { message: 'Contraseña restablecida exitosamente' };
+        } catch (error) {
+            throw new HttpException('Token inválido o expirado', HttpStatus.BAD_REQUEST);
+        }
+    }
+    
 
     //Metodo para verificar el token JWT (puede ser utilizado en guards o middleware)
     async verifyToken(token: string) {
