@@ -12,8 +12,8 @@ async function bootstrap() {
 
   //Habilitar CORS para permitir solicitudes desde el frontend
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:7012',
-    credentials: true, //Permite enviar cookies en solicitudes cross-origin
+    origin: true,
+    credentials: true,
   });
 
   //Habilitar cookieParser para manejar cookies en las solicitudes
