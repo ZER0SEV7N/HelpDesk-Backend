@@ -16,6 +16,11 @@ async function bootstrap() {
     credentials: true,
   });
 
+  //app.enableCors({
+  //origin: process.env.FRONTEND_URL || 'http://localhost:7012',
+  //credentials: true,
+  //});
+
   //Habilitar cookieParser para manejar cookies en las solicitudes
   app.use(cookieParser());
 
