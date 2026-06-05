@@ -23,7 +23,7 @@ export class Software {
     correo: string; //Correo del Software
 
     //Columna para la contraseña
-    @Column({ name: 'contraseña', length: 255 })
+    @Column({ name: 'password', length: 255 })
     contraseña: string;//Contraseña del Software
 
     //Columna para la fecha de instalacion

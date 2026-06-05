@@ -6,7 +6,7 @@ import { Usuario } from './Usuario.entity';
 import { Area } from './Area.entity';
 
 //Definicion de la entidad Sucursal
-@Entity('Sucursales')
+@Entity('sucursales')
 export class Sucursales {
     //Columna para el ID de la sucursal
     @PrimaryGeneratedColumn()

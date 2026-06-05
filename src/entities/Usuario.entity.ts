@@ -27,7 +27,7 @@ export class Usuario {
     correo: string; //Correo electronico del usuario
 
     //Columna para la contrasena
-    @Column({ name: 'contraseña' })
+    @Column({ name: 'password' })
     contraseña: string;
 
     //Columna para telefono
@@ -67,6 +67,7 @@ export class Usuario {
     @JoinColumn({ name: 'id_sucursal' })
     sucursal?: Sucursales;
 
+    //Relacion con la tabla Tickets (uno a muchos) para los tickets donde el usuario es soporte
     @OneToMany(() => Tickets, ticket => ticket.soporte)
     tickets_soporte: Tickets[];
 }
