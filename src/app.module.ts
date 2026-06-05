@@ -13,8 +13,10 @@ import { UsuarioModule } from './usuario/usuario.module';
 import { PlanesModule } from './planes/planes.module';
 import { SoftwareModule } from './software/software.module';
 import { FilesController } from './files/files.controller';
-import { ServeStaticModule } from '@nestjs/serve-static';
+import { ServeStaticModule } from '@nestjs/serve-static'; //Importa el módulo para servir archivos estáticos 
 import { join } from 'path';
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -36,6 +38,6 @@ import { join } from 'path';
     ],
     
   controllers: [AppController, FilesController],
-  providers: [AppService],
+  providers: [AppService, {provide: APP_FILTER, useClass: AllExceptionsFilter}, ],
 })
 export class AppModule {}

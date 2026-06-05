@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 //helpDesk-Backend/src/chat/chat.gateway.ts
 //Gateway para el chat en tiempo real usando WebSockets (Socket.IO)
 //FUNCIONALIDADES:

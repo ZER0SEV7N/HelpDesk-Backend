@@ -164,7 +164,7 @@ export class ClientesService {
     //Listar todas las empresas
     async findAll() {
         return await this.clientesRepo.find({
-        relations: ['sucursales', 'plan'],
+            relations: ['sucursales', 'plan'],
         });
     }
 
