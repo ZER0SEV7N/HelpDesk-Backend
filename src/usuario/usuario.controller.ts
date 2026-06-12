@@ -6,7 +6,7 @@
 //3. Obtener perfil del usuario
 //4. Crear nuevo empleado (Solo Admin)
 //5. Asignar rol a un usuario (Solo Admin)
-import { Controller, Post, Body, Patch, Get, Param, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Body, Patch, Get, Param, UseGuards, Req, ParseIntPipe, Query } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { UpdateProfileDTO } from './dto/update-profile.dto';
 import { RegisterEmployeeDto } from './dto/register-employee.dto';
@@ -14,6 +14,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/role.decorator';
 import { ReassignUserDto } from './dto/reassign-user.dto';
+import { GetUsersFilterDto } from './dto/get-user-filter.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Controller('usuario')
 export class UsuarioController {
@@ -50,9 +52,10 @@ export class UsuarioController {
   //GET /usuario/list
   @Get('list')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
-  listUsers(@Req() req: any) {
-      return this.usuarioService.listUsers(req.user);
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
+  async listUsers(@Req() req: any, 
+                  @Query() filters: GetUsersFilterDto): Promise<UserResponseDto[]> {
+      return this.usuarioService.listUsers(req.user, filters);
   }
 
   //Registrar un nuego empleado 

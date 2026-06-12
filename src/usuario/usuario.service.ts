@@ -18,6 +18,8 @@ import { UpdateProfileDTO } from './dto/update-profile.dto';
 import { Rol } from '../entities/Rol.entity';
 import { RegisterEmployeeDto } from './dto/register-employee.dto';
 import { ReassignUserDto } from './dto/reassign-user.dto';
+import { GetUsersFilterDto } from './dto/get-user-filter.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 
 //Servicio para manejar la logica de negocio relacionada con los usuarios
 @Injectable()
@@ -86,22 +88,34 @@ export class UsuarioService {
     //Metodo para listar todos los usuarios 
     //(Solo Cliente_Empresa y cliente_sucursal pueden listar solo los usuarios de su empresa o sucursal respectivamente)
     //GET /usuario/list
-    async listUsers(userPayload: any) {
+    async listUsers(userPayload: any, filters: GetUsersFilterDto): Promise<UserResponseDto[]> {
+        //Construir la consulta base con los Joins necesarios
         const query = this.usuarioRepo.createQueryBuilder('user')
-            .leftJoinAndSelect('user.rol', 'rol');
-        //Filtrar según el rol de quien hace la petición
-        if (userPayload.role === 'CLIENTE_EMPRESA') {
-            //Solo ve a los usuarios de su propia empresa
-            query.where('user.id_cliente = :clienteId', { clienteId: userPayload.clienteId });
-        } else if (userPayload.role === 'CLIENTE_SUCURSAL') {
-            //Solo ve a los usuarios de su sucursal específica
-            query.where('user.id_sucursal = :sucursalId', { sucursalId: userPayload.sucursalId });
-        }
-        const users = await query.getMany();
-        return users.map((user) => {
-            const { contraseña, ...result } = user;
-            return result;
-        });
+            .leftJoinAndSelect('user.rol', 'rol')
+            .leftJoin('clientes', 'cliente', 'user.id_cliente = cliente.id_cliente')
+            .leftJoin('sucursales', 'sucursal', 'user.id_sucursal = sucursal.id_sucursal')
+            .select([
+                'user.id_usuario',
+                'user.nombre',
+                'user.apellido',
+                'user.correo',
+                'user.telefono',
+                'user.is_active',
+                'user.created_at',
+                'rol.id_rol',
+                'rol.nombre',
+                'cliente.nombre_principal',
+                'sucursal.nombre_sucursal'
+            ]);
+
+        //Aplicar restricciones automáticas por Rol (Método Privado 1)
+        this.applyRoleRestrictions(query, userPayload, filters);
+
+        //Aplicar filtros dinámicos enviados por la UI (Método Privado 2)
+        this.applyFilters(query, filters);
+
+        //Ejecutar consulta y formatear la salida (Método Privado 3)
+        return this.executeAndFormatUsers(query);
     }
 
     //Metodo para registrar un nuevo empleado (Solo Cliente_Empresa)
@@ -352,4 +366,96 @@ export class UsuarioService {
         if (existingUser && existingUser.id_usuario !== excludeUserId) 
             throw new ConflictException('El correo ya está registrado por otro usuario');
     }
+
+    //METODOS PRIVADOS UNICAMENTE PARA hacer el LISTADO DE USUARIOS con filtros y restricciones de seguridad
+
+    //Metodo para aplicar las restricciones automáticas por rol (Admin ve todo, Cliente_Empresa ve solo su empresa, Cliente_Sucursal ve solo su sucursal)
+    private applyRoleRestrictions(query: any, userPayload: any, filters: GetUsersFilterDto): void {
+        //Extraemos la información relevante del payload del usuario 
+        //para aplicar las restricciones
+        const { role, clienteId, sucursalId } = userPayload;
+
+        //Aplicamos las restricciones de seguridad según el rol del 
+        //usuario que hace la petición
+        switch(role) {
+            case 'ADMINISTRADOR':
+                //Si el admin no define filtros específicos en la UI, acotamos la vista inicial
+                if (!filters.cliente && !filters.sucursal && !filters.id_usuario && !filters.nombre) {
+                    query.andWhere('rol.nombre IN (:...rolesAdmin)', { 
+                        rolesAdmin: ['ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU', 'CLIENTE_EMPRESA'] 
+                    });
+                }
+                break;
+            //Los jefes de empresa solo pueden ver a los usuarios que pertenecen a su empresa, sin importar la sucursal.
+            case 'CLIENTE_EMPRESA':
+                query.andWhere('user.id_cliente = :clienteId', { clienteId });
+                break;
+            //Los jefes de sucursal solo pueden ver a los usuarios que pertenecen a su sucursal, sin importar la empresa (en caso de que haya varias empresas con sucursales del mismo nombre)
+            case 'CLIENTE_SUCURSAL':
+                query.andWhere('user.id_sucursal = :sucursalId', { sucursalId });
+                break;
+            default:
+                throw new UnauthorizedException('No tienes permisos para listar usuarios');
+        }
+    }
+
+    //Metodo para inyectar los filtros dinámicos enviados por la UI (id_usuario, rolNombre, nombre, cliente, sucursal)
+    private applyFilters(query: any, filters: GetUsersFilterDto): void {
+        //Para el filtro de ID de usuario, permitimos búsqueda exacta
+        if (filters.id_usuario) 
+            query.andWhere('user.id_usuario = :idUsuario', { idUsuario: filters.id_usuario });
+        
+        //Para el filtro de rol, 
+        //permitimos buscar por nombre de rol usando el alias definido en el Join
+        if (filters.rolNombre) 
+            query.andWhere('rol.nombre = :rolNombre', { rolNombre: filters.rolNombre });
+        
+        //Para el filtro de nombre, 
+        //permitimos búsqueda parcial tanto en nombre como en apellido usando LIKE
+        if (filters.nombre) 
+            query.andWhere('(user.nombre LIKE :nombre OR user.apellido LIKE :nombre)', { 
+                nombre: `%${filters.nombre}%` 
+            });
+    
+        //Para los filtros de cliente y sucursal, 
+        //permitimos búsqueda parcial usando LIKE en los nombres de las entidades relacionadas
+        if (filters.cliente) 
+            query.andWhere('cliente.nombre_principal LIKE :cliente', { cliente: `%${filters.cliente}%` });
+        
+
+        if (filters.sucursal) 
+            query.andWhere('sucursal.nombre_sucursal LIKE :sucursal', { sucursal: `%${filters.sucursal}%` });
+    }
+
+    //Metodo para ejecutar la consulta y formatear la 
+    //salida en un array de UserResponseDto
+    private async executeAndFormatUsers(query: any): Promise<UserResponseDto[]> {
+        //Ejecutamos la consulta y obtenemos tanto los resultados 
+        //crudos como las entidades para mapear correctamente los campos personalizados
+        const rawUsers = await query.getRawAndEntities();
+
+        //Mapeamos los resultados a UserResponseDto, extrayendo los campos personalizados de los 
+        //resultados crudos usando los aliases definidos en el Join
+        return rawUsers.entities.map((user, index) => {
+            const rawResult = rawUsers.raw[index];
+            return {
+                id_usuario: user.id_usuario,
+                nombre: user.nombre,
+                apellido: user.apellido,
+                correo: user.correo,
+                telefono: user.telefono,
+                is_active: user.is_active,
+                rol: {
+                    id_rol: user.rol.id_rol,
+                    nombre: user.rol.nombre
+                },
+                //Extrae dinámicamente las cadenas asignadas por los aliases 
+                //internos del ORM
+                empresa_nombre: rawResult.cliente_nombre_principal || null,
+                sucursal_nombre: rawResult.sucursal_nombre_sucursal || null,
+                created_at: user.created_at
+            };
+        });
+    }
+
 }
