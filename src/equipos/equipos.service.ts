@@ -1,5 +1,10 @@
 // src/equipos/equipos.service.ts
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Equipos } from '../entities/Equipos.entity';
@@ -32,11 +37,14 @@ export class EquiposService {
   // --------------------------------------------------------
   async findAll(userToken: any) {
     // 1. Buscamos al usuario real en la BD para saber su id_cliente e id_sucursal
-    const usuarioReal = await this.usuarioRepo.findOneBy({ id_usuario: userToken.userId });
+    const usuarioReal = await this.usuarioRepo.findOneBy({
+      id_usuario: userToken.userId,
+    });
     if (!usuarioReal) throw new NotFoundException('Usuario no válido');
 
     // 2. Preparamos la consulta con todas las relaciones bonitas
-    const query = this.equiposRepo.createQueryBuilder('equipo')
+    const query = this.equiposRepo
+      .createQueryBuilder('equipo')
       .leftJoinAndSelect('equipo.cliente', 'cliente')
       .leftJoinAndSelect('equipo.sucursal', 'sucursal')
       .leftJoinAndSelect('equipo.historial_hardware', 'historial_hardware')
@@ -52,25 +60,33 @@ export class EquiposService {
       case 'SOPORTE_TECNICO':
       case 'SOPORTE_INSITU':
         // El equipo de Zaint puede ver TODOS los equipos registrados
-        break; 
+        break;
 
       case 'CLIENTE_EMPRESA':
         // El gerente solo ve los equipos de su empresa
-        query.andWhere('equipo.id_cliente = :idCliente', { idCliente: usuarioReal.id_cliente });
+        query.andWhere('equipo.id_cliente = :idCliente', {
+          idCliente: usuarioReal.id_cliente,
+        });
         break;
 
       case 'CLIENTE_SUCURSAL':
         // El encargado solo ve los equipos de su sucursal específica
-        query.andWhere('equipo.id_sucursal = :idSucursal', { idSucursal: usuarioReal.id_sucursal });
+        query.andWhere('equipo.id_sucursal = :idSucursal', {
+          idSucursal: usuarioReal.id_sucursal,
+        });
         break;
 
       case 'CLIENTE_TRABAJADOR':
         // El empleado normal solo ve el equipo que tiene su nombre asignado
-        query.andWhere('equipo.nombre_usuario = :nombre', { nombre: usuarioReal.nombre });
+        query.andWhere('equipo.nombre_usuario = :nombre', {
+          nombre: usuarioReal.nombre,
+        });
         break;
 
       default:
-        throw new ForbiddenException('No tienes permisos para ver el inventario.');
+        throw new ForbiddenException(
+          'No tienes permisos para ver el inventario.',
+        );
     }
 
     return await query.getMany();
@@ -82,10 +98,12 @@ export class EquiposService {
   async findOne(id: number, userToken: any) {
     // Reutilizamos la lógica del findAll para asegurar que el usuario tenga permiso de ver ESTE equipo específico
     const equiposPermitidos = await this.findAll(userToken);
-    const equipo = equiposPermitidos.find(e => e.id_equipo === id);
+    const equipo = equiposPermitidos.find((e) => e.id_equipo === id);
 
     if (!equipo) {
-      throw new NotFoundException(`Equipo con id ${id} no encontrado o no tienes permiso para verlo`);
+      throw new NotFoundException(
+        `Equipo con id ${id} no encontrado o no tienes permiso para verlo`,
+      );
     }
 
     return equipo;
@@ -96,7 +114,7 @@ export class EquiposService {
   // --------------------------------------------------------
   async update(id: number, dto: UpdateEquipoDto, userToken: any) {
     // Validamos que el equipo exista y tengamos permiso de tocarlo
-    await this.findOne(id, userToken); 
+    await this.findOne(id, userToken);
 
     const equipo = await this.equiposRepo.preload({
       id_equipo: id,
@@ -117,16 +135,25 @@ export class EquiposService {
     // Validamos permisos
     const equipo = await this.findOne(id, userToken);
 
-    if (!equipo.is_active) throw new BadRequestException('El equipo ya está inactivo');
+    if (!equipo.is_active)
+      throw new BadRequestException('El equipo ya está inactivo');
 
     equipo.is_active = false;
     await this.equiposRepo.save(equipo);
 
-    return { message: `Equipo con id ${id} dado de baja correctamente del sistema` };
+    return {
+      message: `Equipo con id ${id} dado de baja correctamente del sistema`,
+    };
   }
 
   //6. Asignar un equipo a un trabajador
-  async assignToWorker(id: number, nombre_usuario: string, area: string, id_sucursal: number, userToken: any) {
+  async assignToWorker(
+    id: number,
+    nombre_usuario: string,
+    area: string,
+    id_sucursal: number,
+    userToken: any,
+  ) {
     //Buscar un equipo validando que el usuario tenga permiso
     const equipo = await this.findOne(id, userToken);
 
@@ -135,12 +162,12 @@ export class EquiposService {
     equipo.area = area;
 
     //Si el gerente o encargado decide mover la pc a otra sucursal, se actualiza la sucursal
-    if(id_sucursal) equipo.id_sucursal = id_sucursal;
+    if (id_sucursal) equipo.id_sucursal = id_sucursal;
 
     const equipoActualizado = await this.equiposRepo.save(equipo);
-    return { 
-        message: `Equipo asignado exitosamente a ${nombre_usuario} en el área de ${area}`,
-        equipo: equipoActualizado
+    return {
+      message: `Equipo asignado exitosamente a ${nombre_usuario} en el área de ${area}`,
+      equipo: equipoActualizado,
     };
   }
 
@@ -152,9 +179,9 @@ export class EquiposService {
     equipo.nombre_usuario = 'Sin asignar';
     equipo.area = 'Sin asignar';
     const equipoActualizado = await this.equiposRepo.save(equipo);
-    return { 
-        message: `Equipo liberado exitosamente`,
-        equipo: equipoActualizado
+    return {
+      message: `Equipo liberado exitosamente`,
+      equipo: equipoActualizado,
     };
   }
 }

@@ -56,8 +56,8 @@ export class SoftwareController {
   @Patch(':id')
   @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
   update(
-    @Param('id', ParseIntPipe) id: number, 
-    @Body() updateSoftwareDto: UpdateSoftwareDto
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateSoftwareDto: UpdateSoftwareDto,
   ) {
     // Llama al servicio para actualizar el software con los datos del DTO
     return this.softwareService.update(id, updateSoftwareDto);
@@ -78,11 +78,16 @@ export class SoftwareController {
   @Post(':id/instalar')
   @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU')
   instalarSoftware(
-      @Param('id', ParseIntPipe) id_software: number,
-      @Body('id_equipo', ParseIntPipe) id_equipo: number,
-      @Body('licencia_asignada') licencia_asignada: string,
-      @Body('observaciones') observaciones: string,
+    @Param('id', ParseIntPipe) id_software: number,
+    @Body('id_equipo', ParseIntPipe) id_equipo: number,
+    @Body('licencia_asignada') licencia_asignada: string,
+    @Body('observaciones') observaciones: string,
   ) {
-      return this.softwareService.installSoftware(id_software, id_equipo, licencia_asignada, observaciones);
+    return this.softwareService.installSoftware(
+      id_software,
+      id_equipo,
+      licencia_asignada,
+      observaciones,
+    );
   }
 }

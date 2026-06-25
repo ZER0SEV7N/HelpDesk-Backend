@@ -17,15 +17,18 @@ import { AreaController } from './area.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Clientes, Sucursales, Area, Usuario, Planes, Equipos]),
+    TypeOrmModule.forFeature([
+      Clientes,
+      Sucursales,
+      Area,
+      Usuario,
+      Planes,
+      Equipos,
+    ]),
     AuthModule,
-    ChatModule
+    ChatModule,
   ],
-  controllers: [
-    ClientesController,
-    SucursalController,
-    AreaController
-  ],
+  controllers: [ClientesController, SucursalController, AreaController],
   providers: [ClientesService, SucursalService, AreaService],
 })
 export class ClientesModule {}

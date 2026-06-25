@@ -1,31 +1,40 @@
 //helpdesk-app/src/auth/dto/register.auth.dto.ts
 //DTO para la creacion del registro de usuarios
 //Importaciones necesarias:
-import { IsString, IsNotEmpty, Length, IsEmail, MinLength, MaxLength, IsOptional, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  Length,
+  IsEmail,
+  MinLength,
+  MaxLength,
+  IsOptional,
+  IsNumber,
+} from 'class-validator';
 
 export class RegisterEmployeeDto {
-  @IsString() 
-  @IsNotEmpty() 
+  @IsString()
+  @IsNotEmpty()
   nombre: string;
 
-  @IsString() 
-  @IsNotEmpty() 
+  @IsString()
+  @IsNotEmpty()
   apellido: string;
 
-  @IsEmail() 
+  @IsEmail()
   correo: string;
 
-  @IsString() 
-  @IsNotEmpty() 
+  @IsString()
+  @IsNotEmpty()
   telefono: string;
 
-  @IsString() 
-  @MinLength(6) 
+  @IsString()
+  @MinLength(6)
   contraseña: string;
-  
+
   // El jefe decide qué rol darle (Ej: 'CLIENTE_TRABAJADOR')
-  @IsString() 
-  @IsNotEmpty() 
+  @IsString()
+  @IsNotEmpty()
   rolNombre: string;
 
   // --- NUEVOS CAMPOS PARA LA ARQUITECTURA MULTI-EMPRESA ---

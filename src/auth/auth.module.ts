@@ -21,9 +21,9 @@ import { MailerModule } from '@nestjs-modules/mailer';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET')!, 
-        signOptions: { 
-          expiresIn: config.get<string>('JWT_EXPIRES_IN') || '1d' 
+        secret: config.get<string>('JWT_SECRET')!,
+        signOptions: {
+          expiresIn: config.get<string>('JWT_EXPIRES_IN') || '1d',
         } as any,
       }),
     }),
@@ -31,7 +31,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
       transport: {
         host: process.env.EMAIL_HOST || 'smtp.example.com',
         port: parseInt(process.env.EMAIL_PORT || '587'),
-        secure: process.env.EMAIL_SECURE === 'true', 
+        secure: process.env.EMAIL_SECURE === 'true',
         auth: {
           user: process.env.EMAIL_USER || 'danielsinger07@hotmail.com',
           pass: process.env.EMAIL_PASS || 'xvibzqjvuyhsglq',

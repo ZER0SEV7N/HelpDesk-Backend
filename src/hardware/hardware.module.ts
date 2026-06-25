@@ -12,4 +12,3 @@ import { Equipos } from 'src/entities/Equipos.entity';
   imports: [TypeOrmModule.forFeature([Hardware, RegistroHardware, Equipos])],
 })
 export class HardwareModule {}
-

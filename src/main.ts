@@ -20,11 +20,13 @@ async function bootstrap() {
   app.use(cookieParser());
 
   //Activar ValidationPipe globalmente para validacion de DTOs
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true, //Eliminar propiedades no definidas en el DTO
-    forbidNonWhitelisted: true, //Lanzar error si hay propiedades no definidas
-     transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, //Eliminar propiedades no definidas en el DTO
+      forbidNonWhitelisted: true, //Lanzar error si hay propiedades no definidas
+      transform: true,
+    }),
+  );
 
   await app.listen(process.env.PORT ?? 3000);
 }

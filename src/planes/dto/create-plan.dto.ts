@@ -1,10 +1,16 @@
 //helpdesk-app/src/planes/dto/create-plan.dto.ts
 //DTO para crear un nuevo plan
-import { IsNumber, IsString, IsNotEmpty, IsOptional, Min, IsArray } from 'class-validator';
+import {
+  IsNumber,
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  Min,
+  IsArray,
+} from 'class-validator';
 
 //Definicion del DTO para crear un nuevo plan
 export class CreatePlanDto {
-
   //Numero del plan, debe ser un numero entero positivo
   @IsNumber()
   @Min(0)

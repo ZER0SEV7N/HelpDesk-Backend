@@ -9,17 +9,17 @@ import { Usuario } from '../entities/Usuario.entity'; // 2. Importa la entidad d
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseModule } from 'src/database/database.module';
 @Module({
-    imports: [
-        //Mantienes Mongoose para el historial de mensajes (muy inteligente para escalabilidad)
-        MongooseModule.forFeature([{ name: Mensaje.name, schema: MensajeSchema }]),
-        //Importas TypeORM para que el Gateway pueda consultar la carga de los técnicos
-        TypeOrmModule.forFeature([Usuario]), 
-        //Importas los módulos externos necesarios
-        DatabaseModule,
-        AuthModule,
-        TicketModule,
-    ],
-    providers: [ChatService, ChatGateway],
-    exports: [ChatService, ChatGateway],
+  imports: [
+    //Mantienes Mongoose para el historial de mensajes (muy inteligente para escalabilidad)
+    MongooseModule.forFeature([{ name: Mensaje.name, schema: MensajeSchema }]),
+    //Importas TypeORM para que el Gateway pueda consultar la carga de los técnicos
+    TypeOrmModule.forFeature([Usuario]),
+    //Importas los módulos externos necesarios
+    DatabaseModule,
+    AuthModule,
+    TicketModule,
+  ],
+  providers: [ChatService, ChatGateway],
+  exports: [ChatService, ChatGateway],
 })
 export class ChatModule {}

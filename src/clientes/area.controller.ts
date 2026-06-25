@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { AreaService } from './area.service';
 import { CreateAreaDto } from './dto/create-area.dto';
 
@@ -66,7 +75,7 @@ export class AreaController {
   deactivate(@Param('id', ParseIntPipe) id: number) {
     return this.areaService.deactivate(id);
   }
-  
+
   //-----------------------------------------------------------------
   //Reactivar un área (Admin, Cliente Empresa)
   //PATCH /areas/:id/activar
@@ -86,7 +95,6 @@ export class AreaController {
   @Get()
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
   findAll() {
-  return this.areaService.findAll();
-}
-
+    return this.areaService.findAll();
+  }
 }

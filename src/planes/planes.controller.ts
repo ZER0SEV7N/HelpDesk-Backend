@@ -7,7 +7,7 @@ import {
   Param,
   UseGuards,
   ParseIntPipe,
-} from '@nestjs/common';  
+} from '@nestjs/common';
 import { PlanesService } from './planes.service';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';

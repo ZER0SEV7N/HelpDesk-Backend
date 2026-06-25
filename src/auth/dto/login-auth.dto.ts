@@ -4,15 +4,13 @@ import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 //Definicion del DTO para el login
 export class LoginDTO {
-  //Correo del usuario
-  @IsEmail() //Valida que sea un correo valido
-  @IsNotEmpty() //Valida que no este vacio
-  @IsString() //Valida que sea una cadena de texto
+  @IsEmail()
+  @IsNotEmpty()
+  @IsString()
   correo: string;
 
-  //Contraseña del usuario
-  @IsString() //Valida que sea una cadena de texto
-  @IsNotEmpty() //Valida que no este vacio 
-  contraseña: string;
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
+  password: string;
 }
-

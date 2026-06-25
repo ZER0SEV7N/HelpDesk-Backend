@@ -13,16 +13,16 @@ import { Software_equipos } from './entities/SoftwareEquipos.entity';
 import { Area } from './entities/Area.entity';
 
 export const AllEntities = [
-    Usuario,
-    Rol,
-    Equipos,
-    Software,
-    Planes,
-    Tickets,
-    Clientes,
-    Sucursales,
-    Hardware,
-    RegistroHardware,
-    Software_equipos,
-    Area
+  Usuario,
+  Rol,
+  Equipos,
+  Software,
+  Planes,
+  Tickets,
+  Clientes,
+  Sucursales,
+  Hardware,
+  RegistroHardware,
+  Software_equipos,
+  Area,
 ];

@@ -1,5 +1,12 @@
 // Entidad para la tabla planes (planes y precios)
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, OneToMany, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  OneToMany,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Clientes } from './Clientes.entity';
 
 @Entity('planes')
@@ -29,7 +36,7 @@ export class Planes {
   @Column({ default: true })
   is_active: boolean; //Indica si el plan está activo o no
 
-  @OneToMany(() => Clientes, cliente => cliente.plan)
+  @OneToMany(() => Clientes, (cliente) => cliente.plan)
   clientes: Clientes[];
 
   //Fecha de creacion

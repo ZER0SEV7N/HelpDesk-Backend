@@ -1,13 +1,23 @@
 //src/ticket/ticket.controller.ts
 //Modulo de controlador para la tabla ticket
 //importaciones necesarias:
-import { Controller, Get, Post, Body, Patch, Param, Query, Req, ParseIntPipe, UseGuards, Delete  } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Query,
+  Req,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/role.decorator';
-import { UpdateTicketDto } from './dto/update-ticket.dto';
 
 @Controller('tickets')
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -20,12 +30,19 @@ export class TicketController {
   // (Debe ir antes del :id para que NestJS no lo confunda con un ID de ticket)
   //------------------------------------------
   @Get('metrics')
-  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL', 'CLIENTE_TRABAJADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU')
+  @Roles(
+    'ADMINISTRADOR',
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+    'CLIENTE_TRABAJADOR',
+    'SOPORTE_TECNICO',
+    'SOPORTE_INSITU',
+  )
   getMetrics(@Req() req: any) {
     return this.ticketService.getDashboardMetrics(req.user);
   }
 
-//------------------------------------------
+  //------------------------------------------
   // CREAR TICKET
   // POST /tickets
   //------------------------------------------
@@ -40,8 +57,8 @@ export class TicketController {
   //Solo el cliente autenticado puede ver sus propios tickets, no puede ver los tickets de otros clientes
   @Get('mis-tickets')
   @UseGuards(JwtAuthGuard)
-  getMyTickets(@Req() req: any) { //Cambiado @Request por @Req
-    return this.ticketService.findTickets(req.user, {}); 
+  getMyTickets(@Req() req: any) {
+    return this.ticketService.findTickets(req.user, { vista: 'mis-tickets' });
   }
 
   //------------------------------------------
@@ -49,22 +66,35 @@ export class TicketController {
   // GET /tickets?estado=Pendiente
   //------------------------------------------
   @Get()
-  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL', 'CLIENTE_TRABAJADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU')
+  @Roles(
+    'ADMINISTRADOR',
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+    'CLIENTE_TRABAJADOR',
+    'SOPORTE_TECNICO',
+    'SOPORTE_INSITU',
+  )
   findAll(@Req() req: any, @Query() filters: any) {
     return this.ticketService.findTickets(req.user, filters);
   }
-  
 
   //------------------------------------------
   // OBTENER DETALLE DE UN TICKET
   // GET /tickets/:id
   //------------------------------------------
   @Get(':id')
-  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL', 'CLIENTE_TRABAJADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU')
+  @Roles(
+    'ADMINISTRADOR',
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+    'CLIENTE_TRABAJADOR',
+    'SOPORTE_TECNICO',
+    'SOPORTE_INSITU',
+  )
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
     return this.ticketService.getTicketById(id, req.user);
   }
-  
+
   //------------------------------------------
   // ASIGNAR TICKET A TÉCNICO
   // PATCH /tickets/:id/asignar
@@ -108,5 +138,4 @@ export class TicketController {
   reopen(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
     return this.ticketService.reopenTicket(id, req.user);
   }
- 
 }

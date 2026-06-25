@@ -51,14 +51,19 @@ export class Equipos {
   @Column()
   id_cliente: number;
 
-  @ManyToOne(() => Clientes, (cliente) => cliente.equipos, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Clientes, (cliente) => cliente.equipos, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'id_cliente' })
   cliente: Clientes;
 
   @Column({ nullable: true })
   id_sucursal?: number;
 
-  @ManyToOne(() => Sucursales, (sucursal) => sucursal.equipos, { nullable: true, onDelete: 'SET NULL' })
+  @ManyToOne(() => Sucursales, (sucursal) => sucursal.equipos, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'id_sucursal' })
   sucursal?: Sucursales;
 
@@ -68,7 +73,7 @@ export class Equipos {
   @UpdateDateColumn({ name: 'updated_at' })
   updated_at: Date;
 
-  @OneToMany(() => Tickets, ticket => ticket.equipo)
+  @OneToMany(() => Tickets, (ticket) => ticket.equipo)
   ticket: Tickets[];
 
   // --- Relaciones ManyToMany con Hardware y Software ---

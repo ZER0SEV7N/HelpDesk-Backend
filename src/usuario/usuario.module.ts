@@ -13,7 +13,9 @@ import { Clientes } from 'src/entities/Clientes.entity';
 @Module({
   controllers: [UsuarioController],
   providers: [UsuarioService],
-  imports: [TypeOrmModule.forFeature([Usuario, Rol, Sucursales, Clientes]), AuthModule]
-  
+  imports: [
+    TypeOrmModule.forFeature([Usuario, Rol, Sucursales, Clientes]),
+    AuthModule,
+  ],
 })
 export class UsuarioModule {}

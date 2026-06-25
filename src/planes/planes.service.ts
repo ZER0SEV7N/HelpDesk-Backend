@@ -1,7 +1,11 @@
 //helpdesk-backend/src/planes/planes.service.ts
 //Servicio para manejar la logica de negocio relacionada con los planes.
 //Incluye metodos para crear, obtener, actualizar y eliminar planes.
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Planes } from '../entities/Planes.entity';
@@ -16,7 +20,6 @@ export class PlanesService {
     //Inyectamos el repositorio de Planes para interactuar con la base de datos
     @InjectRepository(Planes)
     private readonly planesRepo: Repository<Planes>,
-
   ) {}
 
   /*========================================
@@ -79,26 +82,32 @@ export class PlanesService {
   //SOFT DELETE: Archivar un plan para que ya no esté disponible para nuevos clientes, pero sin eliminarlo de la base de datos.
   async deactivate(id: number) {
     const plan = await this.findOne(id);
-    
-    if (!plan.is_active) throw new BadRequestException('Este plan ya se encuentra inactivo');
+
+    if (!plan.is_active)
+      throw new BadRequestException('Este plan ya se encuentra inactivo');
 
     //No necesitamos bloquearlo si hay clientes, porque es un Soft Delete.
     //Los clientes antiguos seguirán teniendo el plan asignado, pero ya no se venderá a nuevos.
     plan.is_active = false;
     await this.planesRepo.save(plan);
 
-    return { message: `El ${plan.tipo} ha sido archivado (Soft Delete) exitosamente.` };
+    return {
+      message: `El ${plan.tipo} ha sido archivado (Soft Delete) exitosamente.`,
+    };
   }
 
   //REACTIVAR: Volver a poner el plan a la venta
   async activate(id: number) {
     const plan = await this.findOne(id);
-    
-    if (plan.is_active) throw new BadRequestException('Este plan ya se encuentra activo');
+
+    if (plan.is_active)
+      throw new BadRequestException('Este plan ya se encuentra activo');
 
     plan.is_active = true;
     await this.planesRepo.save(plan);
 
-    return { message: `El ${plan.tipo} ha sido reactivado y está disponible nuevamente.` };
+    return {
+      message: `El ${plan.tipo} ha sido reactivado y está disponible nuevamente.`,
+    };
   }
 }

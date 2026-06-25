@@ -1,15 +1,15 @@
 // src/equipos/equipos.controller.ts
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Patch, 
-  Delete, 
-  Body, 
-  Param, 
-  UseGuards, 
-  ParseIntPipe, 
-  Request 
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  ParseIntPipe,
+  Request,
 } from '@nestjs/common';
 import { EquiposService } from './equipos.service';
 import { CreateEquipoDTO } from './dto/create-equipos.dto';
@@ -24,7 +24,7 @@ export class EquiposController {
   constructor(private readonly equiposService: EquiposService) {}
 
   // --------------------------------------------------------
-  // 1. CREAR NUEVO EQUIPO 
+  // 1. CREAR NUEVO EQUIPO
   // --------------------------------------------------------
   @Post()
   @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
@@ -36,7 +36,14 @@ export class EquiposController {
   // 2. LISTAR EQUIPOS
   // --------------------------------------------------------
   @Get()
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL', 'CLIENTE_TRABAJADOR')
+  @Roles(
+    'ADMINISTRADOR',
+    'SOPORTE_TECNICO',
+    'SOPORTE_INSITU',
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+    'CLIENTE_TRABAJADOR',
+  )
   findAll(@Request() req: any) {
     // req.user contiene el userId y role descifrados por tu JwtStrategy
     return this.equiposService.findAll(req.user);
@@ -46,11 +53,15 @@ export class EquiposController {
   // 3. VER DETALLE DE UN EQUIPO ESPECÍFICO
   // --------------------------------------------------------
   @Get(':id')
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL', 'CLIENTE_TRABAJADOR')
-  findOne(
-    @Param('id', ParseIntPipe) id: number, 
-    @Request() req: any
-  ) {
+  @Roles(
+    'ADMINISTRADOR',
+    'SOPORTE_TECNICO',
+    'SOPORTE_INSITU',
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+    'CLIENTE_TRABAJADOR',
+  )
+  findOne(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
     return this.equiposService.findOne(id, req.user);
   }
 
@@ -60,9 +71,9 @@ export class EquiposController {
   @Patch(':id')
   @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
   update(
-    @Param('id', ParseIntPipe) id: number, 
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateEquipoDto: UpdateEquipoDto,
-    @Request() req: any
+    @Request() req: any,
   ) {
     return this.equiposService.update(id, updateEquipoDto, req.user);
   }
@@ -72,10 +83,7 @@ export class EquiposController {
   // --------------------------------------------------------
   @Delete(':id')
   @Roles('ADMINISTRADOR')
-  remove(
-    @Param('id', ParseIntPipe) id: number,
-    @Request() req: any
-  ) {
+  remove(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
     return this.equiposService.remove(id, req.user);
   }
 
@@ -84,15 +92,27 @@ export class EquiposController {
   // PATCH http://localhost:3000/equipos/1/asignar
   // --------------------------------------------------------
   @Patch(':id/asignar')
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
+  @Roles(
+    'ADMINISTRADOR',
+    'SOPORTE_TECNICO',
+    'SOPORTE_INSITU',
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+  )
   asignarEquipo(
-      @Param('id', ParseIntPipe) id: number,
-      @Body('nombre_usuario') nombre_usuario: string,
-      @Body('area') area: string,
-      @Body('id_sucursal') id_sucursal: number, // Opcional, por si se mueve de edificio
-      @Request() req: any
+    @Param('id', ParseIntPipe) id: number,
+    @Body('nombre_usuario') nombre_usuario: string,
+    @Body('area') area: string,
+    @Body('id_sucursal') id_sucursal: number, // Opcional, por si se mueve de edificio
+    @Request() req: any,
   ) {
-      return this.equiposService.assignToWorker(id, nombre_usuario, area, id_sucursal, req.user);
+    return this.equiposService.assignToWorker(
+      id,
+      nombre_usuario,
+      area,
+      id_sucursal,
+      req.user,
+    );
   }
 
   // --------------------------------------------------------
@@ -100,11 +120,14 @@ export class EquiposController {
   // PATCH http://localhost:3000/equipos/1/liberar
   // --------------------------------------------------------
   @Patch(':id/liberar')
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
-  liberarEquipo(
-      @Param('id', ParseIntPipe) id: number,
-      @Request() req: any
-  ) {
-      return this.equiposService.unassignFromWorker(id, req.user);
+  @Roles(
+    'ADMINISTRADOR',
+    'SOPORTE_TECNICO',
+    'SOPORTE_INSITU',
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+  )
+  liberarEquipo(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
+    return this.equiposService.unassignFromWorker(id, req.user);
   }
 }

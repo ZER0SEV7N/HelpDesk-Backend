@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { HardwareService } from './hardware.service';
 import { CreateHardwareDto } from './dto/create-hardware.dto';
 import { UpdateHardwareDto } from './dto/update-hardware.dto';
@@ -40,7 +50,10 @@ export class HardwareController {
   //Actualiza un hardware existente, solo accesible para ADMINISTRADOR y SOPORTE_TECNICO
   @Patch(':id')
   @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
-  update(@Param('id') id: string, @Body() updateHardwareDto: UpdateHardwareDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateHardwareDto: UpdateHardwareDto,
+  ) {
     return this.hardwareService.update(+id, updateHardwareDto);
   }
 
@@ -51,16 +64,22 @@ export class HardwareController {
   remove(@Param('id') id: string) {
     return this.hardwareService.remove(+id);
   }
-  
+
   @Post(':id/instalar')
   @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU')
   instalarPieza(
-      @Param('id', ParseIntPipe) id_hardware: number,
-      @Body('id_equipo', ParseIntPipe) id_equipo: number,
-      @Body('descripcion') descripcion: string,
-      @Body('serie') serie: string,
-      @Body('proveedor') proveedor: string,
+    @Param('id', ParseIntPipe) id_hardware: number,
+    @Body('id_equipo', ParseIntPipe) id_equipo: number,
+    @Body('descripcion') descripcion: string,
+    @Body('serie') serie: string,
+    @Body('proveedor') proveedor: string,
   ) {
-      return this.hardwareService.installHardware(id_hardware, id_equipo, descripcion, serie, proveedor);
+    return this.hardwareService.installHardware(
+      id_hardware,
+      id_equipo,
+      descripcion,
+      serie,
+      proveedor,
+    );
   }
 }

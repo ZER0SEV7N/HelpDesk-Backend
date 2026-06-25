@@ -13,31 +13,36 @@ import { UsuarioModule } from './usuario/usuario.module';
 import { PlanesModule } from './planes/planes.module';
 import { SoftwareModule } from './software/software.module';
 import { FilesController } from './files/files.controller';
-import { ServeStaticModule } from '@nestjs/serve-static'; //Importa el módulo para servir archivos estáticos 
+import { ServeStaticModule } from '@nestjs/serve-static'; //Importa el módulo para servir archivos estáticos
 import { join } from 'path';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 @Module({
-  imports: [ConfigModule.forRoot({
-      isGlobal: true}),
-      DatabaseModule, 
-      ClientesModule, 
-      AuthModule, 
-      HardwareModule, 
-      TicketModule,
-      SoftwareModule, 
-      EquiposModule, 
-      ChatModule, 
-      UsuarioModule, 
-      PlanesModule,
-      ServeStaticModule.forRoot({
-        rootPath: join(__dirname, '..', 'uploads'), // Carpeta donde se almacenan los archivos subidos
-        serveRoot: '/uploads', // Ruta base para acceder a los archivos (ejemplo: http://localhost:3000/uploads/archivo.jpg)
-      }),
-    ],
-    
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    DatabaseModule,
+    ClientesModule,
+    AuthModule,
+    HardwareModule,
+    TicketModule,
+    SoftwareModule,
+    EquiposModule,
+    ChatModule,
+    UsuarioModule,
+    PlanesModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'), // Carpeta donde se almacenan los archivos subidos
+      serveRoot: '/uploads', // Ruta base para acceder a los archivos (ejemplo: http://localhost:3000/uploads/archivo.jpg)
+    }),
+  ],
+
   controllers: [AppController, FilesController],
-  providers: [AppService, {provide: APP_FILTER, useClass: AllExceptionsFilter}, ],
+  providers: [
+    AppService,
+    { provide: APP_FILTER, useClass: AllExceptionsFilter },
+  ],
 })
 export class AppModule {}
