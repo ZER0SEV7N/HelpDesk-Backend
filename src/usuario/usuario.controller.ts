@@ -60,7 +60,7 @@ export class UsuarioController {
   //GET /usuario/list
   @Get('list')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
   listUsers(@Req() req: any) {
     return this.usuarioService.listUsers(req.user);
   }

@@ -4,10 +4,8 @@
 import {
   IsString,
   IsNotEmpty,
-  Length,
   IsEmail,
   MinLength,
-  MaxLength,
   IsOptional,
   IsNumber,
 } from 'class-validator';
@@ -22,15 +20,17 @@ export class RegisterEmployeeDto {
   apellido: string;
 
   @IsEmail()
+  @IsNotEmpty()
   correo: string;
 
   @IsString()
   @IsNotEmpty()
-  telefono: string;
+  @MinLength(6)
+  password: string;
 
   @IsString()
-  @MinLength(6)
-  contraseña: string;
+  @IsNotEmpty()
+  telefono: string;
 
   // El jefe decide qué rol darle (Ej: 'CLIENTE_TRABAJADOR')
   @IsString()

@@ -172,7 +172,7 @@ export class UsuarioService {
     }
 
     //Encriptar contraseña
-    const hashedPassword = await bcrypt.hash(dto.contraseña, 10);
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
 
     // Construir el objeto con tipado explicito Partial<Usuario> para evitar
     const userData: Partial<Usuario> = {

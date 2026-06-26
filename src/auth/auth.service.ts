@@ -44,9 +44,9 @@ export class AuthService {
       );
     }
 
-    //1. Buscar si el rol existe (Por defecto asignamos rol ID 1 o buscamos por nombre 'Usuario')
+    //1. Buscar si el rol existe (Por defecto asignamos rol ID 1 o buscamos por nombre 'CLIENTE_EMPLEADO')
     const defaultRole = await this.rolRepo.findOne({
-      where: { nombre: 'ADMINISTRADOR' },
+      where: { nombre: 'CLIENTE_EMPLEADO' },
     });
 
     if (!defaultRole)
@@ -84,10 +84,7 @@ export class AuthService {
       throw new UnauthorizedException('Correo incorrecto');
 
     //Verificar contraseña
-    const isPasswordValid = await bcrypt.compare(
-      dto.password,
-      user.contraseña,
-    );
+    const isPasswordValid = await bcrypt.compare(dto.password, user.contraseña);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Contraseña incorrecta');
