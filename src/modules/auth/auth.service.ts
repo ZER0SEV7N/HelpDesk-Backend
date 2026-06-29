@@ -11,8 +11,8 @@ import { InjectRepository } from '@nestjs/typeorm'; //Para inyectar repositorios
 import { Repository } from 'typeorm'; //Repositorio de TypeORM
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { Usuario } from '../entities/Usuario.entity';
-import { Rol } from '../entities/Rol.entity';
+import { Usuario } from '../../entities/Usuario.entity';
+import { Rol } from '../../entities/Rol.entity';
 import { RegisterDTO } from './dto/register-auth.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { LoginDTO } from './dto/login-auth.dto';

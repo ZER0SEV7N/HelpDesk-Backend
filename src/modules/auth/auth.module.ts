@@ -5,12 +5,12 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Usuario } from '../entities/Usuario.entity'; //Importa la entidad Usuario
-import { Rol } from '../entities/Rol.entity'; //Importa la entidad Rol
+import { Usuario } from '../../entities/Usuario.entity'; //Importa la entidad Usuario
+import { Rol } from '../../entities/Rol.entity'; //Importa la entidad Rol
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({

@@ -2,7 +2,6 @@
 //DTO para actualizar el perfil del usuario
 import {
   IsString,
-  IsEmail,
   IsOptional,
   IsNotEmpty,
   MinLength,
@@ -23,11 +22,6 @@ export class UpdateProfileDTO {
   @IsString()
   @IsOptional()
   apellido?: string;
-
-  //Opcional: Nuevo correo electronico del usuario
-  @IsEmail()
-  @IsOptional()
-  correo?: string;
 
   //Opcional: Nuevo telefono del usuario
   @IsString()

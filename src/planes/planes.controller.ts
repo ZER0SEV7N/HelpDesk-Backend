@@ -11,9 +11,9 @@ import {
 import { PlanesService } from './planes.service';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
-import { RoleGuard } from '../auth/guards/role.guard'; //Guard para roles
-import { Roles } from '../auth/decorators/role.decorator'; //Decorador para roles
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'; //Guard para JWT
+import { RoleGuard } from '../common/guards/role.guard'; //Guard para roles
+import { Roles } from '../common/decorators/role.decorator'; //Decorador para roles
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard'; //Guard para JWT
 
 //Controlador Planes
 @Controller('planes')

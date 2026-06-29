@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TicketService } from './ticket.service';
 import { TicketController } from './ticket.controller';
 import { Tickets } from '../entities/Tickets.entity';
-import { AuthModule } from '../auth/auth.module';
+import { AuthModule } from '../modules/auth/auth.module';
 import { Rol } from 'src/entities/Rol.entity';
 import { Equipos } from 'src/entities/Equipos.entity';
 

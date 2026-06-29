@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Planes } from '../entities/Planes.entity';
 import { PlanesService } from './planes.service';
 import { PlanesController } from './planes.controller';
-import { AuthModule } from '../auth/auth.module';
+import { AuthModule } from '../modules/auth/auth.module';
 import { Rol } from 'src/entities/Rol.entity';
 import { Clientes } from 'src/entities/Clientes.entity';
 

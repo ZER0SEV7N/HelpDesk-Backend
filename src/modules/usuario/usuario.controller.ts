@@ -16,14 +16,21 @@ import {
   UseGuards,
   Req,
   ParseIntPipe,
+  Query,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { UpdateProfileDTO } from './dto/update-profile.dto';
 import { RegisterEmployeeDto } from './dto/register-employee.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { RoleGuard } from 'src/auth/guards/role.guard';
-import { Roles } from 'src/auth/decorators/role.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
+import { RoleGuard } from '@/common/guards/role.guard';
+import { Roles } from '@/common/decorators/role.decorator';
 import { ReassignUserDto } from './dto/reassign-user.dto';
+import { GetUsersFilterDto } from './dto/get-users-filter.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('usuario')
 export class UsuarioController {
@@ -61,8 +68,8 @@ export class UsuarioController {
   @Get('list')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
-  listUsers(@Req() req: any) {
-    return this.usuarioService.listUsers(req.user);
+  listUsers(@Req() req: any, @Query() filters: GetUsersFilterDto) {
+    return this.usuarioService.listUsers(req.user, filters);
   }
 
   //Registrar un nuego empleado
@@ -73,6 +80,35 @@ export class UsuarioController {
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   registerEmployee(@Body() dto: RegisterEmployeeDto, @Req() req: any) {
     return this.usuarioService.registerEmployee(dto, req.user);
+  }
+
+  //POST /usuario/registrar-masivo
+  //Alcance: Solo la empresa puede registrar empleados de forma masiva mediante un archivo CSV
+  //El archivo CSV debe tener la siguiente estructura:
+  //nombre,apellido,correo,telefono,password,rolNombre,id_cliente,id_sucursal
+  //El campo id_cliente y id_sucursal son opcionales y solo se deben incluir si el rol del usuario que registra es ADMINISTRADOR.
+  //Si el rol del usuario que registra es CLIENTE_EMPRESA, se asignará automáticamente el id_cliente del usuario que registra y no se permitirá modificarlo.
+  @Post('registrar-masivo')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
+  @UseInterceptors(FileInterceptor('file')) // Intercepta el campo 'file' del FormData
+  registerBulkEmployees(
+    @Req() req: any,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // Máximo 5MB
+        ],
+      }),
+    ) file: Express.Multer.File,
+  ) {
+    return this.usuarioService.registerBulkEmployees(file.buffer, req.user);
+  }
+
+  //GET /usuario/confirmar-correo?correo=empleado@empresa.com&token=xyz123...
+  @Get('confirmar-correo')
+  confirmEmail(@Query('correo') correo: string, @Query('token') token: string) {
+    return this.usuarioService.confirmEmail(correo, token);
   }
 
   //Asignar rol a un usuario

@@ -12,9 +12,9 @@ import { AreaService } from './area.service';
 import { CreateAreaDto } from './dto/create-area.dto';
 
 // Importaciones de seguridad
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RoleGuard } from '../auth/guards/role.guard';
-import { Roles } from '../auth/decorators/role.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RoleGuard } from '../common/guards/role.guard';
+import { Roles } from '../common/decorators/role.decorator';
 
 @Controller('areas')
 @UseGuards(JwtAuthGuard, RoleGuard)

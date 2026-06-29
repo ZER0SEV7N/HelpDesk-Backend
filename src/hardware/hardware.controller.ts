@@ -12,9 +12,9 @@ import {
 import { HardwareService } from './hardware.service';
 import { CreateHardwareDto } from './dto/create-hardware.dto';
 import { UpdateHardwareDto } from './dto/update-hardware.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { RoleGuard } from 'src/auth/guards/role.guard';
-import { Roles } from 'src/auth/decorators/role.decorator';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { RoleGuard } from 'src/common/guards/role.guard';
+import { Roles } from 'src/common/decorators/role.decorator';
 
 //Controlador para manejar las rutas relacionadas con el hardware, protegido por JWT y roles
 @Controller('hardware')

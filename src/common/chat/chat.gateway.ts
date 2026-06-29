@@ -19,11 +19,11 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import * as cookie from 'cookie';
-import { AuthService } from '../auth/auth.service';
-import { TicketService } from '../ticket/ticket.service';
+import { AuthService } from '../../modules/auth/auth.service';
+import { TicketService } from '../../ticket/ticket.service';
 import { UnauthorizedException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Usuario } from '../entities/Usuario.entity';
+import { Usuario } from '../../entities/Usuario.entity';
 import { ChatService } from './chat.service';
 import { Repository } from 'typeorm';
 import { env } from 'process';
