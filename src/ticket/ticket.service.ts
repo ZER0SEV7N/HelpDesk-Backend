@@ -14,10 +14,10 @@ import {
   BadRequestException,
 } from '@nestjs/common'; //Para marcar esta clase como un servicio inyectable
 import { CreateTicketDto } from './dto/create-ticket.dto'; //DTO para la creacion de un ticket
-import { Tickets, TicketStatus } from 'src/entities/Tickets.entity'; //Entidad de Ticket para interactuar con la base de datos
+import { Tickets, TicketStatus } from '@/entities/Tickets.entity'; //Entidad de Ticket para interactuar con la base de datos
 import { Repository } from 'typeorm'; //Repositorio de TypeORM para manejar las operaciones de base de datos
 import { InjectRepository } from '@nestjs/typeorm'; //Para inyectar el repositorio de Ticket
-import { Equipos } from 'src/entities/Equipos.entity';
+import { Equipos } from '@/entities/Equipos.entity';
 
 //Servicio de Ticket
 @Injectable()

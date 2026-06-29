@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
-// Asegúrate de importar ExtractJwt
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 
@@ -10,31 +9,23 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        // 1er intento: Buscar en la Cookie
+        // 1er intento: Buscar en la Cookie HttpOnly
         (req: Request) => {
           const token = req?.cookies?.['jwt'];
           console.log('🔴 Token en Cookie:', token ? '¡Encontrado!' : 'Vacío');
-
-          // Novedad: Espiamos las cabeceras para ver si Thunder Client hizo su trabajo
-          console.log(
-            '🟡 Cabecera Authorization:',
-            req?.headers?.authorization ? '¡Llegó un Bearer!' : 'Vacía',
-          );
-
-          // ¡CLAVE! Si no hay token en la cookie, devolvemos null explícitamente para que pase al intento 2
           return token ? token : null;
         },
-        // 2do intento: Buscar en el Bearer Token
+        // 2do intento: Buscar en la cabecera como Bearer Token
         ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ]),
+      ]), 
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET')!,
+      secretOrKey: configService.get<string>('JWT_SECRET') || process.env.JWT_SECRET,
     });
   }
 
-  //Este método se llama automáticamente después de que el token ha sido verificado
+  // Este método se llama automáticamente después de que el token ha sido verificado con éxito
   async validate(payload: any) {
-    console.log('🔵 Payload descifrado:', payload);
+    console.log('🔵 Payload descifrado con éxito:', payload);
     return {
       userId: payload.sub,
       role: payload.role,

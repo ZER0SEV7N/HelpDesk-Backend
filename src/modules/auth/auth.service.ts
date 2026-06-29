@@ -1,64 +1,39 @@
-//helpdesk-app/src/auth/auth.service.ts
+//helpdesk-app/src/modules/auth/auth.service.ts
 //Servicio de autenticacion para el manejo de registro y login de usuarios
 //----------------------------------------------------------
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common'; //Importaciones necesarias
-import { InjectRepository } from '@nestjs/typeorm'; //Para inyectar repositorios de TypeORM
-import { Repository } from 'typeorm'; //Repositorio de TypeORM
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Usuario } from '../../entities/Usuario.entity';
 import { Rol } from '../../entities/Rol.entity';
 import { RegisterDTO } from './dto/register-auth.dto';
-import { MailerService } from '@nestjs-modules/mailer';
 import { LoginDTO } from './dto/login-auth.dto';
-import { env } from 'process';
+import { ConfigService } from '@nestjs/config';
+import { EmailService } from '@/common/email/email.service'; 
 
-//Servicio de autenticacion
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(Usuario)
-    private usuariosRepo: Repository<Usuario>,
-    @InjectRepository(Rol)
-    private rolRepo: Repository<Rol>,
-    private jwtService: JwtService,
-    private mailerService: MailerService,
+    @InjectRepository(Usuario) private readonly usuariosRepo: Repository<Usuario>,
+    @InjectRepository(Rol) private readonly rolRepo: Repository<Rol>,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly emailService: EmailService, 
   ) {}
 
-  //Metodo para registrar un usuario
+  /**
+   * Registro de Usuario Ordinario
+   */
   async register(dto: RegisterDTO) {
-    //Verificar si el usuario ya existe por correo
-    const exists = await this.usuariosRepo.findOne({
-      where: { correo: dto.correo },
-    });
+    const exists = await this.usuariosRepo.findOne({ where: { correo: dto.correo } });
+    if (exists) throw new HttpException('El correo ya está registrado', HttpStatus.CONFLICT);
 
-    if (exists) {
-      throw new HttpException(
-        'El correo ya está registrado',
-        HttpStatus.CONFLICT,
-      );
-    }
+    const defaultRole = await this.rolRepo.findOne({ where: { nombre: 'CLIENTE_EMPLEADO' } });
+    if (!defaultRole) throw new HttpException('Rol por defecto no encontrado', HttpStatus.CONFLICT);
 
-    //1. Buscar si el rol existe (Por defecto asignamos rol ID 1 o buscamos por nombre 'CLIENTE_EMPLEADO')
-    const defaultRole = await this.rolRepo.findOne({
-      where: { nombre: 'CLIENTE_EMPLEADO' },
-    });
-
-    if (!defaultRole)
-      throw new HttpException(
-        'Rol por defecto no encontrado',
-        HttpStatus.CONFLICT,
-      );
-
-    // 2. Encriptar contraseña
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-
-    // 3. Crear usuario
     const newUser = this.usuariosRepo.create({
       nombre: dto.nombre,
       apellido: dto.apellido,
@@ -72,23 +47,19 @@ export class AuthService {
     return await this.usuariosRepo.save(newUser);
   }
 
-  //Metodo para el LOGIN DE USUARIO
+  /**
+   * Login de Usuario con retorno de credenciales estructuradas
+   */
   async login(dto: LoginDTO) {
     const user = await this.usuariosRepo.findOne({
       where: { correo: dto.correo },
-      relations: ['rol'], // Asegura que el rol se cargue junto con el usuario
+      relations: ['rol'],
     });
 
-    //En caso de que no exista el usuario
-    if (!user || !user.is_active)
-      throw new UnauthorizedException('Correo incorrecto');
+    if (!user || !user.is_active) throw new UnauthorizedException('Credenciales incorrectas o cuenta inactiva');
 
-    //Verificar contraseña
     const isPasswordValid = await bcrypt.compare(dto.password, user.contraseña);
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Contraseña incorrecta');
-    }
+    if (!isPasswordValid) throw new UnauthorizedException('Credenciales incorrectas');
 
     const payload = {
       sub: user.id_usuario,
@@ -98,63 +69,41 @@ export class AuthService {
     };
 
     const token = this.jwtService.sign(payload);
-
-    return {
-      user,
-      role: user.rol.nombre,
-      token,
-    };
+    return { user, role: user.rol.nombre, token };
   }
 
-  //Metodo para solicitar un restablecimiento de contraseña (envia un correo con un token de restablecimiento)
+  /**
+   * Solicitar recuperación de contraseña (Usa el EmailService global)
+   */
   async recoverPassword(correo: string) {
     const user = await this.usuariosRepo.findOne({ where: { correo } });
+    if (!user) throw new HttpException('Correo no registrado', HttpStatus.NOT_FOUND);
 
-    if (!user)
-      throw new HttpException('Correo no registrado', HttpStatus.NOT_FOUND);
-
+    //Generar un token específico de recuperación usando la clave secreta del ConfigService
     const resetToken = this.jwtService.sign(
       { sub: user.id_usuario },
-      { expiresIn: '30m', secret: env.JWT_RESET_SECRET || 'resetKey' },
+      { 
+        expiresIn: '30m', 
+        secret: this.configService.get<string>('JWT_RESET_SECRET') || 'resetKeyDefault' 
+      },
     );
 
-    const frontendURL = env.FRONTEND_URL || 'http://localhost:3000';
-    const resetLink = `${frontendURL}/reset-password?token=${resetToken}`;
+    //Enviar correo de recuperación usando el EmailService global
+    await this.emailService.sendPasswordRecovery(user.correo, resetToken);
 
-    try {
-      await this.mailerService.sendMail({
-        to: user.correo,
-        subject:
-          env.RESET_PASSWORD_EMAIL_SUBJECT ||
-          'Soporte HelpDesk - Restablecimiento de contraseña',
-        html:
-          env.RESET_PASSWORD_EMAIL_TEMPLATE ||
-          `
-                    <h2>Hola, ${user.nombre}</h2>
-                    <p>Has solicitado restablecer tu contraseña en el sistema HelpDesk.</p>
-                    <p>Haz clic en el siguiente botón para crear una nueva contraseña. Este enlace <b>expirará en 15 minutos</b>.</p>
-                    <a href="${resetLink}" style="padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Restablecer Contraseña</a>
-                    <p>Si no solicitaste este cambio, ignora este correo.</p>
-                `,
-      });
-      return { message: 'Correo de restablecimiento enviado exitosamente' };
-    } catch (error) {
-      throw new HttpException(
-        'Error al enviar el correo de restablecimiento',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return { message: 'Correo de restablecimiento enviado exitosamente' };
   }
 
-  //Metodo para reiniciar la contraseña utilizando el token de restablecimiento
+  /**
+   * Confirmar el restablecimiento de contraseña
+   */
   async resetPassword(token: string, nuevaContraseña: string) {
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: env.JWT_RESET_SECRET || 'resetKey',
+        secret: this.configService.get<string>('JWT_RESET_SECRET') || 'resetKeyDefault',
       });
 
       const hashPassword = await bcrypt.hash(nuevaContraseña, 10);
-
       await this.usuariosRepo.update(
         { id_usuario: payload.sub },
         { contraseña: hashPassword },
@@ -162,19 +111,18 @@ export class AuthService {
 
       return { message: 'Contraseña restablecida exitosamente' };
     } catch (error) {
-      throw new HttpException(
-        'Token inválido o expirado',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Token inválido o expirado', HttpStatus.BAD_REQUEST);
     }
   }
 
-  //Metodo para verificar el token JWT (puede ser utilizado en guards o middleware)
+  /**
+   * Utilidad de verificación del Token JWT
+   */
   async verifyToken(token: string) {
     try {
-      //Verificar y decodificar el token JWT
-      const payload = await this.jwtService.verifyAsync(token);
-      return payload;
+      return await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+      });
     } catch (error) {
       throw new UnauthorizedException('Token inválido o expirado');
     }

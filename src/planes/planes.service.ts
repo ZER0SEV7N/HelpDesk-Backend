@@ -11,7 +11,7 @@ import { Repository } from 'typeorm';
 import { Planes } from '../entities/Planes.entity';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
-import { Clientes } from 'src/entities/Clientes.entity';
+import { Clientes } from '@/entities/Clientes.entity';
 
 //Servicio Planes
 @Injectable()

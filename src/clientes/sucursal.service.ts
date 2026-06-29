@@ -8,9 +8,9 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Sucursales } from 'src/entities/Sucursales.entity';
+import { Sucursales } from '@/entities/Sucursales.entity';
 import { CreateSucursalDto } from './dto/create-sucursal.dto';
-import { Clientes } from 'src/entities/Clientes.entity';
+import { Clientes } from '@/entities/Clientes.entity';
 
 @Injectable()
 export class SucursalService {

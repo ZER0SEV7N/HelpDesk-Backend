@@ -10,15 +10,15 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan, In, Between } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { Clientes } from 'src/entities/Clientes.entity';
-import { Planes } from 'src/entities/Planes.entity';
-import { Sucursales } from 'src/entities/Sucursales.entity';
+import { Clientes } from '@/entities/Clientes.entity';
+import { Planes } from '@/entities/Planes.entity';
+import { Sucursales } from '@/entities/Sucursales.entity';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { CreateSucursalDto } from './dto/create-sucursal.dto';
-import { Area } from 'src/entities/Area.entity';
-import { Usuario } from 'src/entities/Usuario.entity';
-import { Equipos } from 'src/entities/Equipos.entity';
-import { ChatGateway } from 'src/chat/chat.gateway';
+import { Area } from '@/entities/Area.entity';
+import { Usuario } from '@/entities/Usuario.entity';
+import { Equipos } from '@/entities/Equipos.entity';
+import { ChatGateway } from '@/common/chat/chat.gateway';
 import { UpdateContractDto } from './dto/update-contract.dto';
 
 //Definicion del servicio ClientesService

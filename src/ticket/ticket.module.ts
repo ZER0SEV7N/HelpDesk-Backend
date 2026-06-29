@@ -6,8 +6,8 @@ import { TicketService } from './ticket.service';
 import { TicketController } from './ticket.controller';
 import { Tickets } from '../entities/Tickets.entity';
 import { AuthModule } from '../modules/auth/auth.module';
-import { Rol } from 'src/entities/Rol.entity';
-import { Equipos } from 'src/entities/Equipos.entity';
+import { Rol } from '@/entities/Rol.entity';
+import { Equipos } from '@/entities/Equipos.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Tickets, Rol, Equipos]), AuthModule],

@@ -15,9 +15,9 @@ import {
 import { ClientesService } from './clientes.service';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { CreateSucursalDto } from './dto/create-sucursal.dto';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { RoleGuard } from 'src/common/guards/role.guard';
-import { Roles } from 'src/common/decorators/role.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
+import { RoleGuard } from '@/common/guards/role.guard';
+import { Roles } from '@/common/decorators/role.decorator';
 import { UpdateContractDto } from './dto/update-contract.dto';
 
 //Definicion del controlador ClientesController

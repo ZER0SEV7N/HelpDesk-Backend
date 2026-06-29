@@ -9,8 +9,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateAreaDto } from './dto/create-area.dto';
-import { Sucursales } from 'src/entities/Sucursales.entity';
-import { Area } from 'src/entities/Area.entity';
+import { Sucursales } from '@/entities/Sucursales.entity';
+import { Area } from '@/entities/Area.entity';
 
 //Definicion del servicio AreaService
 @Injectable()

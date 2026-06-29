@@ -1,6 +1,7 @@
 //src/main.ts
 //Punto de entrada de la aplicacion NestJS
 //Importaciones necesarias:
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';

@@ -4,7 +4,7 @@ import { HardwareController } from './hardware.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Hardware } from '../entities/Hardware.entity';
 import { RegistroHardware } from '../entities/RegistroHardware.entity';
-import { Equipos } from 'src/entities/Equipos.entity';
+import { Equipos } from '@/entities/Equipos.entity';
 
 @Module({
   controllers: [HardwareController],

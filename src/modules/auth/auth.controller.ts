@@ -1,53 +1,52 @@
-//helpdesk-app/src/auth/auth.controller.ts
-//Controlador de autenticacion
-// ----------------------------------------------------------
-import { Body, Controller, Post, Res } from '@nestjs/common';
+// src/modules/auth/auth.controller.ts
+import { Body, Controller, Post, Res, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Response } from 'express';
 import { LoginDTO } from './dto/login-auth.dto';
 import { RegisterDTO } from './dto/register-auth.dto';
+import { ConfigService } from '@nestjs/config';
 
-//Controlador para manejar las rutas de autenticacion (registro y login)
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService, 
+  ) {}
 
-  //REGISTER
-  //POST: /auth/register
-  /*Parametros esperados:
-    - nombre: string
-    - Apellido: string
-    - correo: string
-    - telefono: string 
-    - contraseña: string */
+  //Post: /auth/register
+  //Registra un nuevo usuario administrador, NO UTILIZAR PARA REGISTRO DE USUARIOS ORDINARIOS, SOLO PARA ADMINISTRADORES. QUITAR EN PRODUCCION. 
+  //Para registro de usuarios ordinarios, usar el endpoint /usuario/register
+  /*{
+    nombre: "Nombre",
+    apellido: "Apellido",
+    correo: "correo@example.com",
+    telefono: "123456789",
+    password: "contraseña",
+  } */
   @Post('register')
   register(@Body() dto: RegisterDTO) {
     return this.authService.register(dto);
   }
 
-  //LOGIN
-  //POST: /auth/login
-  /*Parametros esperados:
-    - correo: string
-    - contraseña: string */
+  //Post: /auth/login
+  //Login de usuario, retorna un token JWT y la información del usuario
+  /*{
+    correo: "correo@example.com",
+    password: "contraseña"
+  } */
   @Post('login')
-  async login(
-    @Body() dto: LoginDTO,
-    //Permite acceder al objeto de respuesta para setear cookies
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    //Obtener el token JWT del servicio de auth
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() dto: LoginDTO, @Res({ passthrough: true }) res: Response) {
     const { user, token, role } = await this.authService.login(dto);
 
-    //Configurar la cookie
+    // Configuración robusta de la Cookie segura HttpOnly
     res.cookie('jwt', token, {
-      httpOnly: true, //La cookie no es accesible desde JavaScript del lado del cliente
-      secure: process.env.NODE_ENV === 'production', //Solo se envia en conexiones seguras (HTTPS) en producción
-      sameSite: 'lax', //Previene el envio de la cookie en solicitudes cross-site no seguras
-      maxAge: 1000 * 60 * 60 * 24, //La cookie expira en 1 dia
+      httpOnly: true,
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24, // 1 día
     });
 
-    //Retonar el usuario autenticado y su rol (opcional, puede ser util para el frontend)
     return {
       message: 'Login exitoso',
       token: token,
@@ -60,38 +59,40 @@ export class AuthController {
     };
   }
 
-  //LOGOUT
-  //POST: /auth/logout
+  //Post: /auth/logout
+  //Logout de usuario, elimina la sesión del usuario y la cookie JWT
   @Post('logout')
+  @HttpCode(HttpStatus.OK)
   logout(@Res({ passthrough: true }) res: Response) {
-    //Eliminar la cookie JWT del cliente
     res.clearCookie('jwt');
-    return { message: 'Logout exitoso, Esperamos que vuelva pronto' };
+    return { message: 'Logout exitoso. Esperamos que vuelva pronto.' };
   }
 
-  //POST: auth/verify-token
-  //Metodo para verificar la validez de un token JWT (puede ser utilizado en guards o middleware)
+  //Post: /auth/verify-token
+  //Verifica la validez de un token JWT de recuperación de contraseña
+  //El token debe ser enviado en el body de la petición como { "token": "..." }
   @Post('verify-token')
+  @HttpCode(HttpStatus.OK)
   async verifyToken(@Body('token') token: string) {
     const payload = await this.authService.verifyToken(token);
-    return {
-      payload, //Retorna el payload del token (puede incluir información como el ID del usuario, rol, etc.)
-    };
+    return { payload };
   }
 
-  //POST: auth/recover-password
-  //El usuario envia su correo para solicitar un restablecimiento de contraseña
+  //Post: /auth/recover-password
+  //Solicita la recuperación de contraseña, enviando un correo con un token de recuperación
+  //El correo debe ser enviado en el body de la petición como { "correo": "..." }
   @Post('recover-password')
+  @HttpCode(HttpStatus.OK)
   async recoverPassword(@Body('correo') correo: string) {
-    await this.authService.recoverPassword(correo);
+    return await this.authService.recoverPassword(correo);
   }
 
-  //POST: auth/reset-password
-  //El usuario envia el token de restablecimiento y la nueva contraseña para actualizar su contraseña
+  //Post: /auth/reset-password
+  //Resetea la contraseña del usuario usando un token de recuperación válido
+  //El body debe contener { "token": "...", "nuevaContraseña": "..." }
   @Post('reset-password')
-  async resetPassword(
-    @Body() body: { token: string; nuevaContraseña: string },
-  ) {
-    await this.authService.resetPassword(body.token, body.nuevaContraseña);
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() body: { token: string; nuevaContraseña: string }) {
+    return await this.authService.resetPassword(body.token, body.nuevaContraseña);
   }
 }

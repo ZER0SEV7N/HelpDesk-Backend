@@ -13,7 +13,7 @@ import {
   IsDateString,
   IsNumber,
 } from 'class-validator';
-import { TipoCliente } from 'src/entities/Clientes.entity';
+import { TipoCliente } from '@/entities/Clientes.entity';
 
 export class CreateClienteDto {
   @IsEnum(TipoCliente, {

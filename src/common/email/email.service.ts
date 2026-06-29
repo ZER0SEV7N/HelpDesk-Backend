@@ -18,7 +18,7 @@ export class EmailService {
    */
   async sendEmployeeVerification(correoDestino: string, token: string): Promise<void> {
     const appOrigin = this.configService.get<string>('HTTP_ORIGIN') || 'http://localhost:3000';
-    const enlaceVerificacion = `${appOrigin}/verify-email?correo=${correoDestino}&token=${token}`;
+    const enlaceVerificacion = `${appOrigin}/usuario/confirmar-correo?correo=${correoDestino}&token=${token}`;
 
     const htmlTemplate = `
       <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px;">
@@ -42,7 +42,7 @@ export class EmailService {
    */
   async sendPasswordRecovery(correoDestino: string, token: string): Promise<void> {
     const appOrigin = this.configService.get<string>('HTTP_ORIGIN') || 'http://localhost:3000';
-    const enlaceRecuperacion = `${appOrigin}/reset-password?token=${token}`;
+    const enlaceRecuperacion = `${appOrigin}/auth/reset-password?token=${token}`;
 
     const htmlTemplate = `
       <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px;">

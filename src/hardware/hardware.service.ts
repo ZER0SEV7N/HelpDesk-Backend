@@ -12,7 +12,7 @@ import { Hardware } from '../entities/Hardware.entity'; // Entidad Hardware
 import { CreateHardwareDto } from './dto/create-hardware.dto'; // DTO para crear hardware
 import { RegistroHardware } from '../entities/RegistroHardware.entity'; // Entidad relacionada
 import { UpdateHardwareDto } from './dto/update-hardware.dto'; // DTO para actualizar hardware
-import { Equipos } from 'src/entities/Equipos.entity';
+import { Equipos } from '@/entities/Equipos.entity';
 
 @Injectable()
 export class HardwareService {

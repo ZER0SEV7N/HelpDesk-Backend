@@ -92,17 +92,17 @@ export class UsuarioAdminService {
         const records = await this.csvProcessor.parseCsv<RegisterEmployeeDto>(fileBuffer, requiredHeaders);
         const summary: { exitosos: number; fallidos: number; errores: Array<{ correo: string; motivo: string }> } = { exitosos: 0, fallidos: 0, errores: [] };
 
-        //Iterar sobre cada registro y procesarlo individualmente
-        for (const record of records) {
-            try {
-                //Ejecuta secuencialmente las mismas reglas de validación y persistencia transitoria
+        await Promise.all(
+            records.map(async (record) => {
+                try {
                 await this.registerEmployee(record, userPayload);
                 summary.exitosos++;
-            } catch (err: any) {
+                } catch (err: any) {
                 summary.fallidos++;
                 summary.errores.push({ correo: record.correo, motivo: err.message });
-            }
-        }
+                }
+            })
+        );
 
         return { message: 'Procesamiento de carga masiva finalizado', summary };
     }
