@@ -43,7 +43,7 @@ export class UsuarioController {
 
   @Get('list')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
+  @Roles('CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL', 'ADMINISTRADOR')
   listUsers(@Req() req: any) {
       return this.listUsersUseCase.execute(req.user);
   }

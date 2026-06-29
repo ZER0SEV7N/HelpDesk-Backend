@@ -69,7 +69,7 @@ export class AuthService {
 
         if (!user || !user.is_active) throw new UnauthorizedException('Correo incorrecto');
 
-        const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+        const isPasswordValid = await bcrypt.compare(dto.contraseña, user.password);
 
         if (!isPasswordValid) throw new UnauthorizedException('Contraseña incorrecta');
 

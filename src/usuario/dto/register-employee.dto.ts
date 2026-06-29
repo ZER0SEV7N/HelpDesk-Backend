@@ -21,7 +21,7 @@ export class RegisterEmployeeDto {
 
   @IsString() 
   @MinLength(6) 
-  password: string;
+  contraseña: string;
   
   // El jefe decide qué rol darle (Ej: 'CLIENTE_TRABAJADOR')
   @IsString() 

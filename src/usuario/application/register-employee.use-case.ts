@@ -46,7 +46,7 @@ export class RegisterEmployeeUseCase {
             }
         }
 
-        const hashedPassword = await bcrypt.hash(dto.password, 10);
+        const hashedPassword = await bcrypt.hash(dto.contraseña, 10);
         const userData: Partial<Usuario> = {
             nombre: dto.nombre,
             apellido: dto.apellido,
