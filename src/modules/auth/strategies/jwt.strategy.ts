@@ -9,17 +9,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        // 1er intento: Buscar en la Cookie HttpOnly
         (req: Request) => {
           const token = req?.cookies?.['jwt'];
           console.log('🔴 Token en Cookie:', token ? '¡Encontrado!' : 'Vacío');
           return token ? token : null;
         },
-        // 2do intento: Buscar en la cabecera como Bearer Token
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]), 
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET') || process.env.JWT_SECRET,
+      secretOrKey: 
+        configService.get<string>('JWT_SECRET') || 
+        process.env.JWT_SECRET || 
+        'ClaveSeguraAyudaDeRespaldoHelpdesk123!',
     });
   }
 

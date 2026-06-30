@@ -58,7 +58,7 @@ export class AuthService {
 
     if (!user || !user.is_active) throw new UnauthorizedException('Credenciales incorrectas o cuenta inactiva');
 
-    const isPasswordValid = await bcrypt.compare(dto.password, user.contraseña);
+    const isPasswordValid = await bcrypt.compare(dto.contraseña, user.contraseña);
     if (!isPasswordValid) throw new UnauthorizedException('Credenciales incorrectas');
 
     const payload = {
