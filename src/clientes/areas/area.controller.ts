@@ -20,30 +20,55 @@ export class AreaController {
     private readonly deactivateAreaUseCase: DeactivateAreaUseCase,
   ) {}
 
+  //-----------------------------------------------------------------
+  //Crear un nuevo área para una sucursal existente (Admin, Cliente Empresa)
+  //POST /areas
+  //Alcance: El administrador y el cliente empresa pueden crear un nuevo área para una sucursal existente
+  //-----------------------------------------------------------------
   @Post()
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   create(@Body() dto: CreateAreaDto) {
     return this.createAreaUseCase.execute(dto);
   }
 
+  //-----------------------------------------------------------------
+  //Obtener un área por ID (Admin, Cliente Empresa, Cliente Sucursal)
+  //GET /areas/:id
+  //Alcance: El administrador, el cliente empresa y el cliente sucursal pueden obtener los detalles de un área por ID
+  //-----------------------------------------------------------------
   @Get(':id')
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.findOneAreaUseCase.execute(id);
   }
 
+  //-----------------------------------------------------------------
+  //Obtener las áreas de una sucursal especifica (Admin, Cliente Empresa, Cliente Sucursal)
+  //GET /areas/sucursal/:id_sucursal
+  //Alcance: El administrador, el cliente empresa y el cliente sucursal pueden obtener las áreas de una sucursal especifica
+  //-----------------------------------------------------------------
   @Get('sucursal/:id_sucursal')
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
   findBySucursal(@Param('id_sucursal', ParseIntPipe) id_sucursal: number) {
     return this.findBySucursalUseCase.execute(id_sucursal);
   }
 
+  //-----------------------------------------------------------------
+  //Actualizar los datos de un área (Admin, Cliente Empresa)
+  //PATCH /areas/:id
+  //Alcance: El administrador y el cliente empresa pueden actualizar los detalles de un área por ID
+  //-----------------------------------------------------------------
   @Patch(':id')
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: Partial<CreateAreaDto>) {
     return this.updateAreaUseCase.execute(id, dto);
   }
 
+  //-----------------------------------------------------------------
+  //Desactivar un área (Admin, Cliente Empresa)
+  //PATCH /areas/:id/desactivar
+  //Alcance: El administrador y el cliente empresa pueden desactivar un área por ID
+  //-----------------------------------------------------------------
   @Patch(':id/desactivar')
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   deactivate(@Param('id', ParseIntPipe) id: number) {

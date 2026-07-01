@@ -53,21 +53,34 @@ export class UsuarioController {
         private readonly reassignUserUseCase: ReassignUserUseCase,
     ) {}
 
-    // PATCH /usuario/perfil
+    //PATCH /usuario/perfil
+    //Alcance: Todos los roles pueden modificar su propio perfil.
+    //Solicita
+    /*{
+    "currentPassword": "contraseñaActual",
+    "nombre": "NuevoNombre",
+    "apellido": "NuevoApellido",
+    "correo": "Correo",
+    "telefono": "Telefono",
+    "nuevaContraseña": "NuevaContraseña"
+    }*/
     @Patch('perfil')
     @UseGuards(JwtAuthGuard)
     updateProfile(@Req() req: any, @Body() dto: UpdateProfileDTO) {
         return this.updateProfileUseCase.execute(req.user.userId, dto);
     }
 
-    // GET /usuario/perfil
+    //Obtener tu propio perfil de usuario
+    //GET /usuario/perfil
+    //Alcance: Todos los roles pueden obtener su propio perfil.
     @Get('perfil')
     @UseGuards(JwtAuthGuard)
     getProfile(@Req() req: any) {
         return this.getProfileUseCase.execute(req.user.userId);
     }
 
-    // GET /usuario/list
+    //Listar todos los usuarios (Solo Cliente_Empresa y Cliente_Sucursal)
+    //GET /usuario/list
     @Get('list')
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
@@ -75,7 +88,9 @@ export class UsuarioController {
         return this.listUsersUseCase.execute(req.user, filters);
     }
 
-    // POST /usuario/registrar-empleado
+    //Registrar un nuego empleado
+    //POST /usuario/registrar-empleado
+    //Alcance: Solo la empresa puede registrar un nuevo empleado
     @Post('registrar-empleado')
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
@@ -83,7 +98,12 @@ export class UsuarioController {
         return this.registerEmployeeUseCase.execute(dto, req.user);
     }
 
-    // POST /usuario/registrar-masivo
+    //POST /usuario/registrar-masivo
+    //Alcance: Solo la empresa puede registrar empleados de forma masiva mediante un archivo CSV
+    //El archivo CSV debe tener la siguiente estructura:
+    //nombre,apellido,correo,telefono,password,rolNombre,id_cliente,id_sucursal
+    //El campo id_cliente y id_sucursal son opcionales y solo se deben incluir si el rol del usuario que registra es ADMINISTRADOR.
+    //Si el rol del usuario que registra es CLIENTE_EMPRESA, se asignará automáticamente el id_cliente del usuario que registra y no se permitirá modificarlo.
     @Post('registrar-masivo')
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
@@ -106,7 +126,10 @@ export class UsuarioController {
         return this.confirmEmailUseCase.execute(correo, token);
     }
 
-    // PATCH /usuario/:id/rol
+    //Asignar rol a un usuario
+    //PATCH /usuario/:id/rol
+    //Alcance: Solo el administrador puede asignar o cambiar el rol de un usuario.
+    //La empresa puede asignar roles a sus propios empleados pero no puede cambiar roles de usuarios que no le pertenecen.
     @Patch(':id/rol')
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
@@ -118,7 +141,10 @@ export class UsuarioController {
         return this.assignRoleUseCase.execute(id, rolNombre, req.user);
     }
 
-    // PATCH /usuario/:id/desactivar
+    //Desactivar cuenta de un usuario
+    //PATCH /usuario/:id/desactivar
+    //Alcance: el administrador puede desactivar cualquier usuario.
+    // La empresa puede desactivar solo a sus propios empleados.
     @Patch(':id/desactivar')
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
@@ -126,7 +152,10 @@ export class UsuarioController {
         return this.deactivateUserUseCase.execute(id, req.user);
     }
 
-    // PATCH /usuario/:id/activar
+    //Activar cuenta de un usuario
+    //PATCH /usuario/:id/activar
+    //Alcance: el administrador puede activar las cuentas de los usuarios que desactivó.
+    //La empresa puede activar las cuentas de sus propios empleados que desactivó, pero no puede activar usuarios que no le pertenecen.
     @Patch(':id/activar')
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
@@ -134,7 +163,9 @@ export class UsuarioController {
         return this.activateUserUseCase.execute(id, req.user);
     }
 
-    // PATCH /usuario/:id/reasignar
+    //Reasignar un usuario a otra sucursal cliente
+    //PATCH /usuario/:id/reasignar
+    //Solo el administrador puede reasignar un usuario a otra sucursal o cliente
     @Patch(':id/reasignar')
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
