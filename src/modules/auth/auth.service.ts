@@ -1,7 +1,12 @@
 //helpdesk-app/src/modules/auth/auth.service.ts
 //Servicio de autenticacion para el manejo de registro y login de usuarios
 //----------------------------------------------------------
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -11,27 +16,40 @@ import { Rol } from '../../entities/Rol.entity';
 import { RegisterDTO } from './dto/register-auth.dto';
 import { LoginDTO } from './dto/login-auth.dto';
 import { ConfigService } from '@nestjs/config';
-import { EmailService } from '@/common/email/email.service'; 
+import { EmailService } from '@/common/email/email.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(Usuario) private readonly usuariosRepo: Repository<Usuario>,
+    @InjectRepository(Usuario)
+    private readonly usuariosRepo: Repository<Usuario>,
     @InjectRepository(Rol) private readonly rolRepo: Repository<Rol>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly emailService: EmailService, 
+    private readonly emailService: EmailService,
   ) {}
 
   /**
    * Registro de Usuario Ordinario
    */
   async register(dto: RegisterDTO) {
-    const exists = await this.usuariosRepo.findOne({ where: { correo: dto.correo } });
-    if (exists) throw new HttpException('El correo ya está registrado', HttpStatus.CONFLICT);
+    const exists = await this.usuariosRepo.findOne({
+      where: { correo: dto.correo },
+    });
+    if (exists)
+      throw new HttpException(
+        'El correo ya está registrado',
+        HttpStatus.CONFLICT,
+      );
 
-    const defaultRole = await this.rolRepo.findOne({ where: { nombre: 'CLIENTE_EMPLEADO' } });
-    if (!defaultRole) throw new HttpException('Rol por defecto no encontrado', HttpStatus.CONFLICT);
+    const defaultRole = await this.rolRepo.findOne({
+      where: { nombre: 'CLIENTE_EMPLEADO' },
+    });
+    if (!defaultRole)
+      throw new HttpException(
+        'Rol por defecto no encontrado',
+        HttpStatus.CONFLICT,
+      );
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const newUser = this.usuariosRepo.create({
@@ -56,10 +74,14 @@ export class AuthService {
       relations: ['rol'],
     });
 
-    if (!user || !user.is_active) throw new UnauthorizedException('Credenciales incorrectas o cuenta inactiva');
+    if (!user || !user.is_active)
+      throw new UnauthorizedException(
+        'Credenciales incorrectas o cuenta inactiva',
+      );
 
     const isPasswordValid = await bcrypt.compare(dto.password, user.contraseña);
-    if (!isPasswordValid) throw new UnauthorizedException('Credenciales incorrectas');
+    if (!isPasswordValid)
+      throw new UnauthorizedException('Credenciales incorrectas');
 
     const payload = {
       sub: user.id_usuario,
@@ -77,18 +99,19 @@ export class AuthService {
    */
   async recoverPassword(correo: string) {
     const user = await this.usuariosRepo.findOne({ where: { correo } });
-    if (!user) throw new HttpException('Correo no registrado', HttpStatus.NOT_FOUND);
+    if (!user)
+      throw new HttpException('Correo no registrado', HttpStatus.NOT_FOUND);
 
-    //Generar un token específico de recuperación usando la clave secreta del ConfigService
     const resetToken = this.jwtService.sign(
       { sub: user.id_usuario },
-      { 
-        expiresIn: '30m', 
-        secret: this.configService.get<string>('JWT_RESET_SECRET') || 'resetKeyDefault' 
+      {
+        expiresIn: '30m',
+        secret:
+          this.configService.get<string>('JWT_RESET_SECRET') ||
+          'resetKeyDefault',
       },
     );
 
-    //Enviar correo de recuperación usando el EmailService global
     await this.emailService.sendPasswordRecovery(user.correo, resetToken);
 
     return { message: 'Correo de restablecimiento enviado exitosamente' };
@@ -100,7 +123,9 @@ export class AuthService {
   async resetPassword(token: string, nuevaContraseña: string) {
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.configService.get<string>('JWT_RESET_SECRET') || 'resetKeyDefault',
+        secret:
+          this.configService.get<string>('JWT_RESET_SECRET') ||
+          'resetKeyDefault',
       });
 
       const hashPassword = await bcrypt.hash(nuevaContraseña, 10);
@@ -110,8 +135,11 @@ export class AuthService {
       );
 
       return { message: 'Contraseña restablecida exitosamente' };
-    } catch (error) {
-      throw new HttpException('Token inválido o expirado', HttpStatus.BAD_REQUEST);
+    } catch {
+      throw new HttpException(
+        'Token inválido o expirado',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -123,7 +151,7 @@ export class AuthService {
       return await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('Token inválido o expirado');
     }
   }

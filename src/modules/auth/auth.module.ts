@@ -18,22 +18,26 @@ import type { StringValue } from 'ms';
     TypeOrmModule.forFeature([Usuario, Rol]),
     ConfigModule,
     JwtModule.registerAsync({
-  imports: [ConfigModule],
-  inject: [ConfigService],
-  useFactory: (config: ConfigService) => {
-    const secretKey = config.get<string>('JWT_SECRET') || process.env.JWT_SECRET; 
-    const expiresIn = (config.get<StringValue>('JWT_EXPIRES_IN') || '1d') as StringValue;
-    
-    if (!secretKey) console.warn('Alerta: JWT_SECRET no se detectó en ConfigService ni en process.env');
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const secretKey = config.get<string>('JWT_SECRET');
+        const expiresIn = config.get<StringValue>('JWT_EXPIRES_IN') || '1d';
 
-    return {
-      secret: secretKey || 'ClaveSeguraAyudaDeRespaldoHelpdesk123!',
-      signOptions: {
-        expiresIn,
+        if (!secretKey) {
+          throw new Error(
+            'JWT_SECRET no está definido en las variables de entorno',
+          );
+        }
+
+        return {
+          secret: secretKey,
+          signOptions: {
+            expiresIn,
+          },
+        };
       },
-    };
-  },
-}),
+    }),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtAuthGuard],

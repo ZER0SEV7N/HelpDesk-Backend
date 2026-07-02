@@ -349,8 +349,8 @@ export class ClientesService {
 
     await this.clientesRepo.save(cliente);
     const {
-      precio,
-      limite_equipos,
+      precio: _precio,
+      limite_equipos: _limite_equipos,
       created_at: plan_created,
       updated_at: plan_updated,
       is_active: plan_active,
@@ -359,11 +359,11 @@ export class ClientesService {
 
     // 2. Limpiamos el cliente (quitamos la metadata de base de datos)
     const {
-      created_at,
-      updated_at,
-      fecha_registro,
-      is_active,
-      id_plan,
+      created_at: _cliente_created,
+      updated_at: _cliente_updated,
+      fecha_registro: _cliente_fecha,
+      is_active: _cliente_active,
+      id_plan: _cliente_id_plan,
       ...clienteLimpio
     } = cliente;
 

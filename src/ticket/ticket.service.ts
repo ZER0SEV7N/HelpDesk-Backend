@@ -1,57 +1,55 @@
-//ticket.service.ts
-//Servicio para manejar la logica de negocio relacionada con los tickets
-// - Crear un nuevo ticket
-// - Obtener todos los tickets
-// - Obtener un ticket por filtrado
-// - Actualizar el estado de un ticket
-// - Asignar un ticket a un tecnico
-// - ROLES involucrados: Trabajador | Soporte_Tecnico | Soporte_IN_Situ |
-//Importaciones necesarias:
 import {
   Injectable,
   ForbiddenException,
   NotFoundException,
   BadRequestException,
-} from '@nestjs/common'; //Para marcar esta clase como un servicio inyectable
-import { CreateTicketDto } from './dto/create-ticket.dto'; //DTO para la creacion de un ticket
-import { Tickets, TicketStatus } from '@/entities/Tickets.entity'; //Entidad de Ticket para interactuar con la base de datos
-import { Repository } from 'typeorm'; //Repositorio de TypeORM para manejar las operaciones de base de datos
-import { InjectRepository } from '@nestjs/typeorm'; //Para inyectar el repositorio de Ticket
+} from '@nestjs/common';
+import { CreateTicketDto } from './dto/create-ticket.dto';
+import { Tickets, TicketStatus } from '@/entities/Tickets.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Equipos } from '@/entities/Equipos.entity';
+import { JwtPayload } from '@/common/guards/jwt-auth.guard';
 
-//Servicio de Ticket
 @Injectable()
 export class TicketService {
   constructor(
-    @InjectRepository(Tickets) //Utilizar un repositorio para el manejo del ticket en la BD
+    @InjectRepository(Tickets)
     private readonly ticketRepo: Repository<Tickets>,
-    @InjectRepository(Equipos) // <-- INYECTAMOS EQUIPOS PARA VALIDAR PROPIEDAD
+    @InjectRepository(Equipos)
     private readonly equiposRepo: Repository<Equipos>,
   ) {}
 
   private cleanTicketResponse(ticket: Tickets) {
-    const ticketLimpio = { ...ticket } as any;
+    const ticketLimpio = { ...ticket } as Record<string, unknown>;
 
     if (ticketLimpio.soporte) {
-      const { contraseña, created_at, updated_at, ...rest } =
-        ticketLimpio.soporte;
+      const soporte = ticketLimpio.soporte as Record<string, unknown>;
+      const {
+        contraseña: _contraseña,
+        created_at: _created,
+        updated_at: _updated,
+        ...rest
+      } = soporte;
       ticketLimpio.soporte = rest;
     }
     if (ticketLimpio.trabajador) {
-      const { contraseña, created_at, updated_at, ...rest } =
-        ticketLimpio.trabajador;
+      const trabajador = ticketLimpio.trabajador as Record<string, unknown>;
+      const {
+        contraseña: _contraseña_t,
+        created_at: _created_t,
+        updated_at: _updated_t,
+        ...rest
+      } = trabajador;
       ticketLimpio.trabajador = rest;
     }
-    return ticketLimpio;
+    return ticketLimpio as Omit<Tickets, 'soporte' | 'trabajador'> & {
+      soporte?: Record<string, unknown>;
+      trabajador?: Record<string, unknown>;
+    };
   }
 
-  //----------------------------------
-  //Metodo para crear un nuevo ticket
-  //ROl ENCARGADO: Trabajador
-  //API: POST /tickets
-  //----------------------------------
-  async createTicket(dto: CreateTicketDto, user: any) {
-    //Verificar rol (Permitimos a Trabajadores, Jefes de Sucursal y Gerentes crear tickets)
+  async createTicket(dto: CreateTicketDto, user: JwtPayload) {
     if (
       !['CLIENTE_TRABAJADOR', 'CLIENTE_SUCURSAL', 'CLIENTE_EMPRESA'].includes(
         user.role,
@@ -62,14 +60,12 @@ export class TicketService {
       );
     }
 
-    //Validar Software
     if (dto.es_software && !dto.id_software)
       throw new BadRequestException(
         'Debe seleccionar un software si el incidente es de software',
       );
     if (!dto.es_software) dto.id_software = undefined;
 
-    //SEGURIDAD MULTI-TENANT: Validar que el equipo exista y pertenezca a la empresa del usuario
     const equipo = await this.equiposRepo.findOne({
       where: { id_equipo: dto.id_equipo },
     });
@@ -104,9 +100,6 @@ export class TicketService {
     };
   }
 
-  //-------------------------------------------
-  //Metodo privado para generar un PIN unico para cada Ticket
-  //-------------------------------------------
   private async GenerateUniquePin(): Promise<string> {
     let pin: string;
     let exists: Tickets | null;
@@ -117,12 +110,7 @@ export class TicketService {
     return pin;
   }
 
-  //------------------------------------
-  //Metodo para listar los tickets con filtros opcionales y control por rol
-  //ROl ENCARGADO: TODOS (con diferentes niveles de acceso)
-  //API: GET /tickets?vista=mis-tickets | GET /tickets?vista=abiertos
-  //------------------------------------
-  async findTickets(user: any, filters: any) {
+  async findTickets(user: JwtPayload, filters: any) {
     const query = this.ticketRepo
       .createQueryBuilder('ticket')
       .leftJoinAndSelect('ticket.soporte', 'soporte')
@@ -219,12 +207,7 @@ export class TicketService {
     }));
   }
 
-  //--------------------------------------
-  //Metodo para obtener el detalle de un ticket por su PIN
-  //ROl ENCARGADO: TODOS (con diferentes niveles de acceso)
-  //API: GET /tickets/:pin
-  //--------------------------------------
-  async getTicketById(id: number, user: any) {
+  async getTicketById(id: number, user: JwtPayload) {
     const ticket = await this.ticketRepo.findOne({
       where: { id_ticket: id },
       relations: ['equipo', 'cliente', 'soporte', 'trabajador'],
@@ -255,13 +238,7 @@ export class TicketService {
     return this.cleanTicketResponse(ticket);
   }
 
-  //-----------------------------------------
-  //Metodo para asignar un ticket a un tecnico de soporte
-  //Rol encargado: Trabajador (para autoasignarse) | Administrador (para asignar a otros)
-  //API: POST /tickets/:id/asignar
-  //-----------------------------------------
-  async assignTicket(ticketId: number, soporteId: number, user: any) {
-    // Permitimos a Admin y a los propios técnicos asignarse tickets
+  async assignTicket(ticketId: number, soporteId: number, user: JwtPayload) {
     if (
       !['ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU'].includes(
         user.role,
@@ -272,7 +249,6 @@ export class TicketService {
       );
     }
 
-    // Los técnicos solo pueden asignarse tickets a sí mismos
     if (
       ['SOPORTE_TECNICO', 'SOPORTE_INSITU'].includes(user.role) &&
       soporteId !== user.userId
@@ -294,12 +270,7 @@ export class TicketService {
     return await this.ticketRepo.save(ticket);
   }
 
-  //--------------------------------------------
-  //Metodo para iniciar el proceso de resolver un ticket (cambiar estado a En Progreso)
-  //Rol encargado: Soporte Tecnico (solo puede iniciar el proceso si el ticket esta asignado a el)
-  //API: POST /tickets/:id/iniciar
-  //--------------------------------------------
-  async startProgress(ticketId: number, user: any) {
+  async startProgress(ticketId: number, user: JwtPayload) {
     const ticket = await this.ticketRepo.findOne({
       where: { id_ticket: ticketId },
     });
@@ -313,12 +284,7 @@ export class TicketService {
     return await this.ticketRepo.save(ticket);
   }
 
-  //-----------------------------------------------------------
-  //Metodo para resolver un ticket (cambiar estado a Resuelto)
-  //El sistema cierra automaticamente el ticket cuando soporte termina
-  //Rol encargado: Soporte Tecnico (solo puede resolver si el ticket esta asignado a el)
-  //API: POST /tickets/:id/resolver
-  async resolveTicket(ticketId: number, user: any) {
+  async resolveTicket(ticketId: number, user: JwtPayload) {
     const ticket = await this.ticketRepo.findOne({
       where: { id_ticket: ticketId },
     });
@@ -332,11 +298,7 @@ export class TicketService {
     return await this.ticketRepo.save(ticket);
   }
 
-  //-----------------------------------------------------------
-  //Metodo para reabrir un ticket cerrado (cambiar estado a Reabierto)
-  //Rol encargado: Trabajador (solo puede reabrir si el ticket esta creado por el)
-  //API: POST /tickets/:id/reabrir
-  async reopenTicket(ticketId: number, user: any) {
+  async reopenTicket(ticketId: number, user: JwtPayload) {
     const ticket = await this.ticketRepo.findOne({
       where: { id_ticket: ticketId },
     });
@@ -347,7 +309,6 @@ export class TicketService {
         'Solo el trabajador original puede reabrir el ticket',
       );
 
-    // <-- CORREGIDO: Validar contra el id_trabajador, no contra el id_cliente
     if (ticket.id_trabajador !== user.userId)
       throw new ForbiddenException(
         'No puedes reabrir un ticket que no creaste tú',
@@ -360,10 +321,7 @@ export class TicketService {
     return this.ticketRepo.save(ticket);
   }
 
-  //-----------------------------------------------------------
-  //Metricas para el Dashboard de los tickets (opcional)
-  //API: GET /tickets/metrics
-  async getDashboardMetrics(user: any) {
+  async getDashboardMetrics(user: JwtPayload) {
     const query = this.ticketRepo.createQueryBuilder('ticket');
 
     if (user.role === 'ADMINISTRADOR') {

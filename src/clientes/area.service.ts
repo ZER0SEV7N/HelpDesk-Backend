@@ -23,18 +23,30 @@ export class AreaService {
   ) {}
 
   private cleanResponse(area: Area) {
-    const { created_at, updated_at, ...areaLimpia } = area;
+    const {
+      created_at: _created_at,
+      updated_at: _updated_at,
+      ...areaLimpia
+    } = area as any;
 
     //Limpiamos la sucursal anidada si existe
     if (area.sucursal) {
-      const { created_at, updated_at, ...sucursalLimpia } = area.sucursal;
-      areaLimpia.sucursal = sucursalLimpia as any;
+      const {
+        created_at: _suc_created,
+        updated_at: _suc_updated,
+        ...sucursalLimpia
+      } = area.sucursal as any;
+      areaLimpia.sucursal = sucursalLimpia;
 
       //Limpiamos el cliente anidado dentro de la sucursal si existe
       if (area.sucursal.cliente && areaLimpia.sucursal) {
-        const { created_at, updated_at, fecha_registro, ...clienteLimpio } =
-          area.sucursal.cliente;
-        areaLimpia.sucursal.cliente = clienteLimpio as any;
+        const {
+          created_at: _cli_created,
+          updated_at: _cli_updated,
+          fecha_registro: _cli_fecha,
+          ...clienteLimpio
+        } = area.sucursal.cliente as any;
+        areaLimpia.sucursal.cliente = clienteLimpio;
       }
     }
     return areaLimpia;

@@ -22,32 +22,52 @@ export class SucursalService {
   ) {}
 
   private cleanResponse(sucursal: Sucursales) {
-    const { created_at, updated_at, ...sucursalLimpia } = sucursal;
+    const {
+      created_at: _created,
+      updated_at: _updated,
+      ...sucursalLimpia
+    } = sucursal as any;
     if (sucursal.cliente) {
-      const { created_at, updated_at, fecha_registro, ...clienteLimpio } =
-        sucursal.cliente;
-      sucursalLimpia.cliente = clienteLimpio as any;
+      const {
+        created_at: _cli_created,
+        updated_at: _cli_updated,
+        fecha_registro: _cli_fecha,
+        ...clienteLimpio
+      } = sucursal.cliente as any;
+      sucursalLimpia.cliente = clienteLimpio;
     }
     if (sucursal.areas) {
       sucursalLimpia.areas = sucursal.areas.map((area) => {
-        const { created_at, updated_at, ...areaLimpia } = area;
+        const {
+          created_at: _area_created,
+          updated_at: _area_updated,
+          ...areaLimpia
+        } = area as any;
         return areaLimpia;
-      }) as any;
+      });
     }
     if (sucursal.equipos) {
       sucursalLimpia.equipos = sucursal.equipos.map((equipo) => {
-        const { created_at, updated_at, ...equipoLimpio } = equipo;
+        const {
+          created_at: _eq_created,
+          updated_at: _eq_updated,
+          ...equipoLimpio
+        } = equipo as any;
         return equipoLimpio;
-      }) as any;
+      });
     }
 
     // 5. Limpiar Usuarios 🚨 (CRÍTICO: Remover contraseña)
     if (sucursal.usuarios) {
       sucursalLimpia.usuarios = sucursal.usuarios.map((usuario) => {
-        const { contraseña, created_at, updated_at, ...usuarioLimpio } =
-          usuario;
+        const {
+          contraseña: _clave,
+          created_at: _usr_created,
+          updated_at: _usr_updated,
+          ...usuarioLimpio
+        } = usuario as any;
         return usuarioLimpio;
-      }) as any;
+      });
     }
 
     return sucursalLimpia;
@@ -88,8 +108,7 @@ export class SucursalService {
 
   //Listar las sucursales de un cliente especifico
   async findByCliente(id_cliente: number) {
-    //Validar que el cliente exista
-    const cliente = await this.clientExists(id_cliente);
+    await this.clientExists(id_cliente);
     const sucursales = await this.sucursalRepo.find({
       where: { id_cliente: id_cliente },
       relations: ['areas'],

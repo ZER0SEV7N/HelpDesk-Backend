@@ -12,23 +12,20 @@ import {
   Req,
   ParseIntPipe,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { RoleGuard } from '@/common/guards/role.guard';
 import { Roles } from '@/common/decorators/role.decorator';
+import { JwtPayload } from '@/common/guards/jwt-auth.guard';
 
 @Controller('tickets')
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class TicketController {
   constructor(private readonly ticketService: TicketService) {}
 
-  //------------------------------------------
-  // DASHBOARD METRICAS
-  // GET /tickets/metrics
-  // (Debe ir antes del :id para que NestJS no lo confunda con un ID de ticket)
-  //------------------------------------------
   @Get('metrics')
   @Roles(
     'ADMINISTRADOR',
@@ -38,33 +35,25 @@ export class TicketController {
     'SOPORTE_TECNICO',
     'SOPORTE_INSITU',
   )
-  getMetrics(@Req() req: any) {
+  getMetrics(@Req() req: Request & { user: JwtPayload }) {
     return this.ticketService.getDashboardMetrics(req.user);
   }
 
-  //------------------------------------------
-  // CREAR TICKET
-  // POST /tickets
-  //------------------------------------------
   @Post()
   @Roles('CLIENTE_TRABAJADOR', 'CLIENTE_SUCURSAL', 'CLIENTE_EMPRESA')
-  create(@Body() dto: CreateTicketDto, @Req() req: any) {
+  create(
+    @Body() dto: CreateTicketDto,
+    @Req() req: Request & { user: JwtPayload },
+  ) {
     return this.ticketService.createTicket(dto, req.user);
   }
 
-  //Endpoint para listar los tickets del cliente autenticado
-  //GET /tickets/mis-tickets
-  //Solo el cliente autenticado puede ver sus propios tickets, no puede ver los tickets de otros clientes
   @Get('mis-tickets')
   @UseGuards(JwtAuthGuard)
-  getMyTickets(@Req() req: any) {
+  getMyTickets(@Req() req: Request & { user: JwtPayload }) {
     return this.ticketService.findTickets(req.user, { vista: 'mis-tickets' });
   }
 
-  //------------------------------------------
-  // LISTAR TICKETS (Filtra automáticamente según el rol)
-  // GET /tickets?estado=Pendiente
-  //------------------------------------------
   @Get()
   @Roles(
     'ADMINISTRADOR',
@@ -74,14 +63,10 @@ export class TicketController {
     'SOPORTE_TECNICO',
     'SOPORTE_INSITU',
   )
-  findAll(@Req() req: any, @Query() filters: any) {
+  findAll(@Req() req: Request & { user: JwtPayload }, @Query() filters: any) {
     return this.ticketService.findTickets(req.user, filters);
   }
 
-  //------------------------------------------
-  // OBTENER DETALLE DE UN TICKET
-  // GET /tickets/:id
-  //------------------------------------------
   @Get(':id')
   @Roles(
     'ADMINISTRADOR',
@@ -91,51 +76,47 @@ export class TicketController {
     'SOPORTE_TECNICO',
     'SOPORTE_INSITU',
   )
-  findOne(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+  findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request & { user: JwtPayload },
+  ) {
     return this.ticketService.getTicketById(id, req.user);
   }
 
-  //------------------------------------------
-  // ASIGNAR TICKET A TÉCNICO
-  // PATCH /tickets/:id/asignar
-  //------------------------------------------
   @Patch(':id/asignar')
   @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU')
   assign(
     @Param('id', ParseIntPipe) id: number,
     @Body('soporteId', ParseIntPipe) soporteId: number,
-    @Req() req: any,
+    @Req() req: Request & { user: JwtPayload },
   ) {
     return this.ticketService.assignTicket(id, soporteId, req.user);
   }
 
-  //------------------------------------------
-  // INICIAR PROGRESO
-  // PATCH /tickets/:id/iniciar
-  //------------------------------------------
   @Patch(':id/iniciar')
   @Roles('SOPORTE_TECNICO', 'SOPORTE_INSITU')
-  startProgress(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+  startProgress(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request & { user: JwtPayload },
+  ) {
     return this.ticketService.startProgress(id, req.user);
   }
 
-  //------------------------------------------
-  // RESOLVER TICKET (Cerrar)
-  // PATCH /tickets/:id/resolver
-  //------------------------------------------
   @Patch(':id/resolver')
   @Roles('SOPORTE_TECNICO', 'SOPORTE_INSITU')
-  resolve(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+  resolve(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request & { user: JwtPayload },
+  ) {
     return this.ticketService.resolveTicket(id, req.user);
   }
 
-  //------------------------------------------
-  // REABRIR TICKET
-  // PATCH /tickets/:id/reabrir
-  //------------------------------------------
   @Patch(':id/reabrir')
   @Roles('CLIENTE_TRABAJADOR')
-  reopen(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+  reopen(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request & { user: JwtPayload },
+  ) {
     return this.ticketService.reopenTicket(id, req.user);
   }
 }

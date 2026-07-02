@@ -1,11 +1,6 @@
 //helpDesk-Backend/src/usuario/dto/update-profile.dto.ts
 //DTO para actualizar el perfil del usuario
-import {
-  IsString,
-  IsOptional,
-  IsNotEmpty,
-  MinLength,
-} from 'class-validator';
+import { IsString, IsOptional, IsNotEmpty, MinLength } from 'class-validator';
 
 export class UpdateProfileDTO {
   //Obligatorio: Colocar la contraseña actual para validar la identidad del usuario

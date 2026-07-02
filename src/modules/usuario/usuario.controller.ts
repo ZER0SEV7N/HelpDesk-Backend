@@ -31,133 +31,107 @@ import { Roles } from '@/common/decorators/role.decorator';
 import { ReassignUserDto } from './dto/reassign-user.dto';
 import { GetUsersFilterDto } from './dto/get-users-filter.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtPayload } from '@/common/guards/jwt-auth.guard';
+import { Request } from 'express';
 
 @Controller('usuario')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
-  //Modificar su propio perfil de usuario
-  //PATCH /usuario/perfil
-  //Alcance: Todos los roles pueden modificar su propio perfil.
-  //Solicita
-  /*{
-  "currentPassword": "contraseñaActual",
-  "nombre": "NuevoNombre",
-  "apellido": "NuevoApellido",
-  "correo": "Correo",
-  "telefono": "Telefono",
-  "nuevaContraseña": "NuevaContraseña"
-  }*/
   @Patch('perfil')
   @UseGuards(JwtAuthGuard)
-  updateProfile(@Req() req: any, @Body() dto: UpdateProfileDTO) {
+  updateProfile(
+    @Req() req: Request & { user: JwtPayload },
+    @Body() dto: UpdateProfileDTO,
+  ) {
     return this.usuarioService.updateProfile(req.user.userId, dto);
   }
 
-  //Obtener tu propio perfil de usuario
-  //GET /usuario/perfil
-  //Alcance: Todos los roles pueden obtener su propio perfil.
   @Get('perfil')
   @UseGuards(JwtAuthGuard)
-  getProfile(@Req() req: any) {
+  getProfile(@Req() req: Request & { user: JwtPayload }) {
     return this.usuarioService.getProfile(req.user.userId);
   }
 
-  //Listar todos los usuarios (Solo Cliente_Empresa y Cliente_Sucursal)
-  //GET /usuario/list
   @Get('list')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
-  listUsers(@Req() req: any, @Query() filters: GetUsersFilterDto) {
+  listUsers(
+    @Req() req: Request & { user: JwtPayload },
+    @Query() filters: GetUsersFilterDto,
+  ) {
     return this.usuarioService.listUsers(req.user, filters);
   }
 
-  //Registrar un nuego empleado
-  //POST /usuario/registrar-empleado
-  //Alcance: Solo la empresa puede registrar un nuevo empleado
   @Post('registrar-empleado')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
-  registerEmployee(@Body() dto: RegisterEmployeeDto, @Req() req: any) {
+  registerEmployee(
+    @Body() dto: RegisterEmployeeDto,
+    @Req() req: Request & { user: JwtPayload },
+  ) {
     return this.usuarioService.registerEmployee(dto, req.user);
   }
 
-  //POST /usuario/registrar-masivo
-  //Alcance: Solo la empresa puede registrar empleados de forma masiva mediante un archivo CSV
-  //El archivo CSV debe tener la siguiente estructura:
-  //nombre,apellido,correo,telefono,password,rolNombre,id_cliente,id_sucursal
-  //El campo id_cliente y id_sucursal son opcionales y solo se deben incluir si el rol del usuario que registra es ADMINISTRADOR.
-  //Si el rol del usuario que registra es CLIENTE_EMPRESA, se asignará automáticamente el id_cliente del usuario que registra y no se permitirá modificarlo.
   @Post('registrar-masivo')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
-  @UseInterceptors(FileInterceptor('file')) // Intercepta el campo 'file' del FormData
+  @UseInterceptors(FileInterceptor('file'))
   registerBulkEmployees(
-    @Req() req: any,
+    @Req() req: Request & { user: JwtPayload },
     @UploadedFile(
       new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // Máximo 5MB
-        ],
+        validators: [new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 })],
       }),
-    ) file: Express.Multer.File,
+    )
+    file: Express.Multer.File,
   ) {
     return this.usuarioService.registerBulkEmployees(file.buffer, req.user);
   }
 
-  //GET /usuario/confirmar-correo?correo=empleado@empresa.com&token=xyz123...
   @Get('confirmar-correo')
   confirmEmail(@Query('correo') correo: string, @Query('token') token: string) {
     return this.usuarioService.confirmEmail(correo, token);
   }
 
-  //Asignar rol a un usuario
-  //PATCH /usuario/:id/rol
-  //Alcance: Solo el administrador puede asignar o cambiar el rol de un usuario.
-  //La empresa puede asignar roles a sus propios empleados pero no puede cambiar roles de usuarios que no le pertenecen.
   @Patch(':id/rol')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   assignRole(
     @Param('id', ParseIntPipe) id: number,
     @Body('rolNombre') rolNombre: string,
-    @Req() req: any,
+    @Req() req: Request & { user: JwtPayload },
   ) {
     return this.usuarioService.assignRole(id, rolNombre, req.user);
   }
 
-  //Desactivar cuenta de un usuario
-  //PATCH /usuario/:id/desactivar
-  //Alcance: el administrador puede desactivar cualquier usuario.
-  // La empresa puede desactivar solo a sus propios empleados.
   @Patch(':id/desactivar')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
-  deactivateUser(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+  deactivateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request & { user: JwtPayload },
+  ) {
     return this.usuarioService.deactivateUser(id, req.user);
   }
 
-  //Activar cuenta de un usuario
-  //PATCH /usuario/:id/activar
-  //Alcance: el administrador puede activar las cuentas de los usuarios que desactivó.
-  //La empresa puede activar las cuentas de sus propios empleados que desactivó, pero no puede activar usuarios que no le pertenecen.
   @Patch(':id/activar')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
-  activateUser(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+  activateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request & { user: JwtPayload },
+  ) {
     return this.usuarioService.activateUser(id, req.user);
   }
 
-  //Reasignar un usuario a otra sucursal cliente
-  //PATCH /usuario/:id/reasignar
-  //Solo el administrador puede reasignar un usuario a otra sucursal o cliente
   @Patch(':id/reasignar')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   reassignUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ReassignUserDto,
-    @Req() req: any,
+    @Req() req: Request & { user: JwtPayload },
   ) {
     return this.usuarioService.reassignUser(id, dto, req.user);
   }

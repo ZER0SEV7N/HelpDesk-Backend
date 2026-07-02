@@ -4,14 +4,21 @@
 import { AuthGuard } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
+export interface JwtPayload {
+  sub: number;
+  userId: number;
+  role: string;
+  clienteId?: number;
+  sucursalId?: number;
+  nombre?: string;
+}
+
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  //Podemos sobreescribir métodos como handleRequest para personalizar el comportamiento del guardia
-  handleRequest(err, user, info) {
-    //Si hay un error o no se encuentra un usuario válido, lanzamos una excepción de autenticación
-    if (err || !user) throw err || new UnauthorizedException('Token inválido o expirado');
-    
-    //Si el token es válido, retornamos el usuario para que esté disponible en los controladores protegidos
-    return user;
+  handleRequest(err: Error | null, user: JwtPayload | null) {
+    if (err || !user)
+      throw err || new UnauthorizedException('Token inválido o expirado');
+
+    return user as any;
   }
 }

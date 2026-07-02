@@ -72,13 +72,15 @@ export class SoftwareService {
 
   // Actualizar un registro de software
   async update(id: number, updateSoftwareDto: UpdateSoftwareDto) {
+    const { fecha_instalacion, fecha_caducidad, ...rest } = updateSoftwareDto;
+
     const dtoWithDates: Partial<Software> = {
-      ...(updateSoftwareDto as any),
-      ...(updateSoftwareDto.fecha_instalacion
-        ? { fecha_instalacion: new Date(updateSoftwareDto.fecha_instalacion) }
+      ...rest,
+      ...(fecha_instalacion
+        ? { fecha_instalacion: new Date(fecha_instalacion) }
         : {}),
-      ...(updateSoftwareDto.fecha_caducidad
-        ? { fecha_caducidad: new Date(updateSoftwareDto.fecha_caducidad) }
+      ...(fecha_caducidad
+        ? { fecha_caducidad: new Date(fecha_caducidad) }
         : {}),
     };
 
