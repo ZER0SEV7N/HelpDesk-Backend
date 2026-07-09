@@ -32,7 +32,7 @@ export class CreateAreaDto {
   correo: string;
 
   @IsInt({ message: 'El ID de la sucursal debe de ser un numero entero' })
+  @IsNotEmpty({ message: 'El ID de la sucursal es obligatorio' })
   @Min(1)
-  @IsOptional() //Opcional
   id_sucursal?: number;
 }

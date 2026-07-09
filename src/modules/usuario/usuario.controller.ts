@@ -1,19 +1,12 @@
 // src/modules/usuario/usuario.controller.ts
 import {
     Controller,
-    Post,
     Body,
     Patch,
     Get,
-    Param,
     UseGuards,
     Req,
-    ParseIntPipe,
     Query,
-    UseInterceptors,
-    UploadedFile,
-    ParseFilePipe,
-    MaxFileSizeValidator,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 

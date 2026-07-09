@@ -35,7 +35,7 @@ import { DeactivateUserUseCase } from './application/deactivate-user.use-case';
 import { ActivateUserUseCase } from './application/activate-user.use-case';
 import { ReassignUserUseCase } from './application/reassign-user.use-case';
 
-@Controller('admin/usuario')
+@Controller('usuario')
 export class AdminUsuarioController {
     constructor(
         private readonly listUsersUseCase: ListUsersUseCase,
