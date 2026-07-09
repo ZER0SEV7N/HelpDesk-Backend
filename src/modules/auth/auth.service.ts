@@ -43,7 +43,7 @@ export class AuthService {
       );
 
     const defaultRole = await this.rolRepo.findOne({
-      where: { nombre: 'CLIENTE_EMPLEADO' },
+      where: { nombre: 'CLIENTE_TRABAJADOR' },
     });
     if (!defaultRole)
       throw new HttpException(
@@ -56,13 +56,13 @@ export class AuthService {
       nombre: dto.nombre,
       apellido: dto.apellido,
       correo: dto.correo,
-      contraseña: hashedPassword,
+      password: hashedPassword,
       telefono: dto.telefono,
       rol: defaultRole,
       is_active: true,
     });
 
-    return await this.usuariosRepo.save(newUser);
+    return "Usuario registrado exitosamente";
   }
 
   /**
@@ -79,7 +79,7 @@ export class AuthService {
         'Credenciales incorrectas o cuenta inactiva',
       );
 
-    const isPasswordValid = await bcrypt.compare(dto.password, user.contraseña);
+    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
     if (!isPasswordValid)
       throw new UnauthorizedException('Credenciales incorrectas');
 
@@ -131,7 +131,7 @@ export class AuthService {
       const hashPassword = await bcrypt.hash(nuevaContraseña, 10);
       await this.usuariosRepo.update(
         { id_usuario: payload.sub },
-        { contraseña: hashPassword },
+        { password: hashPassword },
       );
 
       return { message: 'Contraseña restablecida exitosamente' };

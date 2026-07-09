@@ -27,7 +27,7 @@ export class RegisterBulkEmployeesUseCase {
                     summary.exitosos++;
                 } catch (err: any) {
                     summary.fallidos++;
-                    summary.errores.push({ correo: record.correo, motivo: err.message });
+                    summary.errores.push({ correo: record.password, motivo: err.message });
                 }
             }),
         );

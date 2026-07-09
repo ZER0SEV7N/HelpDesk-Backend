@@ -16,7 +16,7 @@ export class GetProfileUseCase {
         });
         if (!user) throw new NotFoundException('Usuario no encontrado');
 
-        const { contraseña, ...result } = user;
+        const { password, ...result } = user;
         return result;
     }
 }

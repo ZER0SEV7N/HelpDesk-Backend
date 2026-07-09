@@ -21,17 +21,17 @@ export class ConfirmEmailUseCase {
         const rol = await this.rolRepo.findOne({ where: { nombre: validatedDto.rolNombre } });
         if (!rol) throw new NotFoundException(`El rol ${validatedDto.rolNombre} no existe`);
 
-        const hashedPassword = await bcrypt.hash(validatedDto.contraseña, 10);
+        const hashedPassword = await bcrypt.hash(validatedDto.password, 10);
 
         const newUser = this.usuarioRepo.create({
             ...validatedDto,
-            contraseña: hashedPassword,
+            password: hashedPassword,
             rol: rol,
             is_active: true,
         });
 
         const savedUser = await this.usuarioRepo.save(newUser);
-        const { contraseña, ...result } = savedUser;
+        const { password, ...result } = savedUser;
 
         return {
             message: `El empleado ${savedUser.nombre} ha sido verificado y guardado con éxito.`,

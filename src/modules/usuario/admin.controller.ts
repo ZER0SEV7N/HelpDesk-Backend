@@ -47,7 +47,7 @@ export class AdminUsuarioController {
         private readonly reassignUserUseCase: ReassignUserUseCase,
     ) {}
 
-    //Listar todos los usuarios (Solo Cliente_Empresa y Cliente_Sucursal)
+    //Listar todos los usuarios (Solo Administrador, Cliente_Empresa y Cliente_Sucursal)
     //GET /usuario/list
     @Get('list')
     @UseGuards(JwtAuthGuard, RoleGuard)

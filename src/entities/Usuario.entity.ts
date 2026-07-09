@@ -37,7 +37,7 @@ export class Usuario {
 
   //Columna para la contrasena
   @Column({ name: 'password' })
-  contraseña: string;
+  password: string;
 
   //Columna para telefono
   @Column({ length: 15, nullable: true })

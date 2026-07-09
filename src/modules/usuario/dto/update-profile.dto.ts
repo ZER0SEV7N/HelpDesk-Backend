@@ -29,5 +29,5 @@ export class UpdateProfileDTO {
   @MinLength(6, {
     message: 'La nueva contraseña debe tener al menos 6 caracteres',
   })
-  nuevaContraseña?: string;
+  newPassword?: string;
 }
