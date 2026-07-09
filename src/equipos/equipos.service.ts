@@ -124,7 +124,7 @@ export class EquiposService {
     id: number,
     nombre_usuario: string,
     area: string,
-    id_sucursal: number,
+    id_sucursal: number | undefined,
     userToken: JwtPayload,
   ) {
     const equipo = await this.findOne(id, userToken);

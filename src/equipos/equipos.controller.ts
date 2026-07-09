@@ -14,6 +14,7 @@ import {
 import { EquiposService } from './equipos.service';
 import { CreateEquipoDTO } from './dto/create-equipos.dto';
 import { UpdateEquipoDto } from './dto/update-equipos.dto';
+import { AsignarEquipoDto } from './dto/asignar-equipo.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RoleGuard } from '../common/guards/role.guard';
 import { Roles } from '../common/decorators/role.decorator';
@@ -88,16 +89,14 @@ export class EquiposController {
   )
   asignarEquipo(
     @Param('id', ParseIntPipe) id: number,
-    @Body('nombre_usuario') nombre_usuario: string,
-    @Body('area') area: string,
-    @Body('id_sucursal') id_sucursal: number,
+    @Body() dto: AsignarEquipoDto,
     @Request() req: Request & { user: JwtPayload },
   ) {
     return this.equiposService.assignToWorker(
       id,
-      nombre_usuario,
-      area,
-      id_sucursal,
+      dto.nombre_usuario,
+      dto.area,
+      dto.id_sucursal,
       req.user,
     );
   }
