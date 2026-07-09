@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AreaResponseHelper } from '../helpers/area-response.helper';
@@ -15,10 +15,6 @@ export class CreateAreaUseCase {
   ) {}
 
   async execute(dto: CreateAreaDto) {
-    if (!dto.id_sucursal) {
-      throw new BadRequestException('El ID de la sucursal es requerido');
-    }
-    
     const sucursal = await this.sucursalRepo.findOne({
       where: { id_sucursal: dto.id_sucursal },
     });

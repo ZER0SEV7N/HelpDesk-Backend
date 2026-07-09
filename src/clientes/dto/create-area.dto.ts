@@ -4,7 +4,6 @@ import {
   IsEmail,
   IsInt,
   IsNotEmpty,
-  IsOptional,
   IsString,
   MaxLength,
   Min,
@@ -33,6 +32,6 @@ export class CreateAreaDto {
 
   @IsInt({ message: 'El ID de la sucursal debe de ser un numero entero' })
   @Min(1)
-  @IsOptional() //Opcional
-  id_sucursal?: number;
+  @IsNotEmpty({ message: 'El ID de la sucursal es requerido' })
+  id_sucursal: number;
 }
