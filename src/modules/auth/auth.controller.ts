@@ -7,8 +7,8 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import type { Response } from 'express';
+import { AuthService } from './auth.service';
 import { LoginDTO } from './dto/login-auth.dto';
 import { RegisterDTO } from './dto/register-auth.dto';
 import { ConfigService } from '@nestjs/config';

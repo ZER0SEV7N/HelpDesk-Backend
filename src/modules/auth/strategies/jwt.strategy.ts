@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-import { JwtPayload } from '../../../common/guards/jwt-auth.guard';
+import { JwtPayload } from '@/common/guards/jwt-auth.guard';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -17,17 +17,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       ignoreExpiration: false,
-<<<<<<< HEAD
-      secretOrKey: 
-        configService.get<string>('JWT_SECRET') || 
-        process.env.JWT_SECRET || 
-        'ClaveSeguraAyudaDeRespaldoHelpdesk123!',
-    });
-=======
       secretOrKey:
         configService.get<string>('JWT_SECRET') || process.env.JWT_SECRET,
     } as never);
->>>>>>> origin/alvaro-correcciones
   }
 
   validate(payload: JwtPayload) {

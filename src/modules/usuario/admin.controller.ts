@@ -21,10 +21,24 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { RoleGuard } from '@/common/guards/role.guard';
 import { Roles } from '@/common/decorators/role.decorator';
 
+// DTOs
+import { ReassignUserDto } from './dto/reassign-user.dto';
+import { RegisterEmployeeDto } from './dto/register-employee.dto';
+import { GetUsersFilterDto } from './dto/get-users-filter.dto';
+
+// Casos de Uso
+import { ListUsersUseCase } from './application/list-users.use-case';
+import { RegisterEmployeeUseCase } from './application/register-employee.use-case';
+import { RegisterBulkEmployeesUseCase } from './application/register-bulk-employees.use-case';
+import { AssignRoleUseCase } from './application/assign-role.use-case';
+import { DeactivateUserUseCase } from './application/deactivate-user.use-case';
+import { ActivateUserUseCase } from './application/activate-user.use-case';
+import { ReassignUserUseCase } from './application/reassign-user.use-case';
+
 @Controller('admin/usuario')
 export class AdminUsuarioController {
     constructor(
-                private readonly listUsersUseCase: ListUsersUseCase,
+        private readonly listUsersUseCase: ListUsersUseCase,
         private readonly registerEmployeeUseCase: RegisterEmployeeUseCase,
         private readonly registerBulkEmployeesUseCase: RegisterBulkEmployeesUseCase,
         private readonly assignRoleUseCase: AssignRoleUseCase,

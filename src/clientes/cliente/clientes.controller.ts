@@ -44,7 +44,7 @@ export class ClientesController {
   }
 
   //-----------------------------------------------------------------
-  // Obtener todos los clientes (Solo ADMINISTRADOR)
+  // Obtener todos los clientes/empresa (Solo ADMINISTRADOR)
   // GET /clientes
   //-----------------------------------------------------------------
   @Get()
@@ -54,7 +54,7 @@ export class ClientesController {
   }
 
   //-----------------------------------------------------------------
-  // Obtener detalles de un cliente por ID (Admin, Cliente Empresa, Cliente Sucursal)
+  // Obtener detalles de un cliente/empresa por ID (Admin, Cliente Empresa, Cliente Sucursal)
   // GET /clientes/:id
   //-----------------------------------------------------------------
   @Get(':id')
