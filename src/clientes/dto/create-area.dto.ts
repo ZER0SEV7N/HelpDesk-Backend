@@ -9,7 +9,7 @@ import {
   Min,
 } from 'class-validator';
 
-export class CreateAreaDto {
+export class CreateAreaDTO {
   @IsString()
   @IsNotEmpty({ message: 'EL nombre de area debe de ser obligatorio' })
   @MaxLength(100)
@@ -31,6 +31,7 @@ export class CreateAreaDto {
   correo: string;
 
   @IsInt({ message: 'El ID de la sucursal debe de ser un numero entero' })
+  @IsNotEmpty({ message: 'El ID de la sucursal es obligatorio' })
   @Min(1)
   @IsNotEmpty({ message: 'El ID de la sucursal es requerido' })
   id_sucursal: number;

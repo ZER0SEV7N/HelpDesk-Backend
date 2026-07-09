@@ -35,7 +35,7 @@ import { DeactivateUserUseCase } from './application/deactivate-user.use-case';
 import { ActivateUserUseCase } from './application/activate-user.use-case';
 import { ReassignUserUseCase } from './application/reassign-user.use-case';
 
-@Controller('admin/usuario')
+@Controller('usuario')
 export class AdminUsuarioController {
     constructor(
         private readonly listUsersUseCase: ListUsersUseCase,
@@ -47,7 +47,7 @@ export class AdminUsuarioController {
         private readonly reassignUserUseCase: ReassignUserUseCase,
     ) {}
 
-    //Listar todos los usuarios (Solo Cliente_Empresa y Cliente_Sucursal)
+    //Listar todos los usuarios (Solo Administrador, Cliente_Empresa y Cliente_Sucursal)
     //GET /usuario/list
     @Get('list')
     @UseGuards(JwtAuthGuard, RoleGuard)

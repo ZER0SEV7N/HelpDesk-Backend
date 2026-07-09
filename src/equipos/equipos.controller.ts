@@ -21,6 +21,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RoleGuard } from '../common/guards/role.guard';
 import { Roles } from '../common/decorators/role.decorator';
 import { JwtPayload } from '../common/guards/jwt-auth.guard';
+import { AssignEquipoDTO } from './dto/assign-equipio.dto';
 
 @Controller('equipos')
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -91,7 +92,7 @@ export class EquiposController {
   )
   asignarEquipo(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: AsignarEquipoDto,
+    @Body() dto: AssignEquipoDTO,
     @Request() req: Request & { user: JwtPayload },
   ) {
     return this.equiposService.assignToWorker(

@@ -23,10 +23,9 @@ export class RegisterEmployeeDto {
   @IsNotEmpty()
   correo: string;
 
-  @IsString()
+  @IsEmail()
   @IsNotEmpty()
-  @MinLength(6)
-  contraseña: string;
+  password: string;
 
   @IsString()
   @IsNotEmpty()
