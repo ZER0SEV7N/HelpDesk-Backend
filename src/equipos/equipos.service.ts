@@ -9,8 +9,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Equipos } from '../entities/Equipos.entity';
 import { Usuario } from '../entities/Usuario.entity';
+import { RegistroHardware } from '../entities/RegistroHardware.entity';
+import { Software_equipos } from '../entities/SoftwareEquipos.entity';
 import { CreateEquipoDTO } from './dto/create-equipos.dto';
 import { UpdateEquipoDto } from './dto/update-equipos.dto';
+import { UpdateEquipoHardwareDto } from './dto/update-equipo-hardware.dto';
+import { UpdateEquipoSoftwareDto } from './dto/update-equipo-software.dto';
 import { JwtPayload } from '../common/guards/jwt-auth.guard';
 
 @Injectable()
@@ -21,6 +25,12 @@ export class EquiposService {
 
     @InjectRepository(Usuario)
     private readonly usuarioRepo: Repository<Usuario>,
+
+    @InjectRepository(RegistroHardware)
+    private readonly regHardRepo: Repository<RegistroHardware>,
+
+    @InjectRepository(Software_equipos)
+    private readonly softwareEquiposRepo: Repository<Software_equipos>,
   ) {}
 
   async create(dto: CreateEquipoDTO) {
@@ -149,6 +159,80 @@ export class EquiposService {
     return {
       message: `Equipo liberado exitosamente`,
       equipo: equipoActualizado,
+    };
+  }
+
+  // -------------------------------------------------------------------
+  // Editar un componente de HARDWARE ya instalado en un equipo
+  // (fila de registro_hardware). Rol: SOPORTE_TECNICO
+  // PATCH /equipos/:id/hardware/:idRegistro
+  // -------------------------------------------------------------------
+  async updateHardware(
+    id_equipo: number,
+    id_registro: number,
+    dto: UpdateEquipoHardwareDto,
+    userToken: JwtPayload,
+  ) {
+    // Valida que el equipo exista y que el usuario pueda verlo (scope por rol)
+    await this.findOne(id_equipo, userToken);
+
+    // El registro debe pertenecer a ESTE equipo (evita editar componentes de otro)
+    const registro = await this.regHardRepo.findOne({
+      where: { id_RH: id_registro, id_equipo },
+    });
+    if (!registro) {
+      throw new NotFoundException(
+        `Componente de hardware ${id_registro} no encontrado en el equipo ${id_equipo}`,
+      );
+    }
+
+    const { fecha_instalacion, ...rest } = dto;
+    Object.assign(registro, rest);
+    if (fecha_instalacion) {
+      registro.fecha_instalacion = new Date(fecha_instalacion);
+    }
+
+    const actualizado = await this.regHardRepo.save(registro);
+    return {
+      message: 'Componente de hardware actualizado exitosamente',
+      componente: actualizado,
+    };
+  }
+
+  // -------------------------------------------------------------------
+  // Editar un componente de SOFTWARE ya instalado en un equipo
+  // (fila de software_equipos). Rol: SOPORTE_TECNICO
+  // PATCH /equipos/:id/software/:idInstalacion
+  // -------------------------------------------------------------------
+  async updateSoftware(
+    id_equipo: number,
+    id_instalacion: number,
+    dto: UpdateEquipoSoftwareDto,
+    userToken: JwtPayload,
+  ) {
+    // Valida que el equipo exista y que el usuario pueda verlo (scope por rol)
+    await this.findOne(id_equipo, userToken);
+
+    // La instalacion debe pertenecer a ESTE equipo
+    const instalacion = await this.softwareEquiposRepo.findOne({
+      where: { id_software_equipos: id_instalacion, equipo: { id_equipo } },
+    });
+    if (!instalacion) {
+      throw new NotFoundException(
+        `Componente de software ${id_instalacion} no encontrado en el equipo ${id_equipo}`,
+      );
+    }
+
+    const { fecha_instalacion, ...rest } = dto;
+    Object.assign(instalacion, rest);
+    if (fecha_instalacion) {
+      instalacion.fecha_instalacion = new Date(fecha_instalacion);
+    }
+
+    const actualizado = await this.softwareEquiposRepo.save(instalacion);
+    return {
+      message: 'Componente de software actualizado exitosamente',
+      componente: actualizado,
     };
   }
 }

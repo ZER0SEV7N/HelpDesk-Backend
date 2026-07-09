@@ -15,6 +15,8 @@ import { EquiposService } from './equipos.service';
 import { CreateEquipoDTO } from './dto/create-equipos.dto';
 import { UpdateEquipoDto } from './dto/update-equipos.dto';
 import { AsignarEquipoDto } from './dto/asignar-equipo.dto';
+import { UpdateEquipoHardwareDto } from './dto/update-equipo-hardware.dto';
+import { UpdateEquipoSoftwareDto } from './dto/update-equipo-software.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RoleGuard } from '../common/guards/role.guard';
 import { Roles } from '../common/decorators/role.decorator';
@@ -26,7 +28,7 @@ export class EquiposController {
   constructor(private readonly equiposService: EquiposService) {}
 
   @Post()
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   create(@Body() createEquipoDto: CreateEquipoDTO) {
     return this.equiposService.create(createEquipoDto);
   }
@@ -114,5 +116,31 @@ export class EquiposController {
     @Request() req: Request & { user: JwtPayload },
   ) {
     return this.equiposService.unassignFromWorker(id, req.user);
+  }
+
+  // Editar un componente de HARDWARE instalado en el equipo
+  // PATCH /equipos/:id/hardware/:idRegistro
+  @Patch(':id/hardware/:idRegistro')
+  @Roles('SOPORTE_TECNICO')
+  updateHardware(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('idRegistro', ParseIntPipe) idRegistro: number,
+    @Body() dto: UpdateEquipoHardwareDto,
+    @Request() req: Request & { user: JwtPayload },
+  ) {
+    return this.equiposService.updateHardware(id, idRegistro, dto, req.user);
+  }
+
+  // Editar un componente de SOFTWARE instalado en el equipo
+  // PATCH /equipos/:id/software/:idInstalacion
+  @Patch(':id/software/:idInstalacion')
+  @Roles('SOPORTE_TECNICO')
+  updateSoftware(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('idInstalacion', ParseIntPipe) idInstalacion: number,
+    @Body() dto: UpdateEquipoSoftwareDto,
+    @Request() req: Request & { user: JwtPayload },
+  ) {
+    return this.equiposService.updateSoftware(id, idInstalacion, dto, req.user);
   }
 }
