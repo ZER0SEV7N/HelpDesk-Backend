@@ -26,7 +26,7 @@ export class TicketService {
     if (ticketLimpio.soporte) {
       const soporte = ticketLimpio.soporte as Record<string, unknown>;
       const {
-        contraseña: _contraseña,
+        password: _password,
         created_at: _created,
         updated_at: _updated,
         ...rest
@@ -36,7 +36,7 @@ export class TicketService {
     if (ticketLimpio.trabajador) {
       const trabajador = ticketLimpio.trabajador as Record<string, unknown>;
       const {
-        contraseña: _contraseña_t,
+        password: _password_t,
         created_at: _created_t,
         updated_at: _updated_t,
         ...rest

@@ -7,7 +7,7 @@ import { FindOneAreaUseCase } from "./application/find-one-area.use-case";
 import { FindBySucursalUseCase } from "./application/find-by-sucursal-use-case";
 import { UpdateAreaUseCase } from "./application/update-area.use-case";
 import { DeactivateAreaUseCase } from "./application/deactivate-area.use-case";
-import { CreateAreaDto } from "../dto/create-area.dto";
+import { CreateAreaDTO } from "../dto/create-area.dto";
 import { FindAllAreaUseCase } from "./application/find-all-area.use-case";
 import { ReactivateAreaUseCase } from "./application/reactivate-area.use-case";
 
@@ -31,7 +31,7 @@ export class AreaController {
   //-----------------------------------------------------------------
   @Post()
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
-  create(@Body() dto: CreateAreaDto) {
+  create(@Body() dto: CreateAreaDTO) {
     return this.createAreaUseCase.execute(dto);
   }
 
@@ -75,7 +75,7 @@ export class AreaController {
   //-----------------------------------------------------------------
   @Patch(':id')
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: Partial<CreateAreaDto>) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: Partial<CreateAreaDTO>) {
     return this.updateAreaUseCase.execute(id, dto);
   }
 

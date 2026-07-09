@@ -11,7 +11,7 @@ export class RegisterBulkEmployeesUseCase {
     ) {}
 
     async execute(fileBuffer: Buffer, userPayload: any) {
-        const requiredHeaders = ['nombre', 'apellido', 'correo', 'telefono', 'contraseña', 'rolNombre', 'id_sucursal'];
+        const requiredHeaders = ['nombre', 'apellido', 'correo', 'telefono', 'password', 'rolNombre', 'id_sucursal'];
 
         const records = await this.csvProcessor.parseCsv<RegisterEmployeeDto>(fileBuffer, requiredHeaders);
         const summary: {
@@ -27,7 +27,7 @@ export class RegisterBulkEmployeesUseCase {
                     summary.exitosos++;
                 } catch (err: any) {
                     summary.fallidos++;
-                    summary.errores.push({ correo: record.password, motivo: err.message });
+                    summary.errores.push({ correo: record.correo, motivo: err.message });
                 }
             }),
         );

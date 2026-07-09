@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { AreaResponseHelper } from '../helpers/area-response.helper';
 import { Area } from '@/entities/Area.entity';
 import { Sucursales } from '@/entities/Sucursales.entity';
-import { CreateAreaDto } from '@/clientes/dto/create-area.dto';
+import { CreateAreaDTO } from '@/clientes/dto/create-area.dto';
 
 @Injectable()
 export class CreateAreaUseCase {
@@ -14,7 +14,7 @@ export class CreateAreaUseCase {
     private readonly responseHelper: AreaResponseHelper,
   ) {}
 
-  async execute(dto: CreateAreaDto) {
+  async execute(dto: CreateAreaDTO) {
     const sucursal = await this.sucursalRepo.findOne({
       where: { id_sucursal: dto.id_sucursal },
     });

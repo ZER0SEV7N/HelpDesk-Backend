@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AreaResponseHelper } from '../helpers/area-response.helper';
 import { Area } from '@/entities/Area.entity';
-import { CreateAreaDto } from '@/clientes/dto/create-area.dto';
+import { CreateAreaDTO } from '@/clientes/dto/create-area.dto';
 
 @Injectable()
 export class UpdateAreaUseCase {
@@ -12,7 +12,7 @@ export class UpdateAreaUseCase {
     private readonly responseHelper: AreaResponseHelper,
   ) {}
 
-  async execute(id: number, dto: Partial<CreateAreaDto>) {
+  async execute(id: number, dto: Partial<CreateAreaDTO>) {
     const area = await this.areaRepo.findOne({ where: { id_area: id } });
     if (!area) throw new NotFoundException(`Area con ID ${id} no encontrada`);
 
