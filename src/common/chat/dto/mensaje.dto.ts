@@ -1,6 +1,6 @@
 //helpdesk-app/src/chat/dto/mensaje.dto.ts
 //DTO para el mensaje del chat
-import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class MensajeDto {
   //Id del ticket al que pertenece el mensaje

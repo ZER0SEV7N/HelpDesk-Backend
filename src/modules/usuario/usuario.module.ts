@@ -2,7 +2,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '@/modules/auth/auth.module';
+
+// Controladores
 import { UsuarioController } from './usuario.controller';
+import { AdminUsuarioController } from './admin.controller';
 
 // Entidades
 import { Rol } from '@/entities/Rol.entity';
@@ -32,12 +35,13 @@ import { DeactivateUserUseCase } from './application/deactivate-user.use-case';
 import { ActivateUserUseCase } from './application/activate-user.use-case';
 import { ReassignUserUseCase } from './application/reassign-user.use-case';
 
+
 @Module({
     imports: [
         TypeOrmModule.forFeature([Usuario, Rol, Sucursales, Clientes]),
         AuthModule,
     ],
-    controllers: [UsuarioController],
+    controllers: [UsuarioController, AdminUsuarioController],
     providers: [
         // Infraestructura compartida
         NotificationGateway,

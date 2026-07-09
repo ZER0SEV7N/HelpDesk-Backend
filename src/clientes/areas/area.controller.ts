@@ -8,16 +8,20 @@ import { FindBySucursalUseCase } from "./application/find-by-sucursal-use-case";
 import { UpdateAreaUseCase } from "./application/update-area.use-case";
 import { DeactivateAreaUseCase } from "./application/deactivate-area.use-case";
 import { CreateAreaDto } from "../dto/create-area.dto";
+import { FindAllAreaUseCase } from "./application/find-all-area.use-case";
+import { ReactivateAreaUseCase } from "./application/reactivate-area.use-case";
 
 @Controller('areas')
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class AreaController {
   constructor(
     private readonly createAreaUseCase: CreateAreaUseCase,
+    private readonly findAllAreaUseCase: FindAllAreaUseCase,
     private readonly findOneAreaUseCase: FindOneAreaUseCase,
     private readonly findBySucursalUseCase: FindBySucursalUseCase,
     private readonly updateAreaUseCase: UpdateAreaUseCase,
     private readonly deactivateAreaUseCase: DeactivateAreaUseCase,
+    private readonly reactivateAreaUseCase: ReactivateAreaUseCase,
   ) {}
 
   //-----------------------------------------------------------------
@@ -32,6 +36,28 @@ export class AreaController {
   }
 
   //-----------------------------------------------------------------
+  //Obtener todas las áreas (Admin, Cliente Empresa, Cliente Sucursal)
+  //GET /areas
+  //Alcance: El administrador, el cliente empresa y el cliente sucursal pueden obtener todas las áreas
+  //-----------------------------------------------------------------
+  @Get("/areas")
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
+  findAll() {
+    return this.findAllAreaUseCase.execute();
+  }
+
+  //-----------------------------------------------------------------
+  //Listar las áreas de una sucursal especifica (Admin, Cliente Empresa, Cliente Sucursal)
+  //GET /areas/sucursal/:id_sucursal
+  //Alcance: El administrador, el cliente empresa y el cliente sucursal pueden obtener las áreas de una sucursal especifica
+  //-----------------------------------------------------------------
+  @Get('sucursal/:id_sucursal')
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
+  findBySucursal(@Param('id_sucursal', ParseIntPipe) id_sucursal: number) {
+    return this.findBySucursalUseCase.execute(id_sucursal);
+  }
+
+  //-----------------------------------------------------------------
   //Obtener un área por ID (Admin, Cliente Empresa, Cliente Sucursal)
   //GET /areas/:id
   //Alcance: El administrador, el cliente empresa y el cliente sucursal pueden obtener los detalles de un área por ID
@@ -40,17 +66,6 @@ export class AreaController {
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.findOneAreaUseCase.execute(id);
-  }
-
-  //-----------------------------------------------------------------
-  //Obtener las áreas de una sucursal especifica (Admin, Cliente Empresa, Cliente Sucursal)
-  //GET /areas/sucursal/:id_sucursal
-  //Alcance: El administrador, el cliente empresa y el cliente sucursal pueden obtener las áreas de una sucursal especifica
-  //-----------------------------------------------------------------
-  @Get('sucursal/:id_sucursal')
-  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
-  findBySucursal(@Param('id_sucursal', ParseIntPipe) id_sucursal: number) {
-    return this.findBySucursalUseCase.execute(id_sucursal);
   }
 
   //-----------------------------------------------------------------
@@ -73,5 +88,16 @@ export class AreaController {
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   deactivate(@Param('id', ParseIntPipe) id: number) {
     return this.deactivateAreaUseCase.execute(id);
+  }
+
+  //-----------------------------------------------------------------
+  //Activar un área (Admin, Cliente Empresa)
+  //PATCH /areas/:id/activar
+  //Alcance: El administrador y el cliente empresa pueden activar un área por ID
+  //-----------------------------------------------------------------
+  @Patch(':id/activar')
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
+  reactivate(@Param('id', ParseIntPipe) id: number) {
+    return this.reactivateAreaUseCase.execute(id);
   }
 }

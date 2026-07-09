@@ -1,6 +1,10 @@
 //src/common/email/email.service.ts
 //Servicio para el manejo de envíos de correos electrónicos en la aplicación
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 
@@ -16,8 +20,12 @@ export class EmailService {
   /**
    * 1. Envío de Correo para Validación de Empleado (Módulo de Usuarios)
    */
-  async sendEmployeeVerification(correoDestino: string, token: string): Promise<void> {
-    const appOrigin = this.configService.get<string>('HTTP_ORIGIN') || 'http://localhost:3000';
+  async sendEmployeeVerification(
+    correoDestino: string,
+    token: string,
+  ): Promise<void> {
+    const appOrigin =
+      this.configService.get<string>('HTTP_ORIGIN') || 'http://localhost:3000';
     const enlaceVerificacion = `${appOrigin}/usuario/confirmar-correo?correo=${correoDestino}&token=${token}`;
 
     const htmlTemplate = `
@@ -34,14 +42,22 @@ export class EmailService {
       </div>
     `;
 
-    await this.sendMail(correoDestino, 'Validación de Correo - Registro HelpDesk', htmlTemplate);
+    await this.sendMail(
+      correoDestino,
+      'Validación de Correo - Registro HelpDesk',
+      htmlTemplate,
+    );
   }
 
   /**
    * 2. Envío de Correo para Recuperación de Contraseña (Módulo de Autenticación)
    */
-  async sendPasswordRecovery(correoDestino: string, token: string): Promise<void> {
-    const appOrigin = this.configService.get<string>('HTTP_ORIGIN') || 'http://localhost:3000';
+  async sendPasswordRecovery(
+    correoDestino: string,
+    token: string,
+  ): Promise<void> {
+    const appOrigin =
+      this.configService.get<string>('HTTP_ORIGIN') || 'http://localhost:3000';
     const enlaceRecuperacion = `${appOrigin}/auth/reset-password?token=${token}`;
 
     const htmlTemplate = `
@@ -58,23 +74,39 @@ export class EmailService {
       </div>
     `;
 
-    await this.sendMail(correoDestino, 'Restablecer Contraseña - HelpDesk System', htmlTemplate);
+    await this.sendMail(
+      correoDestino,
+      'Restablecer Contraseña - HelpDesk System',
+      htmlTemplate,
+    );
   }
 
   /**
    * Método privado core encargado del transporte SMTP seguro
    */
-  private async sendMail(to: string, subject: string, html: string): Promise<void> {
+  private async sendMail(
+    to: string,
+    subject: string,
+    html: string,
+  ): Promise<void> {
     try {
       await this.mailerService.sendMail({
         to,
         subject,
         html,
       });
-      this.logger.log(`Correo enviado con éxito hacia: ${to} | Asunto: ${subject}`);
-    } catch (error: any) {
-      this.logger.error(`Error crítico al despachar correo a ${to}: ${error.message}`);
-      throw new InternalServerErrorException('No se pudo enviar el correo de notificación del sistema.');
+      this.logger.log(
+        `Correo enviado con éxito hacia: ${to} | Asunto: ${subject}`,
+      );
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Error desconocido';
+      this.logger.error(
+        `Error crítico al despachar correo a ${to}: ${message}`,
+      );
+      throw new InternalServerErrorException(
+        'No se pudo enviar el correo de notificación del sistema.',
+      );
     }
   }
 }

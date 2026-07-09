@@ -4,12 +4,11 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/role.decorator';
+import { JwtPayload } from '../guards/jwt-auth.guard';
 
-//Guardia para verificar roles de usuario
 @Injectable()
 export class RoleGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
-  //Este método se ejecuta antes de que el controlador maneje la solicitud
   canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<string[]>(
       ROLES_KEY,
@@ -17,13 +16,16 @@ export class RoleGuard implements CanActivate {
     );
 
     if (!requiredRoles) {
-      return true; //Si no hay roles requeridos, permite el acceso
+      return true;
     }
 
-    const { user } = context.switchToHttp().getRequest(); //Obtiene el usuario del request
+    const request = context.switchToHttp().getRequest<{
+      user?: JwtPayload;
+    }>();
+    const user = request.user;
 
-    if (!user || !user.role) return false; //Deniega el acceso limpiamente (403 Forbidden)
+    if (!user || !user.role) return false;
 
-    return requiredRoles.includes(user.role); //Verifica si el rol del usuario esta en los roles requeridos
+    return requiredRoles.includes(user.role);
   }
 }

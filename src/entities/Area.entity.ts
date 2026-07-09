@@ -2,10 +2,9 @@
 //Modulo de entidad para la tabla Area
 //importaciones necesarias:
 import {
-  Entity,
   Column,
+  Entity,
   PrimaryGeneratedColumn,
-  OneToMany,
   ManyToOne,
   JoinColumn,
   CreateDateColumn,

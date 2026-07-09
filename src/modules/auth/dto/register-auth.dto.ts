@@ -7,7 +7,6 @@ import {
   Length,
   IsEmail,
   MinLength,
-  MaxLength,
 } from 'class-validator';
 
 export class RegisterDTO {

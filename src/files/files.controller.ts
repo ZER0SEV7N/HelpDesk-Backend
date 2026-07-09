@@ -8,7 +8,6 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
-  Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
@@ -61,7 +60,7 @@ export class FilesController {
   )
 
   //Funcion para manejar la subida de archivos, valida el archivo y devuelve la URL de acceso al mismo
-  uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file)
       throw new BadRequestException(
         'Archivo no proporcionado o formato no permitido',

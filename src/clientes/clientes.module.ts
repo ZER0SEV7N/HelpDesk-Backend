@@ -26,10 +26,12 @@ import { ClienteResponseHelper } from './cliente/helpers/cliente-response.helper
 // --- CAPA DE APLICACIÓN (CASOS DE USO) ---
 // Áreas
 import { CreateAreaUseCase } from './areas/application/create-area.use-case';
+import { UpdateAreaUseCase } from './areas/application/update-area.use-case';
+import { FindAllAreaUseCase } from './areas/application/find-all-area.use-case';
 import { FindOneAreaUseCase } from './areas/application/find-one-area.use-case';
 import { FindBySucursalUseCase } from './areas/application/find-by-sucursal-use-case';
-import { UpdateAreaUseCase } from './areas/application/update-area.use-case';
 import { DeactivateAreaUseCase } from './areas/application/deactivate-area.use-case';
+import { ReactivateAreaUseCase } from './areas/application/reactivate-area.use-case';
 
 // Sucursales
 import { CreateSucursalUseCase } from './sucursales/application/create-sucursal.use-case';
@@ -73,10 +75,12 @@ import { ClienteCronService } from './cliente/cliente-cron.service';
 
     // Casos de Uso de Áreas
     CreateAreaUseCase,
+    FindAllAreaUseCase,
     FindOneAreaUseCase,
     FindBySucursalUseCase,
     UpdateAreaUseCase,
     DeactivateAreaUseCase,
+    ReactivateAreaUseCase,
 
     // Casos de Uso de Sucursales
     CreateSucursalUseCase,

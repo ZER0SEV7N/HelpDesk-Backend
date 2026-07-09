@@ -1,5 +1,12 @@
 // src/modules/auth/auth.controller.ts
-import { Body, Controller, Post, Res, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Res,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Response } from 'express';
 import { LoginDTO } from './dto/login-auth.dto';
@@ -10,11 +17,11 @@ import { ConfigService } from '@nestjs/config';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly configService: ConfigService, 
+    private readonly configService: ConfigService,
   ) {}
 
   //Post: /auth/register
-  //Registra un nuevo usuario administrador, NO UTILIZAR PARA REGISTRO DE USUARIOS ORDINARIOS, SOLO PARA ADMINISTRADORES. QUITAR EN PRODUCCION. 
+  //Registra un nuevo usuario administrador, NO UTILIZAR PARA REGISTRO DE USUARIOS ORDINARIOS, SOLO PARA ADMINISTRADORES. QUITAR EN PRODUCCION.
   //Para registro de usuarios ordinarios, usar el endpoint /usuario/register
   /*{
     nombre: "Nombre",
@@ -36,7 +43,10 @@ export class AuthController {
   } */
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() dto: LoginDTO, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() dto: LoginDTO,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { user, token, role } = await this.authService.login(dto);
 
     // Configuración robusta de la Cookie segura HttpOnly
@@ -92,7 +102,12 @@ export class AuthController {
   //El body debe contener { "token": "...", "nuevaContraseña": "..." }
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
-  async resetPassword(@Body() body: { token: string; nuevaContraseña: string }) {
-    return await this.authService.resetPassword(body.token, body.nuevaContraseña);
+  async resetPassword(
+    @Body() body: { token: string; nuevaContraseña: string },
+  ) {
+    return await this.authService.resetPassword(
+      body.token,
+      body.nuevaContraseña,
+    );
   }
 }
