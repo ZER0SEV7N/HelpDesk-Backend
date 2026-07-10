@@ -15,6 +15,7 @@ import { Rol } from './Rol.entity';
 import { Tickets } from './Tickets.entity';
 import { Clientes } from './Clientes.entity';
 import { Sucursales } from './Sucursales.entity';
+import { Equipos } from './Equipos.entity';
 
 //Definicion de la entidad Usuario
 @Entity('usuarios')
@@ -79,4 +80,8 @@ export class Usuario {
   //Relacion con la tabla Tickets (uno a muchos) para los tickets donde el usuario es soporte
   @OneToMany(() => Tickets, (ticket) => ticket.soporte)
   tickets_soporte: Tickets[];
+
+  //Relacion con la tabla Equipos (uno a muchos) para los equipos donde el usuario es trabajador
+  @OneToMany(() => Equipos, (equipo) => equipo.trabajador)
+  equipos: Equipos[];
 }

@@ -14,7 +14,7 @@ export class AsignarEquipoDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
-  nombre_usuario: string;
+  id_trabajador: number;
 
   // Área / departamento donde queda el equipo
   @IsString()

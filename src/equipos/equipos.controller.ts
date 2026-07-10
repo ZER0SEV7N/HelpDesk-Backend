@@ -115,7 +115,7 @@ export class EquiposController {
   ) {
     return this.assignEquipoUseCase.execute(
       id,
-      dto.nombre_usuario,
+      dto.id_trabajador,
       dto.area,
       dto.id_sucursal,
       req.user,
