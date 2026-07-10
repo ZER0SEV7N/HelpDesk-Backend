@@ -35,8 +35,8 @@ INSERT usuarios VALUES
 
 -- 6. Insertar Equipos de Prueba
 INSERT equipos VALUES
-(NULL, 'Desktop', 'Dell', 'DL-889900', 'Juan Perez', 'Contabilidad', '2026-01-15', '2026-07-15', 1, 1, 1, NOW(), NOW()),
-(NULL, 'Laptop', 'Lenovo', 'LN-112233', 'Maria Gomez', 'Gerencia', '2026-02-10', '2026-08-10', 1, 1, 1, NOW(), NOW());
+(NULL, 'Desktop', 'Dell', 'DL-889900', 'Juan Perez', 'Contabilidad', '2026-01-15', '2026-07-15',6, 1, 1, 1, NOW(), NOW()),
+(NULL, 'Laptop', 'Lenovo', 'LN-112233', 'Maria Gomez', 'Gerencia', '2026-02-10', '2026-08-10',6, 1, 1, 1, NOW(), NOW());
 
 -- 7. Insertar Catálogo de Software
 INSERT software VALUES
