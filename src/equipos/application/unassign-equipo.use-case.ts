@@ -13,14 +13,18 @@ export class UnassignEquipoUseCase {
     private readonly findOneUseCase: FindOneEquipoUseCase,
   ) {}
 
-  async execute(id: number, userToken: JwtPayload) {
+  async execute(id: number, userToken: JwtPayload) {  
+    // Validar que el equipo exista y que el usuario tenga permisos para desasignarlo
     const equipo = await this.findOneUseCase.execute(id, userToken); 
-    
-    equipo.nombre_usuario = 'Sin asignar'; 
+    // Desasignar el equipo del trabajador y actualizar el área a "Sin asignar"
+    equipo.id_trabajador = null as any;
     equipo.area = 'Sin asignar'; 
-    
+    // También se puede desasignar la sucursal si es necesario
+    equipo.id_sucursal = null as any;
+
+    // Guardar los cambios en la base de datos
     const equipoActualizado = await this.equiposRepo.save(equipo); 
-    
+    // Retornar un mensaje de éxito y el equipo actualizado
     return {
       message: `Equipo liberado exitosamente`,
       equipo: equipoActualizado,

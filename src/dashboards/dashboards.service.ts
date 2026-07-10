@@ -100,7 +100,7 @@ export class DashboardsService {
         idEquipo: e.id_equipo,
         tipo: e.tipo,
         marca: e.marca,
-        nombreUsuario: e.nombre_usuario,
+        nombreUsuario: e.id_trabajador,
         area: e.area,
         proximaRevision: e.revProgramada,
         idCliente: e.id_cliente,
