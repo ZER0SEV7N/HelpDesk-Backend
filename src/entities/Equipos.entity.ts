@@ -50,7 +50,7 @@ export class Equipos {
   id_cliente: number;
 
   @Column({ name: 'id_trabajador', nullable: true })
-  id_trabajador?: number;
+  id_trabajador?: number | null;
 
   // Relacion con la tabla Usuario (muchos a uno) para el trabajador asignado al equipo
   @ManyToOne(() => Usuario, (usuario) => usuario.equipos, {

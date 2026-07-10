@@ -48,8 +48,8 @@ export class FindAllEquiposUseCase {
         });
         break; 
       case 'CLIENTE_TRABAJADOR':
-        query.andWhere('equipo.nombre_usuario = :nombre', {
-          nombre: usuarioReal.nombre,
+        query.andWhere('equipo.id_trabajador = :idTrabajador', {
+          idTrabajador: usuarioReal.id_usuario,
         });
         break; 
       default:
