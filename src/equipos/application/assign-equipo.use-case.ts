@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FindOneEquipoUseCase } from './find-one-equipo.use-case';
@@ -24,7 +24,7 @@ export class AssignEquipoUseCase {
     const equipo = await this.findOneUseCase.execute(id, userToken);
     // Validar que el equipo no esté asignado a otro trabajador
     if (equipo.id_trabajador) {
-      throw new Error(
+      throw new ConflictException(
         `El equipo ya está asignado a otro trabajador (ID: ${equipo.id_trabajador})`,
       );
     }
