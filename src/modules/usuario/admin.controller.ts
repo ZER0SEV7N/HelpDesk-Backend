@@ -51,7 +51,7 @@ export class AdminUsuarioController {
     //GET /usuario/list
     @Get('list')
     @UseGuards(JwtAuthGuard, RoleGuard)
-    @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
+    @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL', 'SOPORTE_TECNICO', 'SOPORTE_INSITU')
     listUsers(@Req() req: any, @Query() filters: GetUsersFilterDto) {
         return this.listUsersUseCase.execute(req.user, filters);
     }

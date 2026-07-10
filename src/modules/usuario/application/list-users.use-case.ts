@@ -12,6 +12,7 @@ export class ListUsersUseCase {
     ) {}
 
     async execute(userPayload: any, filters: GetUsersFilterDto): Promise<UserResponseDto[]> {
+        // Construir la consulta base para obtener los usuarios
         const query = this.usuarioRepo.createQueryBuilder('user')
             .leftJoinAndSelect('user.rol', 'rol')
             .leftJoin('clientes', 'cliente', 'user.id_cliente = cliente.id_cliente')
@@ -22,8 +23,9 @@ export class ListUsersUseCase {
                 'rol.id_rol', 'rol.nombre',
                 'cliente.nombre_principal', 'sucursal.nombre_sucursal',
             ]);
-
+        // Aplicar restricciones de rol y filtros según el usuario que realiza la solicitud
         this.applyRoleRestrictions(query, userPayload, filters);
+        // Aplicar filtros adicionales según los parámetros proporcionados
         this.applyFilters(query, filters);
 
         const rawUsers = await query.getRawAndEntities();
@@ -47,6 +49,7 @@ export class ListUsersUseCase {
     private applyRoleRestrictions(query: any, userPayload: any, filters: GetUsersFilterDto): void {
         const { role, clienteId } = userPayload;
         switch (role) {
+            // Si el usuario es ADMINISTRADOR, puede ver todos los usuarios, pero si no se proporcionan filtros específicos, se limita a ciertos roles
             case 'ADMINISTRADOR':
                 if (!filters.cliente && !filters.sucursal && !filters.id_usuario && !filters.nombre) {
                     query.andWhere('rol.nombre IN (:...rolesAdmin)', {
@@ -54,11 +57,20 @@ export class ListUsersUseCase {
                     });
                 }
                 break;
+            // Si el usuario es CLIENTE_EMPRESA, solo puede ver usuarios asociados a su empresa
             case 'CLIENTE_EMPRESA':
                 query.andWhere('user.id_cliente = :clienteId', { clienteId });
                 break;
+            // Si el usuario es CLIENTE_SUCURSAL, solo puede ver usuarios asociados a su sucursal
             case 'CLIENTE_SUCURSAL':
                 query.andWhere('user.id_sucursal = :sucursalId', { sucursalId: filters.sucursal });
+                break;
+            // Si el usuario es SOPORTE_TECNICO o SOPORTE_INSITU, solo puede ver usuarios con el rol CLIENTE_TRABAJADOR
+            case 'SOPORTE_TECNICO':
+            case 'SOPORTE_INSITU':
+                query.andWhere('rol.nombre IN (:...rolesVisibles)', {
+                    rolesVisibles: ['CLIENTE_TRABAJADOR']
+                });
                 break;
             default:
                 throw new UnauthorizedException('No tienes permisos para listar usuarios');
