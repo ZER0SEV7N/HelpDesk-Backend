@@ -12,7 +12,7 @@ export class ListUsersUseCase {
     ) {}
 
     async execute(userPayload: any, filters: GetUsersFilterDto): Promise<UserResponseDto[]> {
-        // Construir la consulta base para obtener los usuarios
+        // Construimos la consulta base para obtener los usuarios junto con sus roles, clientes y sucursales
         const query = this.usuarioRepo.createQueryBuilder('user')
             .leftJoinAndSelect('user.rol', 'rol')
             .leftJoin('clientes', 'cliente', 'user.id_cliente = cliente.id_cliente')
@@ -23,12 +23,15 @@ export class ListUsersUseCase {
                 'rol.id_rol', 'rol.nombre',
                 'cliente.nombre_principal', 'sucursal.nombre_sucursal',
             ]);
-        // Aplicar restricciones de rol y filtros según el usuario que realiza la solicitud
-        this.applyRoleRestrictions(query, userPayload, filters);
-        // Aplicar filtros adicionales según los parámetros proporcionados
-        this.applyFilters(query, filters);
 
+        // Aseguramos la integridad de los datos según el rol primero
+        this.applyRoleRestrictions(query, userPayload, filters);
+        // Filtramos por texto
+        this.applyFilters(query, filters);
+        
+        // Obtenemos los resultados
         const rawUsers = await query.getRawAndEntities();
+        // Mapeamos los resultados crudos a la estructura de UserResponseDto
         return rawUsers.entities.map((user, index) => {
             const rawResult = rawUsers.raw[index];
             return {
@@ -47,9 +50,10 @@ export class ListUsersUseCase {
     }
 
     private applyRoleRestrictions(query: any, userPayload: any, filters: GetUsersFilterDto): void {
-        const { role, clienteId } = userPayload;
+        // Corregido: Extraemos sucursalId directamente del payload seguro del token
+        const { role, clienteId, sucursalId } = userPayload;
+
         switch (role) {
-            // Si el usuario es ADMINISTRADOR, puede ver todos los usuarios, pero si no se proporcionan filtros específicos, se limita a ciertos roles
             case 'ADMINISTRADOR':
                 if (!filters.cliente && !filters.sucursal && !filters.id_usuario && !filters.nombre) {
                     query.andWhere('rol.nombre IN (:...rolesAdmin)', {
@@ -57,31 +61,45 @@ export class ListUsersUseCase {
                     });
                 }
                 break;
-            // Si el usuario es CLIENTE_EMPRESA, solo puede ver usuarios asociados a su empresa
+
             case 'CLIENTE_EMPRESA':
                 query.andWhere('user.id_cliente = :clienteId', { clienteId });
                 break;
-            // Si el usuario es CLIENTE_SUCURSAL, solo puede ver usuarios asociados a su sucursal
+
             case 'CLIENTE_SUCURSAL':
-                query.andWhere('user.id_sucursal = :sucursalId', { sucursalId: filters.sucursal });
+                // Corregido: Ahora la comparación se hace bajo una variable segura y no el filtro de texto externo
+                query.andWhere('user.id_sucursal = :sucursalId', { sucursalId });
                 break;
-            // Si el usuario es SOPORTE_TECNICO o SOPORTE_INSITU, solo puede ver usuarios con el rol CLIENTE_TRABAJADOR
+
             case 'SOPORTE_TECNICO':
             case 'SOPORTE_INSITU':
+                // Los soportes técnicos solo ven cuentas finales para asignación de equipos
                 query.andWhere('rol.nombre IN (:...rolesVisibles)', {
                     rolesVisibles: ['CLIENTE_TRABAJADOR']
                 });
                 break;
+
             default:
                 throw new UnauthorizedException('No tienes permisos para listar usuarios');
         }
     }
 
+    // Filtra los usuarios según los criterios proporcionados en el DTO de filtros
     private applyFilters(query: any, filters: GetUsersFilterDto): void {
+        // Filtrado por ID de usuario
         if (filters.id_usuario) query.andWhere('user.id_usuario = :idUsuario', { idUsuario: filters.id_usuario });
+        // Filtrado por nombre de rol
         if (filters.rolNombre) query.andWhere('rol.nombre = :rolNombre', { rolNombre: filters.rolNombre });
-        if (filters.nombre) query.andWhere('(user.nombre LIKE :nombre OR user.apellido LIKE :nombre)', { nombre: `%${filters.nombre}%` });
+        // Filtrado por nombre completo (nombre + apellido)
+        if (filters.nombre) {
+            query.andWhere(
+                "CONCAT(user.nombre, ' ', user.apellido) LIKE :nombreCompleto", 
+                { nombreCompleto: `%${filters.nombre}%` }
+            );
+        }
+        // Filtrado por nombre de cliente
         if (filters.cliente) query.andWhere('cliente.nombre_principal LIKE :cliente', { cliente: `%${filters.cliente}%` });
+        // Filtrado por nombre de sucursal
         if (filters.sucursal) query.andWhere('sucursal.nombre_sucursal LIKE :sucursal', { sucursal: `%${filters.sucursal}%` });
     }
 }
