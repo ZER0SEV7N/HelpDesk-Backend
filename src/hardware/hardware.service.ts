@@ -38,6 +38,7 @@ export class HardwareService {
   async findAll() {
     return await this.hardwareRepo.find({
       where: { is_active: true },
+      relations: ['registros', 'registros.equipo'], // Trae el historial y el nombre de la PC
     });
   }
 
