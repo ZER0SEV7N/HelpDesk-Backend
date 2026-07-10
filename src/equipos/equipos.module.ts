@@ -5,7 +5,7 @@ import { EquiposController } from './equipos.controller';
 import { AllEntities } from '@/all_entity';
 
 // Casos de uso
-import { CreateEquipoUseCase } from './application/Create-Equipo.Use-Case';
+import { CreateEquipoUseCase } from './application/create-equipo.use-case';
 import { UpdateEquipoUseCase } from './application/update-equipo.use-case';
 import { FindOneEquipoUseCase } from './application/find-one-equipo.use-case';
 import { FindAllEquiposUseCase } from './application/find-all-equipos.use-case';

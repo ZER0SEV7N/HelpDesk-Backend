@@ -21,7 +21,7 @@ import { RoleGuard } from '../common/guards/role.guard';
 import { Roles } from '../common/decorators/role.decorator';
 import { JwtPayload } from '../common/guards/jwt-auth.guard';
 //Casos de uso
-import { CreateEquipoUseCase } from './application/Create-Equipo.Use-Case';
+import { CreateEquipoUseCase } from './application/create-equipo.use-case';
 import { UpdateEquipoUseCase } from './application/update-equipo.use-case';
 import { FindOneEquipoUseCase } from './application/find-one-equipo.use-case';
 import { FindAllEquiposUseCase } from './application/find-all-equipos.use-case';
