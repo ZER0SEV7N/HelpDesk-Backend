@@ -48,7 +48,7 @@ export class ClientesController {
   // GET /clientes
   //-----------------------------------------------------------------
   @Get()
-  @Roles('ADMINISTRADOR')
+  @Roles('ADMINISTRADOR','SOPORTE_TECNICO','SOPORTE_INSITU',)
   findAll() {
     return this.findAllClientesUseCase.execute();
   }
