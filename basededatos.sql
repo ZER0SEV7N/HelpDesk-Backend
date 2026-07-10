@@ -143,11 +143,13 @@ CREATE TABLE equipos (
     area VARCHAR(100),
     ult_revision DATE,
     rev_programada DATE,
+    id_trabajador INT, -- id del Usuario con el rol CLIENTE_TRABAJADOR
     id_cliente INT,
     id_sucursal INT,
     is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_eqipos_trabajador FOREIGN KEY (id_trabajador) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
     CONSTRAINT fk_equipos_cliente FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE CASCADE,
     CONSTRAINT fk_equipos_sucursal FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal) ON DELETE SET NULL
 );

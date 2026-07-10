@@ -11,7 +11,6 @@ import {
   ParseIntPipe,
   Request,
 } from '@nestjs/common';
-import { EquiposService } from './equipos.service';
 import { CreateEquipoDTO } from './dto/create-equipos.dto';
 import { UpdateEquipoDto } from './dto/update-equipos.dto';
 import { AsignarEquipoDto } from './dto/asignar-equipo.dto';
@@ -21,16 +20,36 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RoleGuard } from '../common/guards/role.guard';
 import { Roles } from '../common/decorators/role.decorator';
 import { JwtPayload } from '../common/guards/jwt-auth.guard';
+//Casos de uso
+import { CreateEquipoUseCase } from './application/Create-Equipo.Use-Case';
+import { UpdateEquipoUseCase } from './application/update-equipo.use-case';
+import { FindOneEquipoUseCase } from './application/find-one-equipo.use-case';
+import { FindAllEquiposUseCase } from './application/find-all-equipos.use-case';
+import { UpdateEquipoHardwareUseCase } from './application/update-equipo-hardware.use-case';
+import { UpdateEquipoSoftwareUseCase } from './application/update-equipo-software.use-case';
+import { RemoveEquipoUseCase } from './application/remove-equipo.use-case';
+import { AssignEquipoUseCase } from './application/assign-equipo.use-case';
+import { UnassignEquipoUseCase } from './application/unassign-equipo.use-case';
 
 @Controller('equipos')
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class EquiposController {
-  constructor(private readonly equiposService: EquiposService) {}
+  constructor(
+    private readonly createEquipoUseCase: CreateEquipoUseCase,
+    private readonly updateEquipoUseCase: UpdateEquipoUseCase,
+    private readonly removeEquipoUseCase: RemoveEquipoUseCase,
+    private readonly findAllEquiposUseCase: FindAllEquiposUseCase,
+    private readonly findOneEquipoUseCase: FindOneEquipoUseCase,
+    private readonly updateEquipoHardwareUseCase: UpdateEquipoHardwareUseCase,
+    private readonly updateEquipoSoftwareUseCase: UpdateEquipoSoftwareUseCase,
+    private readonly assignEquipoUseCase: AssignEquipoUseCase,
+    private readonly unassignEquipoUseCase: UnassignEquipoUseCase,
+  ) {}
 
   @Post()
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   create(@Body() createEquipoDto: CreateEquipoDTO) {
-    return this.equiposService.create(createEquipoDto);
+    return this.createEquipoUseCase.execute(createEquipoDto);
   }
 
   @Get()
@@ -43,7 +62,7 @@ export class EquiposController {
     'CLIENTE_TRABAJADOR',
   )
   findAll(@Request() req: Request & { user: JwtPayload }) {
-    return this.equiposService.findAll(req.user);
+    return this.findAllEquiposUseCase.execute(req.user);
   }
 
   @Get(':id')
@@ -59,7 +78,7 @@ export class EquiposController {
     @Param('id', ParseIntPipe) id: number,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.equiposService.findOne(id, req.user);
+    return this.findOneEquipoUseCase.execute(id, req.user);
   }
 
   @Patch(':id')
@@ -69,7 +88,7 @@ export class EquiposController {
     @Body() updateEquipoDto: UpdateEquipoDto,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.equiposService.update(id, updateEquipoDto, req.user);
+    return this.updateEquipoUseCase.execute(id, updateEquipoDto, req.user);
   }
 
   @Delete(':id')
@@ -78,7 +97,7 @@ export class EquiposController {
     @Param('id', ParseIntPipe) id: number,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.equiposService.remove(id, req.user);
+    return this.removeEquipoUseCase.execute(id, req.user);
   }
 
   @Patch(':id/asignar')
@@ -94,7 +113,7 @@ export class EquiposController {
     @Body() dto: AsignarEquipoDto,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.equiposService.assignToWorker(
+    return this.assignEquipoUseCase.execute(
       id,
       dto.nombre_usuario,
       dto.area,
@@ -115,7 +134,7 @@ export class EquiposController {
     @Param('id', ParseIntPipe) id: number,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.equiposService.unassignFromWorker(id, req.user);
+    return this.unassignEquipoUseCase.execute(id, req.user);
   }
 
   // Editar un componente de HARDWARE instalado en el equipo
@@ -128,7 +147,7 @@ export class EquiposController {
     @Body() dto: UpdateEquipoHardwareDto,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.equiposService.updateHardware(id, idRegistro, dto, req.user);
+    return this.updateEquipoHardwareUseCase.execute(id, idRegistro, dto, req.user);
   }
 
   // Editar un componente de SOFTWARE instalado en el equipo
@@ -141,6 +160,6 @@ export class EquiposController {
     @Body() dto: UpdateEquipoSoftwareDto,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.equiposService.updateSoftware(id, idInstalacion, dto, req.user);
+    return this.updateEquipoSoftwareUseCase.execute(id, idInstalacion, dto, req.user);
   }
 }
