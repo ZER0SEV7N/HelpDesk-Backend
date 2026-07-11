@@ -43,7 +43,7 @@ export class SucursalController {
     // GET /sucursales
     //------------------------------------------
     @Get()
-    @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU', 'CLIENTE_EMPRESA')
+    @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
     findAll() {
         return this.findAllSucursalesUseCase.execute();
     }
@@ -63,7 +63,7 @@ export class SucursalController {
     // GET /sucursales/cliente/:id_cliente
     //------------------------------------------
     @Get('cliente/:id_cliente')
-    @Roles('ADMINISTRADOR','SOPORTE_TECNICO', 'SOPORTE_INSITU')
+    @Roles('ADMINISTRADOR')
     findByCliente(@Param('id_cliente', ParseIntPipe) id_cliente: number) {
         return this.findByClienteUseCase.execute(id_cliente);
     }

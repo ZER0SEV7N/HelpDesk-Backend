@@ -94,7 +94,7 @@ export class TicketController {
   }
 
   @Patch(':id/iniciar')
-  @Roles('SOPORTE_TECNICO', 'SOPORTE_INSITU')
+  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU')
   startProgress(
     @Param('id', ParseIntPipe) id: number,
     @Req() req: Request & { user: JwtPayload },
@@ -103,7 +103,7 @@ export class TicketController {
   }
 
   @Patch(':id/resolver')
-  @Roles('SOPORTE_TECNICO', 'SOPORTE_INSITU')
+  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU')
   resolve(
     @Param('id', ParseIntPipe) id: number,
     @Req() req: Request & { user: JwtPayload },
@@ -112,7 +112,7 @@ export class TicketController {
   }
 
   @Patch(':id/reabrir')
-  @Roles('CLIENTE_TRABAJADOR')
+  @Roles('CLIENTE_TRABAJADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
   reopen(
     @Param('id', ParseIntPipe) id: number,
     @Req() req: Request & { user: JwtPayload },
