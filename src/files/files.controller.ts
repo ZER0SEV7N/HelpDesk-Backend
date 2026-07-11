@@ -11,6 +11,8 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
+import { RoleGuard } from '@/common/guards/role.guard';
+import { Roles } from '@/common/decorators/role.decorator';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { env } from 'process';
@@ -20,6 +22,8 @@ import { env } from 'process';
 export class FilesController {
   //Configuración para almacenar los archivos subidos en el sistema de archivos local
   @Post('upload')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_TRABAJADOR')
   @UseInterceptors(
     FileInterceptor('file', {
       //Configurar el guardado local

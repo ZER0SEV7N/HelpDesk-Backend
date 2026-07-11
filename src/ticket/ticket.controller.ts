@@ -40,7 +40,7 @@ export class TicketController {
   }
 
   @Post()
-  @Roles('CLIENTE_TRABAJADOR', 'CLIENTE_SUCURSAL', 'CLIENTE_EMPRESA')
+  @Roles('CLIENTE_TRABAJADOR')
   create(
     @Body() dto: CreateTicketDto,
     @Req() req: Request & { user: JwtPayload },
@@ -112,7 +112,7 @@ export class TicketController {
   }
 
   @Patch(':id/reabrir')
-  @Roles('CLIENTE_TRABAJADOR')
+  @Roles('CLIENTE_TRABAJADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
   reopen(
     @Param('id', ParseIntPipe) id: number,
     @Req() req: Request & { user: JwtPayload },

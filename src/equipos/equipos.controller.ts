@@ -47,7 +47,7 @@ export class EquiposController {
   ) {}
 
   @Post()
-  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
+  @Roles('ADMINISTRADOR', 'CLIENTE_SUCURSAL')
   create(@Body() createEquipoDto: CreateEquipoDTO) {
     return this.createEquipoUseCase.execute(createEquipoDto);
   }
@@ -82,7 +82,7 @@ export class EquiposController {
   }
 
   @Patch(':id')
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
+  @Roles('CLIENTE_SUCURSAL')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateEquipoDto: UpdateEquipoDto,
