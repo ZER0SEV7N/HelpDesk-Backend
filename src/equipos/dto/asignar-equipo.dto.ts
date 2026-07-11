@@ -11,9 +11,10 @@ import {
 
 export class AsignarEquipoDto {
   // Persona a la que se asigna el equipo
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
   @MaxLength(100)
+  @Type(() => Number)
   id_trabajador: number;
 
   // Área / departamento donde queda el equipo
