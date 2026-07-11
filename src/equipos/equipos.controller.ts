@@ -47,7 +47,7 @@ export class EquiposController {
   ) {}
 
   @Post()
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO' ,'CLIENTE_EMPRESA')
+  @Roles('ADMINISTRADOR', 'CLIENTE_SUCURSAL')
   create(@Body() createEquipoDto: CreateEquipoDTO) {
     return this.createEquipoUseCase.execute(createEquipoDto);
   }
