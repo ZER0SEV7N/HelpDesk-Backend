@@ -117,7 +117,6 @@ export class EquiposController {
       id,
       dto.id_trabajador,
       dto.area,
-      dto.id_sucursal,
       req.user,
     );
   }

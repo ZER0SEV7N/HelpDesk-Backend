@@ -19,8 +19,6 @@ export class UnassignEquipoUseCase {
     // Desasignar el equipo del trabajador y actualizar el área a "Sin asignar"
     equipo.id_trabajador = null as any;
     equipo.area = 'Sin asignar'; 
-    // También se puede desasignar la sucursal si es necesario
-    equipo.id_sucursal = null as any;
 
     // Guardar los cambios en la base de datos
     const equipoActualizado = await this.equiposRepo.save(equipo); 
