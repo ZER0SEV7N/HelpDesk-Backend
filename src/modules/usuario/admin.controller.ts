@@ -49,10 +49,10 @@ export class AdminUsuarioController {
 
     //Listar todos los usuarios (Solo Administrador, Cliente_Empresa y Cliente_Sucursal)
     //GET /usuario/list
-  @Get('list')
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
-  listUsers(@Req() req: any, @Query() filters: GetUsersFilterDto) {
+    @Get('list')
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
+    listUsers(@Req() req: any, @Query() filters: GetUsersFilterDto) {
         return this.listUsersUseCase.execute(req.user, filters);
     }
 

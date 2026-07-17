@@ -42,11 +42,11 @@ export class SucursalController {
     // Obtener todas las sucursales de todas las empresas (Admin, Cliente Empresa)
     // GET /sucursales
     //------------------------------------------
-  @Get()
-  @Roles('ADMINISTRADOR')
-  findAll() {
-    return this.findAllSucursalesUseCase.execute();
-  }
+    @Get()
+    @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
+    findAll() {
+        return this.findAllSucursalesUseCase.execute();
+    }
 
     //------------------------------------------
     // Obtener una sucursal por ID con sus relaciones (Admin, Cliente Empresa, Cliente Sucursal)
@@ -62,11 +62,11 @@ export class SucursalController {
     // Obtener las sucursales de un cliente específico (Admin)
     // GET /sucursales/cliente/:id_cliente
     //------------------------------------------
-  @Get('cliente/:id_cliente')
-  @Roles('ADMINISTRADOR')
-  findByCliente(@Param('id_cliente', ParseIntPipe) id_cliente: number) {
-    return this.findByClienteUseCase.execute(id_cliente);
-  }
+    @Get('cliente/:id_cliente')
+    @Roles('ADMINISTRADOR')
+    findByCliente(@Param('id_cliente', ParseIntPipe) id_cliente: number) {
+        return this.findByClienteUseCase.execute(id_cliente);
+    }
 
     //------------------------------------------
     // Actualizar los datos de una sucursal (Admin, Cliente Empresa)

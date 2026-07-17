@@ -47,7 +47,7 @@ export class EquiposController {
   ) {}
 
   @Post()
-  @Roles('ADMINISTRADOR', 'CLIENTE_SUCURSAL')
+  @Roles('CLIENTE_SUCURSAL')
   create(@Body() createEquipoDto: CreateEquipoDTO) {
     return this.createEquipoUseCase.execute(createEquipoDto);
   }
@@ -117,7 +117,6 @@ export class EquiposController {
       id,
       dto.id_trabajador,
       dto.area,
-      dto.id_sucursal,
       req.user,
     );
   }
@@ -140,7 +139,7 @@ export class EquiposController {
   // Editar un componente de HARDWARE instalado en el equipo
   // PATCH /equipos/:id/hardware/:idRegistro
   @Patch(':id/hardware/:idRegistro')
-  @Roles('SOPORTE_TECNICO')
+  @Roles('CLIENTE_SUCURSAL')
   updateHardware(
     @Param('id', ParseIntPipe) id: number,
     @Param('idRegistro', ParseIntPipe) idRegistro: number,
@@ -153,7 +152,7 @@ export class EquiposController {
   // Editar un componente de SOFTWARE instalado en el equipo
   // PATCH /equipos/:id/software/:idInstalacion
   @Patch(':id/software/:idInstalacion')
-  @Roles('SOPORTE_TECNICO')
+  @Roles('CLIENTE_SUCURSAL')
   updateSoftware(
     @Param('id', ParseIntPipe) id: number,
     @Param('idInstalacion', ParseIntPipe) idInstalacion: number,

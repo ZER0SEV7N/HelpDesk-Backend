@@ -10,9 +10,11 @@ import {
 } from 'class-validator';
 
 export class AsignarEquipoDto {
-  // ID del trabajador al que se asigna el equipo
+  // Persona a la que se asigna el equipo
   @IsNumber()
   @IsNotEmpty()
+  @MaxLength(100)
+  @Type(() => Number)
   id_trabajador: number;
 
   // Área / departamento donde queda el equipo

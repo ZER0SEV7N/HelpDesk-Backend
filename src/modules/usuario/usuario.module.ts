@@ -46,13 +46,10 @@ import { ReassignUserUseCase } from './application/reassign-user.use-case';
         // Infraestructura compartida
         NotificationGateway,
         CsvProcessorUtil,
-
         // Manager de registro (Redis + WebSocket + Email)
         EmployeeRegistrationManager,
-
         // Validación común reutilizable entre casos de uso
         UsuarioValidationService,
-
         // Casos de Uso
         GetProfileUseCase,
         UpdateProfileUseCase,
@@ -65,6 +62,8 @@ import { ReassignUserUseCase } from './application/reassign-user.use-case';
         ActivateUserUseCase,
         ReassignUserUseCase,
     ],
-    exports: [],
+    exports: [
+        GetProfileUseCase, // Use Case de usuario para validar trabajadores
+    ]
 })
 export class UsuarioModule {}

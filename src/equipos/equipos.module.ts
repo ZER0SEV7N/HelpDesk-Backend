@@ -14,9 +14,14 @@ import { UpdateEquipoSoftwareUseCase } from './application/update-equipo-softwar
 import { RemoveEquipoUseCase } from './application/remove-equipo.use-case';
 import { AssignEquipoUseCase } from './application/assign-equipo.use-case';
 import { UnassignEquipoUseCase } from './application/unassign-equipo.use-case';
+import { GetProfileUseCase } from '@/modules/usuario/application/get-profile.use-case';
+import { UsuarioModule } from '@/modules/usuario/usuario.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature(AllEntities)],
+  imports: [
+    TypeOrmModule.forFeature(AllEntities), 
+    UsuarioModule // Importar el módulo de usuario para poder usar GetProfileUseCase
+  ],
   controllers: [EquiposController],
   providers: [
     CreateEquipoUseCase,
