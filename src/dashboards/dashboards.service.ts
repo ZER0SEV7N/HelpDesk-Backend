@@ -35,6 +35,7 @@ export class DashboardsService {
 
     const cronograma = await this.equipoRepo
       .createQueryBuilder('equipo')
+      .leftJoinAndSelect('equipo.trabajador', 'trabajador')
       .where('equipo.rev_programada IS NOT NULL')
       .andWhere('equipo.rev_programada >= CURRENT_DATE')
       .orderBy('equipo.rev_programada', 'ASC')
@@ -42,10 +43,11 @@ export class DashboardsService {
         'equipo.id_equipo',
         'equipo.tipo',
         'equipo.marca',
-        'equipo.nombre_usuario',
         'equipo.area',
         'equipo.rev_programada',
         'equipo.id_cliente',
+        'trabajador.nombre',
+        'trabajador.apellido',
       ])
       .getMany();
 
@@ -100,7 +102,9 @@ export class DashboardsService {
         idEquipo: e.id_equipo,
         tipo: e.tipo,
         marca: e.marca,
-        nombreUsuario: e.id_trabajador,
+        nombreUsuario: e.trabajador
+          ? `${e.trabajador.nombre} ${e.trabajador.apellido}`
+          : null,
         area: e.area,
         proximaRevision: e.revProgramada,
         idCliente: e.id_cliente,
