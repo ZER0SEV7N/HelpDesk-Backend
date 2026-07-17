@@ -12,8 +12,6 @@ import {
 export class AsignarEquipoDto {
   // Persona a la que se asigna el equipo
   @IsNumber()
-  @IsNotEmpty()
-  @MaxLength(100)
   @Type(() => Number)
   id_trabajador: number;
 
