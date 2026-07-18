@@ -47,11 +47,12 @@ export class AdminUsuarioController {
         private readonly reassignUserUseCase: ReassignUserUseCase,
     ) {}
 
-    //Listar todos los usuarios (Solo Administrador, Cliente_Empresa y Cliente_Sucursal)
+    //Listar todos los usuarios (Administrador, Cliente_Empresa, y Soporte para asignación de equipos/tickets)
     //GET /usuario/list
+    //SOPORTE_TECNICO y SOPORTE_INSITU solo ven CLIENTE_TRABAJADOR (restringido en ListUsersUseCase.applyRoleRestrictions)
     @Get('list')
     @UseGuards(JwtAuthGuard, RoleGuard)
-    @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
+    @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'SOPORTE_TECNICO', 'SOPORTE_INSITU')
     listUsers(@Req() req: any, @Query() filters: GetUsersFilterDto) {
         return this.listUsersUseCase.execute(req.user, filters);
     }
