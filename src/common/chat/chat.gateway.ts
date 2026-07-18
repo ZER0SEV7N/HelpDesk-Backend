@@ -113,7 +113,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       .select('u.id_usuario', 'id')
       .addSelect('u.nombre', 'nombre')
       .addSelect('COUNT(t.id_ticket)', 'totalTickets')
-      .where('r.nombre = :rol', { rol: 'SOPORTE_TECNICO' })
+      .where('r.nombre IN (:...roles)', { roles: ['SOPORTE_TECNICO', 'SOPORTE_INSITU'] })
       .andWhere('u.is_active = :active', { active: true })
       .groupBy('u.id_usuario')
       .addGroupBy('u.nombre')
