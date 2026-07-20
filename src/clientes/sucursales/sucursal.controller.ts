@@ -43,7 +43,7 @@ export class SucursalController {
     // GET /sucursales
     //------------------------------------------
     @Get()
-    @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU', 'CLIENTE_EMPRESA')
+    @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU', 'CLIENTE_EMPRESA',)
     findAll() {
         return this.findAllSucursalesUseCase.execute();
     }

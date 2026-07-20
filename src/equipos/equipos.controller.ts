@@ -47,7 +47,12 @@ export class EquiposController {
   ) {}
 
   @Post()
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO' ,'CLIENTE_EMPRESA')
+  @Roles(
+    'ADMINISTRADOR', 
+    'SOPORTE_TECNICO' ,
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+  )
   create(@Body() createEquipoDto: CreateEquipoDTO) {
     return this.createEquipoUseCase.execute(createEquipoDto);
   }
@@ -82,7 +87,7 @@ export class EquiposController {
   }
 
   @Patch(':id')
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
+  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL',)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateEquipoDto: UpdateEquipoDto,

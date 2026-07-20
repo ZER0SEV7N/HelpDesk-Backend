@@ -29,7 +29,7 @@ export class AreaController {
   //POST /areas
   //Alcance: El administrador y el cliente empresa pueden crear un nuevo área para una sucursal existente
   //-----------------------------------------------------------------
-  @Post("/")
+  @Post("")
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   create(@Body() dto: CreateAreaDTO) {
     return this.createAreaUseCase.execute(dto);
@@ -40,7 +40,7 @@ export class AreaController {
   //GET /areas
   //Alcance: El administrador, el cliente empresa y el cliente sucursal pueden obtener todas las áreas
   //-----------------------------------------------------------------
-  @Get("/")
+  @Get("")
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
   findAll() {
     return this.findAllAreaUseCase.execute();
@@ -51,7 +51,7 @@ export class AreaController {
   //GET /areas/sucursal/:id_sucursal
   //Alcance: El administrador, el cliente empresa y el cliente sucursal pueden obtener las áreas de una sucursal especifica
   //-----------------------------------------------------------------
-  @Get('/sucursal/:id_sucursal')
+  @Get('sucursal/:id_sucursal')
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
   findBySucursal(@Param('id_sucursal', ParseIntPipe) id_sucursal: number) {
     return this.findBySucursalUseCase.execute(id_sucursal);
@@ -62,7 +62,7 @@ export class AreaController {
   //GET /areas/:id
   //Alcance: El administrador, el cliente empresa y el cliente sucursal pueden obtener los detalles de un área por ID
   //-----------------------------------------------------------------
-  @Get('/:id')
+  @Get(':id')
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.findOneAreaUseCase.execute(id);
@@ -73,7 +73,7 @@ export class AreaController {
   //PATCH /areas/:id
   //Alcance: El administrador y el cliente empresa pueden actualizar los detalles de un área por ID
   //-----------------------------------------------------------------
-  @Patch('/:id')
+  @Patch(':id')
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: Partial<CreateAreaDTO>) {
     return this.updateAreaUseCase.execute(id, dto);
@@ -84,7 +84,7 @@ export class AreaController {
   //PATCH /areas/:id/desactivar
   //Alcance: El administrador y el cliente empresa pueden desactivar un área por ID
   //-----------------------------------------------------------------
-  @Patch('/:id/desactivar')
+  @Patch(':id/desactivar')
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   deactivate(@Param('id', ParseIntPipe) id: number) {
     return this.deactivateAreaUseCase.execute(id);
@@ -95,7 +95,7 @@ export class AreaController {
   //PATCH /areas/:id/activar
   //Alcance: El administrador y el cliente empresa pueden activar un área por ID
   //-----------------------------------------------------------------
-  @Patch('/:id/activar')
+  @Patch(':id/activar')
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
   reactivate(@Param('id', ParseIntPipe) id: number) {
     return this.reactivateAreaUseCase.execute(id);
