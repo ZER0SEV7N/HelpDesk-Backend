@@ -47,7 +47,15 @@ export class EmployeeRegistrationManager {
       this.TOKEN_TTL,
     );
 
-    await this.emailService.sendEmployeeVerification(dto.correo, token);
+    try {
+      await this.emailService.sendEmployeeVerification(dto.correo, token);
+    } catch {
+      this.notificationGateway.emitEmailVerificationStatus(userPayload.sub, {
+        correo: dto.correo,
+        verificado: false,
+        status: 'EMAIL_FALLIDO',
+      });
+    }
 
     this.notificationGateway.emitEmailVerificationStatus(userPayload.sub, {
       correo: dto.correo,

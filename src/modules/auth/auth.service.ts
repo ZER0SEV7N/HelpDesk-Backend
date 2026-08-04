@@ -62,7 +62,9 @@ export class AuthService {
       is_active: true,
     });
 
-    return "Usuario registrado exitosamente";
+    await this.usuariosRepo.save(newUser);
+
+    return 'Usuario registrado exitosamente';
   }
 
   /**
