@@ -40,7 +40,7 @@ export class AreaController {
   //GET /areas
   //Alcance: El administrador, el cliente empresa y el cliente sucursal pueden obtener todas las áreas
   //-----------------------------------------------------------------
-  @Get("/areas")
+  @Get("")
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
   findAll() {
     return this.findAllAreaUseCase.execute();
