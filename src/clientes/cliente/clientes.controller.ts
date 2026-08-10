@@ -48,7 +48,7 @@ export class ClientesController {
   // GET /clientes
   //-----------------------------------------------------------------
   @Get()
-  @Roles('ADMINISTRADOR')
+  @Roles('ADMINISTRADOR','SOPORTE_TECNICO','SOPORTE_INSITU','CLIENTE_EMPRESA','CLIENTE_SUCURSAL',)
   findAll() {
     return this.findAllClientesUseCase.execute();
   }
@@ -58,7 +58,7 @@ export class ClientesController {
   // GET /clientes/:id
   //-----------------------------------------------------------------
   @Get(':id')
-  @Roles('ADMINISTRADOR', 'CLIENTE_SUCURSAL')
+  @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.findOneClienteUseCase.execute(id);
   }
