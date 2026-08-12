@@ -6,7 +6,7 @@ services:
     container_name: helpdesk_mysql
     restart: always
     ports:
-      - '3306:3306'
+      - '3307:3306'
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: helpdesk_db
