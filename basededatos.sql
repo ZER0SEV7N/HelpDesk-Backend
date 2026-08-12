@@ -140,6 +140,7 @@ CREATE TABLE equipos (
     marca VARCHAR(50) NOT NULL,
     num_serie VARCHAR(100) UNIQUE,
     nombre_usuario VARCHAR(100),
+    id_trabajador INT,
     area VARCHAR(100),
     ult_revision DATE,
     rev_programada DATE,
@@ -149,7 +150,8 @@ CREATE TABLE equipos (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_equipos_cliente FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE CASCADE,
-    CONSTRAINT fk_equipos_sucursal FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal) ON DELETE SET NULL
+    CONSTRAINT fk_equipos_sucursal FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal) ON DELETE SET NULL,
+    CONSTRAINT fk_equipos_trabajador FOREIGN KEY (id_trabajador) REFERENCES usuarios(id_usuario) ON DELETE SET NULL
 );
 
 -- --------------------------------------------------------
