@@ -13,6 +13,7 @@ import {
 import { Tickets } from './Tickets.entity';
 import { Clientes } from './Clientes.entity';
 import { Sucursales } from './Sucursales.entity';
+import { Usuario } from './Usuario.entity';
 
 // Importa las entidades Hardware y Software desde la misma carpeta entities
 import { Software_equipos } from './SoftwareEquipos.entity';
@@ -35,6 +36,13 @@ export class Equipos {
 
   @Column({ name: 'nombre_usuario', length: 100, nullable: true })
   nombre_usuario: string;
+
+  @Column({ name: 'id_trabajador', nullable: true })
+  id_trabajador?: number;
+
+  @ManyToOne(() => Usuario, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'id_trabajador' })
+  trabajador?: Usuario;
 
   @Column({ name: 'area', length: 100, nullable: true })
   area: string;
