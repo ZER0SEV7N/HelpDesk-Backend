@@ -54,7 +54,7 @@ export class DashboardsService {
       .innerJoin('ticket.soporte', 'soporte')
       .where('ticket.id_soporte IS NOT NULL')
       .groupBy('soporte.id_usuario')
-      .addSelect('soporte.id_usuario', 'idSoporte')
+      .select('soporte.id_usuario', 'idSoporte')
       .addSelect('soporte.nombre', 'nombreSoporte')
       .addSelect('soporte.apellido', 'apellidoSoporte')
       .addSelect('COUNT(*)', 'totalAsignados')
