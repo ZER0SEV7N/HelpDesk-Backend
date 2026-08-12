@@ -64,8 +64,8 @@ export class EquiposService {
         break;
 
       case 'CLIENTE_TRABAJADOR':
-        query.andWhere('equipo.nombre_usuario = :nombre', {
-          nombre: usuarioReal.nombre,
+        query.andWhere('equipo.id_trabajador = :idTrabajador', {
+          idTrabajador: usuarioReal.id_usuario,
         });
         break;
 
@@ -122,6 +122,7 @@ export class EquiposService {
 
   async assignToWorker(
     id: number,
+    id_trabajador: number,
     nombre_usuario: string,
     area: string,
     id_sucursal: number,
@@ -129,6 +130,7 @@ export class EquiposService {
   ) {
     const equipo = await this.findOne(id, userToken);
 
+    equipo.id_trabajador = id_trabajador;
     equipo.nombre_usuario = nombre_usuario;
     equipo.area = area;
 
@@ -143,6 +145,7 @@ export class EquiposService {
 
   async unassignFromWorker(id: number, userToken: JwtPayload) {
     const equipo = await this.findOne(id, userToken);
+    equipo.id_trabajador = undefined;
     equipo.nombre_usuario = 'Sin asignar';
     equipo.area = 'Sin asignar';
     const equipoActualizado = await this.equiposRepo.save(equipo);
