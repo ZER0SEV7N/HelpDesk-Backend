@@ -88,6 +88,7 @@ export class EquiposController {
   )
   asignarEquipo(
     @Param('id', ParseIntPipe) id: number,
+    @Body('id_trabajador', ParseIntPipe) id_trabajador: number,
     @Body('nombre_usuario') nombre_usuario: string,
     @Body('area') area: string,
     @Body('id_sucursal') id_sucursal: number,
@@ -95,6 +96,7 @@ export class EquiposController {
   ) {
     return this.equiposService.assignToWorker(
       id,
+      id_trabajador,
       nombre_usuario,
       area,
       id_sucursal,
