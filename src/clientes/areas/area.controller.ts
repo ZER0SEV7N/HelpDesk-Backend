@@ -7,7 +7,7 @@ import { FindOneAreaUseCase } from "./application/find-one-area.use-case";
 import { FindBySucursalUseCase } from "./application/find-by-sucursal-use-case";
 import { UpdateAreaUseCase } from "./application/update-area.use-case";
 import { DeactivateAreaUseCase } from "./application/deactivate-area.use-case";
-import { CreateAreaDTO } from "../dto/create-area.dto";
+import { CreateAreaDto } from "../dto/create-area.dto";
 import { FindAllAreaUseCase } from "./application/find-all-area.use-case";
 import { ReactivateAreaUseCase } from "./application/reactivate-area.use-case";
 
@@ -29,9 +29,9 @@ export class AreaController {
   //POST /areas
   //Alcance: El administrador y el cliente empresa pueden crear un nuevo área para una sucursal existente
   //-----------------------------------------------------------------
-  @Post("")
+  @Post()
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
-  create(@Body() dto: CreateAreaDTO) {
+  create(@Body() dto: CreateAreaDto) {
     return this.createAreaUseCase.execute(dto);
   }
 
@@ -40,7 +40,7 @@ export class AreaController {
   //GET /areas
   //Alcance: El administrador, el cliente empresa y el cliente sucursal pueden obtener todas las áreas
   //-----------------------------------------------------------------
-  @Get("")
+  @Get("/areas")
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL')
   findAll() {
     return this.findAllAreaUseCase.execute();
@@ -75,7 +75,7 @@ export class AreaController {
   //-----------------------------------------------------------------
   @Patch(':id')
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: Partial<CreateAreaDTO>) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: Partial<CreateAreaDto>) {
     return this.updateAreaUseCase.execute(id, dto);
   }
 

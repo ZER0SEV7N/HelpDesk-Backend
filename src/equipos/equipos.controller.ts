@@ -11,50 +11,23 @@ import {
   ParseIntPipe,
   Request,
 } from '@nestjs/common';
+import { EquiposService } from './equipos.service';
 import { CreateEquipoDTO } from './dto/create-equipos.dto';
 import { UpdateEquipoDto } from './dto/update-equipos.dto';
-import { AsignarEquipoDto } from './dto/asignar-equipo.dto';
-import { UpdateEquipoHardwareDto } from './dto/update-equipo-hardware.dto';
-import { UpdateEquipoSoftwareDto } from './dto/update-equipo-software.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RoleGuard } from '../common/guards/role.guard';
 import { Roles } from '../common/decorators/role.decorator';
 import { JwtPayload } from '../common/guards/jwt-auth.guard';
-//Casos de uso
-import { CreateEquipoUseCase } from './application/create-equipo.use-case';
-import { UpdateEquipoUseCase } from './application/update-equipo.use-case';
-import { FindOneEquipoUseCase } from './application/find-one-equipo.use-case';
-import { FindAllEquiposUseCase } from './application/find-all-equipos.use-case';
-import { UpdateEquipoHardwareUseCase } from './application/update-equipo-hardware.use-case';
-import { UpdateEquipoSoftwareUseCase } from './application/update-equipo-software.use-case';
-import { RemoveEquipoUseCase } from './application/remove-equipo.use-case';
-import { AssignEquipoUseCase } from './application/assign-equipo.use-case';
-import { UnassignEquipoUseCase } from './application/unassign-equipo.use-case';
 
 @Controller('equipos')
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class EquiposController {
-  constructor(
-    private readonly createEquipoUseCase: CreateEquipoUseCase,
-    private readonly updateEquipoUseCase: UpdateEquipoUseCase,
-    private readonly removeEquipoUseCase: RemoveEquipoUseCase,
-    private readonly findAllEquiposUseCase: FindAllEquiposUseCase,
-    private readonly findOneEquipoUseCase: FindOneEquipoUseCase,
-    private readonly updateEquipoHardwareUseCase: UpdateEquipoHardwareUseCase,
-    private readonly updateEquipoSoftwareUseCase: UpdateEquipoSoftwareUseCase,
-    private readonly assignEquipoUseCase: AssignEquipoUseCase,
-    private readonly unassignEquipoUseCase: UnassignEquipoUseCase,
-  ) {}
+  constructor(private readonly equiposService: EquiposService) {}
 
   @Post()
-  @Roles(
-    'ADMINISTRADOR', 
-    'SOPORTE_TECNICO' ,
-    'CLIENTE_EMPRESA',
-    'CLIENTE_SUCURSAL',
-  )
+  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
   create(@Body() createEquipoDto: CreateEquipoDTO) {
-    return this.createEquipoUseCase.execute(createEquipoDto);
+    return this.equiposService.create(createEquipoDto);
   }
 
   @Get()
@@ -67,7 +40,7 @@ export class EquiposController {
     'CLIENTE_TRABAJADOR',
   )
   findAll(@Request() req: Request & { user: JwtPayload }) {
-    return this.findAllEquiposUseCase.execute(req.user);
+    return this.equiposService.findAll(req.user);
   }
 
   @Get(':id')
@@ -83,17 +56,17 @@ export class EquiposController {
     @Param('id', ParseIntPipe) id: number,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.findOneEquipoUseCase.execute(id, req.user);
+    return this.equiposService.findOne(id, req.user);
   }
 
   @Patch(':id')
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL',)
+  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateEquipoDto: UpdateEquipoDto,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.updateEquipoUseCase.execute(id, updateEquipoDto, req.user);
+    return this.equiposService.update(id, updateEquipoDto, req.user);
   }
 
   @Delete(':id')
@@ -102,7 +75,7 @@ export class EquiposController {
     @Param('id', ParseIntPipe) id: number,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.removeEquipoUseCase.execute(id, req.user);
+    return this.equiposService.remove(id, req.user);
   }
 
   @Patch(':id/asignar')
@@ -115,13 +88,16 @@ export class EquiposController {
   )
   asignarEquipo(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: AsignarEquipoDto,
+    @Body('nombre_usuario') nombre_usuario: string,
+    @Body('area') area: string,
+    @Body('id_sucursal') id_sucursal: number,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.assignEquipoUseCase.execute(
+    return this.equiposService.assignToWorker(
       id,
-      dto.id_trabajador,
-      dto.area,
+      nombre_usuario,
+      area,
+      id_sucursal,
       req.user,
     );
   }
@@ -138,32 +114,6 @@ export class EquiposController {
     @Param('id', ParseIntPipe) id: number,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.unassignEquipoUseCase.execute(id, req.user);
-  }
-
-  // Editar un componente de HARDWARE instalado en el equipo
-  // PATCH /equipos/:id/hardware/:idRegistro
-  @Patch(':id/hardware/:idRegistro')
-  @Roles('SOPORTE_TECNICO') 
-  updateHardware(
-    @Param('id', ParseIntPipe) id: number,
-    @Param('idRegistro', ParseIntPipe) idRegistro: number,
-    @Body() dto: UpdateEquipoHardwareDto,
-    @Request() req: Request & { user: JwtPayload },
-  ) {
-    return this.updateEquipoHardwareUseCase.execute(id, idRegistro, dto, req.user);
-  }
-
-  // Editar un componente de SOFTWARE instalado en el equipo
-  // PATCH /equipos/:id/software/:idInstalacion
-  @Patch(':id/software/:idInstalacion')
-  @Roles('SOPORTE_TECNICO')
-  updateSoftware(
-    @Param('id', ParseIntPipe) id: number,
-    @Param('idInstalacion', ParseIntPipe) idInstalacion: number,
-    @Body() dto: UpdateEquipoSoftwareDto,
-    @Request() req: Request & { user: JwtPayload },
-  ) {
-    return this.updateEquipoSoftwareUseCase.execute(id, idInstalacion, dto, req.user);
+    return this.equiposService.unassignFromWorker(id, req.user);
   }
 }

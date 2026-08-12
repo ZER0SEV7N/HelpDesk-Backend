@@ -8,7 +8,6 @@ import { TicketModule } from '../../ticket/ticket.module';
 import { Usuario } from '../../entities/Usuario.entity'; // 2. Importa la entidad de Usuario para consultar la carga de los técnicos
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseModule } from '@/database/database.module';
-import { ChatController } from './chat.controller';
 @Module({
   imports: [
     //Mantienes Mongoose para el historial de mensajes (muy inteligente para escalabilidad)
@@ -20,7 +19,6 @@ import { ChatController } from './chat.controller';
     AuthModule,
     TicketModule,
   ],
-  controllers: [ChatController],
   providers: [ChatService, ChatGateway],
   exports: [ChatService, ChatGateway],
 })

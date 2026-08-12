@@ -59,7 +59,7 @@ export class ReassignUserUseCase {
         }
 
         await this.usuarioRepo.save(targetUser);
-        const { password, ...result } = targetUser;
+        const { contraseña, ...result } = targetUser;
 
         return {
             message: `Usuario ${targetUser.nombre} reasignado exitosamente`,

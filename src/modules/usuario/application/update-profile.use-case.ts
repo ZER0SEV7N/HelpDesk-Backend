@@ -16,19 +16,19 @@ export class UpdateProfileUseCase {
     async execute(userId: number, dto: UpdateProfileDTO) {
         const user = await this.validationService.validateUserExists(userId);
 
-        const isPasswordValid = await bcrypt.compare(dto.currentPassword, user.password);
+        const isPasswordValid = await bcrypt.compare(dto.currentPassword, user.contraseña);
         if (!isPasswordValid) throw new UnauthorizedException('Contraseña actual incorrecta');
 
-        if (dto.newPassword) user.password = await bcrypt.hash(dto.newPassword, 10);
+        if (dto.nuevaContraseña) user.contraseña = await bcrypt.hash(dto.nuevaContraseña, 10);
         if (dto.nombre) user.nombre = dto.nombre;
         if (dto.apellido) user.apellido = dto.apellido;
         if (dto.telefono) user.telefono = dto.telefono;
 
         await this.usuarioRepo.save(user);
-        const { password, ...result } = user;
+        const { contraseña, ...result } = user;
 
         return {
-            message: dto.newPassword
+            message: dto.nuevaContraseña
                 ? 'Perfil y contraseña actualizados exitosamente'
                 : 'Perfil actualizado exitosamente',
             resultado: result,

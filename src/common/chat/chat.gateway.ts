@@ -41,7 +41,7 @@ interface ReadData {
 
 @WebSocketGateway({
   cors: {
-    origin: [env.HTTP_ORIGIN, 'http://localhost:3000', 'http://localhost:5173', 'http://localhost:7012'], // Permitir múltiples orígenes
+    origin: env.HTTP_ORIGIN || 'http://localhost:3000',
     credentials: true,
   },
 })
@@ -95,7 +95,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = client.data.user as JwtPayload;
 
     if (
-      !['CLIENTE_TRABAJADOR', 'CLIENTE_SUCURSAL', 'CLIENTE_EMPRESA',].includes(
+      !['CLIENTE_TRABAJADOR', 'CLIENTE_SUCURSAL', 'CLIENTE_EMPRESA'].includes(
         user.role,
       )
     )
@@ -163,8 +163,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         'ADMINISTRADOR',
         'CLIENTE_EMPRESA',
         'CLIENTE_SUCURSAL',
-        'SOPORTE_TECNICO',
-        'SOPORTE_INSITU'
       ].includes(user.role);
 
       if (isCreator || isAssignedTech || isManagerOrAdmin) {
