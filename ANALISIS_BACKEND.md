@@ -1,8 +1,22 @@
 # Análisis de Código — HelpDesk Backend
 
-## Resumen Ejecutivo
+## ✅ Correcciones Aplicadas
 
-Revisión completa del backend NestJS (130+ archivos). Se identificaron **27 inconvenientes** clasificados por severidad: **6 críticos**, **8 altos**, **8 medios**, **5 bajos**. Incluye vulnerabilidades de seguridad, bugs funcionales, código muerto, inconsistencias arquitectónicas y problemas de configuración.
+### Fix 1: Compilación errors resueltos (id_trabajador)
+**Archivos modificados:**
+- `src/entities/Equipos.entity.ts` — Agregada propiedad `id_trabajador?: number` con `@ManyToOne(() => Usuario)` + import de `Usuario`
+- `src/equipos/equipos.service.ts` — Filtrado `CLIENTE_TRABAJADOR` ahora usa `equipo.id_trabajador` (antes usaba `nombre_usuario` por string matching roto); `assignToWorker` y `unassignFromWorker` gestionan `id_trabajador`
+- `src/equipos/equipos.controller.ts` — `asignarEquipo` ahora extrae `@Body('id_trabajador', ParseIntPipe)`
+- `basededatos.sql` — Agregada columna `id_trabajador INT` + FK `fk_equipos_trabajador`
+
+Verificado: `npx tsc --noEmit` → 0 errores en `src/`
+
+### Fix 2: Conexión MySQL resuelta
+**Archivos modificados:**
+- `.env` — `DB_HOST: localhost → 127.0.0.1` (forzar TCP/IP vs named pipes en Windows); `DB_PORT: 3306 → 3307` (evitar conflicto con MySQL local/XAMPP); `MONGODB_URI` y `REDIS_URL` a `127.0.0.1`
+- `docker-compose.yml` — Mapeo de puerto MySQL `3306:3306 → 3307:3306`
+
+Verificado: servidor NestJS iniciado con éxito, `GET /` responde `"Hello World!"`
 
 ---
 
@@ -47,7 +61,7 @@ secret: this.configService.get<string>('JWT_RESET_SECRET') || 'resetKeyDefault',
 ```typescript
 origin: process.env.FRONTEND_URL || 'http://localhost:7012',
 ```
-El `.env` define `HTTP_ORIGIN`, no `FRONTEND_URL`. El CORS nunca usa la variable configurada y siempre cae al fallback. **CORS mal configurado** → puede bloquear solicitudes legítimas del frontend o, peor, si se cambia el fallback, permitir orígenes no autorizados.
+El `.env` define `HTTP_ORIGIN`, no `FRONTEND_URL`. **Corregido en `.env`: Host, Redis y Mongo a `127.0.0.1`, puerto MySQL a `3307`.** **Pendiente:** `main.ts:16` aún usa `process.env.FRONTEND_URL` (debe ser `HTTP_ORIGIN`) — el CORS sigue cayendo al fallback hardcodeado. **CORS mal configurado** → puede bloquear solicitudes legítimas del frontend o, peor, si se cambia el fallback, permitir orígenes no autorizados.
 
 ### 5. Credenciales reales expuestas en `.env`
 **Archivo:** `.env:4-5, 13, 22-24`
@@ -111,7 +125,7 @@ Falta el decorador `@SubscribeMessage('mark_as_read')`. Clientes que envíen `ma
 ```typescript
 providers: [EquiposService],  // ← NO registra los use cases
 ```
-Los 7 archivos en `src/equipos/application/*.use-case.ts` **nunca se registran ni usan**. El controlador usa `EquiposService` directamente. Peor aún: `find-all-equipos.use-case.ts:51` y `assign-equipo.use-case.ts:46` referencian `equipo.id_trabajador`, que **no existe** en la entidad `Equipos` (que usa `nombre_usuario: string`). Estos use cases tendrían errores de compilación/TS si se activaran.
+Los 7 archivos en `src/equipos/application/*.use-case.ts` **nunca se registran ni usan**. El controlador usa `EquiposService` directamente. Estos use cases referenciaban `equipo.id_trabajador` que no existía en la entidad — **corregido** agregando la columna al entity (Fix 1 arriba). Sin embargo, los use cases siguen siendo código muerto por no estar registrados en el módulo.
 
 ### 11. `EquiposService.create` sin autorización de cliente
 **Archivo:** `src/equipos/equipos.service.ts:26-29`, `src/equipos/equipos.controller.ts:27-30`
@@ -192,10 +206,23 @@ Ambos DTOs están definidos pero **nunca se importan ni usan** en sus respectivo
 
 El README documenta que `POST /planes` recibe `{ numero_plan, nombre, descripcion, precio }`, pero el DTO `CreatePlanDto` define `{ numero_plan, tipo, servicios, precio, ... }` — **no tiene `nombre` ni `descripcion`**.
 
-### 22. `EquiposController` no valida `nombre_usuario` contra trabajador real
-**Archivo:** `src/equipos/equipos.service.ts:123-142`
+### 22. `EquiposController.asignarEquipo` usaba `nombre_usuario` en lugar de `id_trabajador` (CORREGIDO)
+**Archivo:** `src/equipos/equipos.service.ts:123-142`, `src/equipos/equipos.controller.ts:81-102`
 
-Al asignar equipo, se usa `nombre_usuario` (string libre) en lugar de un `id_trabajador` (FK a Usuario). Esto **rompe la integridad referencial** — no hay garantía de que el nombre corresponda a un usuario real.
+Al asignar equipo, se usaba `nombre_usuario` (string libre) en lugar de `id_trabajador` (FK a Usuario). Esto **rompía la integridad referencial** — no había garantía de que el nombre corresponda a un usuario real.
+
+**Corregido:** Ahora `asignarEquipo` recibe `@Body('id_trabajador')` y el servicio gestiona `equipo.id_trabajador`.
+
+### 23. `@Get("/areas")` en AreaController genera ruta duplicada `/areas/areas`
+**Archivo:** `src/clientes/areas/area.controller.ts:43`
+
+```typescript
+@Get("/areas")  // ← Ruta resultante: /areas/areas (duplicado)
+```
+Debería ser `@Get()`. Confirmado en los logs del servidor:
+```
+Mapped {/areas/areas, GET} route
+```
 
 ### 23. `handleConnection` en websockets no valida `payload.sub`
 **Archivo:** `src/common/chat/chat.gateway.ts:71-76`
@@ -229,6 +256,24 @@ La convención TypeScript es PascalCase. `Software_equipos` debería ser `Softwa
 **Archivo:** `src/equipos/equipos.service.ts` vs `src/equipos/application/*.ts`
 
 Existen **dos implementaciones paralelas** para la misma funcionalidad (servicio directo vs use cases). La arquitectura está a medio migrar — hay que decidir un patrón y consolidar.
+
+---
+
+## ✅ Estado de Correcciones
+
+| Fix | Estado | Detalle |
+|-----|--------|---------|
+| `id_trabajador` entity | ✅ Aplicado | Columna agregada a entidad + SQL + servicio + controlador |
+| Compilación TS | ✅ 0 errores | `npx tsc --noEmit` limpio en `src/` |
+| Conexión MySQL | ✅ Resuelta | `.env` → `127.0.0.1`, puerto `3307`, Docker reconfigured |
+| Servidor NestJS | ✅ Running | `npm run start:dev` iniciado, `GET /` responde OK |
+
+## Issues confirmados por logs del servidor
+
+- ✅ **`/areas/areas`** (ruta duplicada) — confirmado en logs: `Mapped {/areas/areas, GET}`
+- ✅ **ChatGateway `mark_as_read` no suscrito** — confirmado: no aparece en logs de subscripción
+- ✅ **DashboardsModule no importado** — confirmado: no aparece `DashboardsController` en routes
+- ✅ **JWT token en response body** — pendiente (issue #1)
 
 ---
 
