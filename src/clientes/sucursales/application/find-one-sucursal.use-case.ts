@@ -7,7 +7,8 @@ import { SucursalResponseHelper } from '../helpers/sucursal-response.helper';
 @Injectable()
 export class FindOneSucursalUseCase {
   constructor(
-    @InjectRepository(Sucursales) private readonly sucursalRepo: Repository<Sucursales>,
+    @InjectRepository(Sucursales)
+    private readonly sucursalRepo: Repository<Sucursales>,
     private readonly responseHelper: SucursalResponseHelper,
   ) {}
 
@@ -16,8 +17,9 @@ export class FindOneSucursalUseCase {
       where: { id_sucursal: id },
       relations: ['cliente', 'areas', 'equipos', 'usuarios'],
     });
-    if (!sucursal) throw new NotFoundException(`Sucursal con ID ${id} no encontrada`);
-    
+    if (!sucursal)
+      throw new NotFoundException(`Sucursal con ID ${id} no encontrada`);
+
     return this.responseHelper.cleanResponse(sucursal);
   }
 }

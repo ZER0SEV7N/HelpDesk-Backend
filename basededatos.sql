@@ -213,9 +213,9 @@ CREATE TABLE tickets (
     CONSTRAINT fk_tickets_soporte FOREIGN KEY (id_soporte) REFERENCES usuarios(id_usuario),
     CONSTRAINT fk_tickets_software FOREIGN KEY (id_software) REFERENCES software(id_software) ON DELETE SET NULL
 );
----------------------------------------------------------
+-- ---------------------------------------------------------
 -- Insertar roles por defecto
-INSERT rol VALUES
+INSERT INTO rol VALUES
 (null, 'ADMINISTRADOR', NOW()),
 (null, 'SOPORTE_TECNICO', NOW()),
 (null, 'SOPORTE_INSITU', NOW()),

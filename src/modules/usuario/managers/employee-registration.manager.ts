@@ -36,7 +36,7 @@ export class EmployeeRegistrationManager {
     const token = crypto.randomBytes(32).toString('hex');
     const sessionData = {
       dto,
-      creatorId: userPayload.sub,
+      creatorId: userPayload.userId,
       token,
     };
 
@@ -49,7 +49,7 @@ export class EmployeeRegistrationManager {
 
     await this.emailService.sendEmployeeVerification(dto.correo, token);
 
-    this.notificationGateway.emitEmailVerificationStatus(userPayload.sub, {
+    this.notificationGateway.emitEmailVerificationStatus(userPayload.userId, {
       correo: dto.correo,
       verificado: false,
       status: 'PENDIENTE_VERIFICACION',
@@ -126,7 +126,7 @@ export class EmployeeRegistrationManager {
     };
 
     if (
-      session.creatorId !== userPayload.sub &&
+      session.creatorId !== userPayload.userId &&
       userPayload.role !== 'ADMINISTRADOR'
     )
       throw new BadRequestException(

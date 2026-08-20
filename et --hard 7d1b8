@@ -1,0 +1,57 @@
+[33mbf343[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mgiovanni[m[33m, [m[1;31morigin/develop[m[33m, [m[1;32mdevelop[m[33m)[m HEAD@{0}: reset: moving to bf343
+[33mc15d0[m[33m ([m[1;31morigin/giovanni[m[33m)[m HEAD@{1}: commit (merge): Merge develop into giovanni resolviendo conflictos de integración
+[33m7d1b8[m HEAD@{2}: checkout: moving from develop to giovanni
+[33mbf343[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mgiovanni[m[33m, [m[1;31morigin/develop[m[33m, [m[1;32mdevelop[m[33m)[m HEAD@{3}: checkout: moving from giovanni to develop
+[33m7d1b8[m HEAD@{4}: commit: fix(dashboards): registrar DashboardsModule y corregir GROUP BY en query de desempeño
+[33m7a7fa[m HEAD@{5}: commit: docs: actualiza el análisis del backend con las correcciones aplicadas y las confirmaciones del registro del servidor
+[33m55bb7[m HEAD@{6}: commit: fix(docker): map MySQL al puerto 3307 para evitar conflictos con MySQL local.
+[33m5265d[m HEAD@{7}: commit: fix(db): agregar columna id_trabajador y FK a la tabla equipos
+[33m0d301[m HEAD@{8}: commit: fix(equipos): extraer id_trabajador del body en el endpoint asignarEquipo
+[33mbddab[m HEAD@{9}: commit: fix(equipos): agregar id_trabajador para asignación de trabajadores y filtrado CLIENTE_TRABAJADOR
+[33mec608[m HEAD@{10}: commit: feat(equipos): agregar columna id_trabajador a la entidad Equipos con relacion Usuario
+[33mc518e[m HEAD@{11}: commit: docs: add comprehensive backend analysis report with 27 issues by severity
+[33m84cb7[m HEAD@{12}: commit (merge): Merge master into giovanni: resolver conflicto en admin.controller.ts
+[33mf0afc[m HEAD@{13}: checkout: moving from master to giovanni
+[33mc321e[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{14}: commit: Fix: Sobrescribir master con el contenido funcional de leandro
+[33mf35e3[m HEAD@{15}: checkout: moving from master to master
+[33mf35e3[m HEAD@{16}: commit (merge): Merge remote-tracking branch 'origin/leandro'
+[33mef8e3[m HEAD@{17}: pull origin master: Fast-forward
+[33m7b3b7[m[33m ([m[1;31morigin/alvaro-correcciones[m[33m)[m HEAD@{18}: checkout: moving from giovanni to master
+[33mf0afc[m HEAD@{19}: commit: fix(chat): incluir soporte insitu en la autoasignación de tickets por chat
+[33ma08dc[m HEAD@{20}: commit: fix(usuarios): permitir a soporte técnico e insitu consultar usuarios para asignación
+[33m3ded0[m HEAD@{21}: merge master: Merge made by the 'ort' strategy.
+[33m38b4e[m HEAD@{22}: checkout: moving from master to giovanni
+[33m7b3b7[m[33m ([m[1;31morigin/alvaro-correcciones[m[33m)[m HEAD@{23}: pull origin master: Merge made by the 'ort' strategy.
+[33m7d966[m HEAD@{24}: merge origin/leandro: Merge made by the 'ort' strategy.
+[33mb9ada[m HEAD@{25}: checkout: moving from giovanni to master
+[33m38b4e[m HEAD@{26}: commit (merge): merge branch master
+[33m6a4cc[m HEAD@{27}: checkout: moving from master to giovanni
+[33mb9ada[m HEAD@{28}: checkout: moving from giovanni to master
+[33m6a4cc[m HEAD@{29}: checkout: moving from master to giovanni
+[33mb9ada[m HEAD@{30}: commit: fix(clientes, sucursales, equipos, tickets, usuarios): alinear permisos de endpoints con los roles permitidos
+[33mf7b3d[m HEAD@{31}: commit: fix(equipos): alinear rol de creacion de equipo (ADMINISTRADOR, CLIENTE_SUCURSAL)
+[33meb77b[m HEAD@{32}: merge origin/leandro: Fast-forward
+[33mf48b8[m HEAD@{33}: checkout: moving from giovanni to master
+[33m6a4cc[m HEAD@{34}: commit: fix(clientes, sucursales, equipos, tickets, usuario, archivos): alinear permisos de endpoints con los roles correspondientes
+[33mc6ba1[m HEAD@{35}: checkout: moving from master to giovanni
+[33mf48b8[m HEAD@{36}: merge origin/leandro: Fast-forward
+[33m608c2[m HEAD@{37}: checkout: moving from giovanni to master
+[33mc6ba1[m HEAD@{38}: commit: fix(equipos): validar empresa y sucursal del trabajador al asignar equipo
+[33md0ed9[m HEAD@{39}: commit: fix(equipos): corregir validacion de idid_trabajador y excepcion en asignacion
+[33mf48b8[m HEAD@{40}: merge origin/leandro: Fast-forward
+[33mde4a1[m HEAD@{41}: commit: fix(usuario, equipos): corregir validacion de password y consolidar DTO de asignacion, password validado con @IsString y @MinLength en vez de @IsEmail
+[33m85091[m HEAD@{42}: commit: fix: cirregir errores criticos tras merge(compilacion CreateAreaDTO, fuga de password en tickets y registro masivo CSV)
+[33mfab89[m HEAD@{43}: commit (merge): feat: merge branch leandro
+[33ma2b19[m HEAD@{44}: checkout: moving from master to giovanni
+[33m608c2[m HEAD@{45}: merge origin/leandro: Fast-forward
+[33mdd3ed[m[33m ([m[1;32mband-sarahsaurus[m[33m)[m HEAD@{46}: checkout: moving from leandro to master
+[33m04f8b[m[33m ([m[1;32mleandro[m[33m)[m HEAD@{47}: checkout: moving from giovanni to leandro
+[33ma2b19[m HEAD@{48}: checkout: moving from leandro to giovanni
+[33m04f8b[m[33m ([m[1;32mleandro[m[33m)[m HEAD@{49}: checkout: moving from giovanni to leandro
+[33ma2b19[m HEAD@{50}: commit: feat(equipos): editar componentes hardware/software instalados y corregir permisos de creacion
+[33m8817f[m HEAD@{51}: commit: fix(areas): hacer id_sucursal obligatorio en CreateAreaDto
+[33m2b8e1[m HEAD@{52}: commit: feat(equipos): validar asignacion de equipos con AsignarEquipoDto
+[33m04f8b[m[33m ([m[1;32mleandro[m[33m)[m HEAD@{53}: merge origin/leandro: Fast-forward
+[33m43571[m HEAD@{54}: checkout: moving from alvaro-correcciones to giovanni
+[33mb3401[m[33m ([m[1;32malvaro-correcciones[m[33m)[m HEAD@{55}: checkout: moving from master to alvaro-correcciones
+[33mdd3ed[m[33m ([m[1;32mband-sarahsaurus[m[33m)[m HEAD@{56}: clone: from https://github.com/ZER0SEV7N/HelpDesk-Backend.git

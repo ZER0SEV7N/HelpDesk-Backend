@@ -29,20 +29,20 @@ export class UpdateEquipoSoftwareUseCase {
     if (!instalacion) {
       throw new NotFoundException(
         `Componente de software ${id_instalacion} no encontrado en el equipo ${id_equipo}`,
-      ); 
+      );
     }
 
-    const { fecha_instalacion, ...rest } = dto; 
-    Object.assign(instalacion, rest); 
+    const { fecha_instalacion, ...rest } = dto;
+    Object.assign(instalacion, rest);
 
     if (fecha_instalacion) {
       instalacion.fecha_instalacion = new Date(fecha_instalacion);
-    } 
+    }
 
-    const actualizado = await this.softwareEquiposRepo.save(instalacion); 
+    const actualizado = await this.softwareEquiposRepo.save(instalacion);
     return {
       message: 'Componente de software actualizado exitosamente',
       componente: actualizado,
-    }; 
+    };
   }
 }

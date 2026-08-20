@@ -9,7 +9,8 @@ import { Equipos } from '../entities/Equipos.entity';
 export class DashboardsService {
   constructor(
     @InjectRepository(Tickets) private readonly ticketRepo: Repository<Tickets>,
-    @InjectRepository(Usuario) private readonly usuarioRepo: Repository<Usuario>,
+    @InjectRepository(Usuario)
+    private readonly usuarioRepo: Repository<Usuario>,
     @InjectRepository(Equipos) private readonly equipoRepo: Repository<Equipos>,
   ) {}
 
@@ -53,15 +54,17 @@ export class DashboardsService {
       .createQueryBuilder('ticket')
       .innerJoin('ticket.soporte', 'soporte')
       .where('ticket.id_soporte IS NOT NULL')
-      .groupBy('soporte.id_usuario')
       .select('soporte.id_usuario', 'idSoporte')
       .addSelect('soporte.nombre', 'nombreSoporte')
       .addSelect('soporte.apellido', 'apellidoSoporte')
-      .addSelect('COUNT(*)', 'totalAsignados')
+      .addSelect('COUNT(ticket.id_tickets)', 'totalAsignados')
       .addSelect(
         'SUM(CASE WHEN ticket.estado = :cerrado THEN 1 ELSE 0 END)',
         'resueltos',
       )
+      .groupBy('soporte.id_usuario')
+      .addGroupBy('soporte.nombre')
+      .addGroupBy('soporte.apellido')
       .setParameter('cerrado', TicketStatus.CERRADO)
       .getRawMany();
 
@@ -69,7 +72,7 @@ export class DashboardsService {
       const total = parseInt(row.totalAsignados, 10);
       const resueltosCount = parseInt(row.resueltos, 10);
       const porcentaje =
-        total > 0 ? parseFloat((resueltosCount / total * 100).toFixed(2)) : 0;
+        total > 0 ? parseFloat(((resueltosCount / total) * 100).toFixed(2)) : 0;
       let calificacion = 'Sin datos';
       if (total > 0) {
         if (porcentaje >= 80) calificacion = 'Excelente';

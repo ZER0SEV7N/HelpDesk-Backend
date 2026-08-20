@@ -51,7 +51,7 @@ export class AuthService {
         HttpStatus.CONFLICT,
       );
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(dto.password, 12);
     const newUser = this.usuariosRepo.create({
       nombre: dto.nombre,
       apellido: dto.apellido,
@@ -62,7 +62,9 @@ export class AuthService {
       is_active: true,
     });
 
-    return await this.usuariosRepo.save(newUser);
+    await this.usuariosRepo.save(newUser);
+
+    return { message: 'Usuario registrado exitosamente' };
   }
 
   /**
@@ -91,7 +93,8 @@ export class AuthService {
     };
 
     const token = this.jwtService.sign(payload);
-    return { user, role: user.rol.nombre, token };
+    const { password: _password, ...userSinPassword } = user as unknown as Record<string, unknown>;
+    return { user: userSinPassword, role: user.rol.nombre, token };
   }
 
   /**
@@ -99,22 +102,19 @@ export class AuthService {
    */
   async recoverPassword(correo: string) {
     const user = await this.usuariosRepo.findOne({ where: { correo } });
-    if (!user)
-      throw new HttpException('Correo no registrado', HttpStatus.NOT_FOUND);
+    if (user) {
+      const resetToken = this.jwtService.sign(
+        { sub: user.id_usuario },
+        {
+          expiresIn: '30m',
+          secret: this.configService.get<string>('JWT_RESET_SECRET'),
+        },
+      );
 
-    const resetToken = this.jwtService.sign(
-      { sub: user.id_usuario },
-      {
-        expiresIn: '30m',
-        secret:
-          this.configService.get<string>('JWT_RESET_SECRET') ||
-          'resetKeyDefault',
-      },
-    );
+      await this.emailService.sendPasswordRecovery(user.correo, resetToken);
+    }
 
-    await this.emailService.sendPasswordRecovery(user.correo, resetToken);
-
-    return { message: 'Correo de restablecimiento enviado exitosamente' };
+    return { message: 'Si el correo está registrado, recibirás un enlace de recuperación' };
   }
 
   /**
@@ -123,9 +123,7 @@ export class AuthService {
   async resetPassword(token: string, nuevaContraseña: string) {
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret:
-          this.configService.get<string>('JWT_RESET_SECRET') ||
-          'resetKeyDefault',
+        secret: this.configService.get<string>('JWT_RESET_SECRET'),
       });
 
       const hashPassword = await bcrypt.hash(nuevaContraseña, 10);
@@ -154,5 +152,13 @@ export class AuthService {
     } catch {
       throw new UnauthorizedException('Token inválido o expirado');
     }
+  }
+
+  async isUserActive(userId: number): Promise<boolean> {
+    const user = await this.usuariosRepo.findOne({
+      where: { id_usuario: userId },
+      select: ['id_usuario', 'is_active'],
+    });
+    return user ? user.is_active === true : false;
   }
 }

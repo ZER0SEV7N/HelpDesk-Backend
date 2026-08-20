@@ -56,7 +56,13 @@ export class ChatService {
     const mensajesRedisString = await this.redis.lrange(redisKey, 0, -1);
 
     if (mensajesRedisString && mensajesRedisString.length > 0) {
-      return mensajesRedisString.map((msg) => JSON.parse(msg));
+      try {
+        return mensajesRedisString.map((msg) => JSON.parse(msg));
+      } catch {
+        this.logger.warn(
+          `Error parsing Redis messages for ticket ${ticketId}, falling back to MongoDB`,
+        );
+      }
     }
 
     this.logger.log(
@@ -71,8 +77,14 @@ export class ChatService {
       const stringifiedMessages = mensajesMongo.map((msg) =>
         JSON.stringify(msg),
       );
-      await this.redis.rpush(redisKey, ...stringifiedMessages);
-      await this.redis.expire(redisKey, 86400);
+      try {
+        await this.redis.rpush(redisKey, ...stringifiedMessages);
+        await this.redis.expire(redisKey, 86400);
+      } catch (error) {
+        this.logger.warn(
+          `Error actualizando cache Redis para ticket ${ticketId}: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
     }
 
     return mensajesMongo;

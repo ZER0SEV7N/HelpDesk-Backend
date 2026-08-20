@@ -35,36 +35,34 @@ import { DeactivateUserUseCase } from './application/deactivate-user.use-case';
 import { ActivateUserUseCase } from './application/activate-user.use-case';
 import { ReassignUserUseCase } from './application/reassign-user.use-case';
 
-
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([Usuario, Rol, Sucursales, Clientes]),
-        AuthModule,
-    ],
-    controllers: [UsuarioController, AdminUsuarioController],
-    providers: [
-        // Infraestructura compartida
-        NotificationGateway,
-        CsvProcessorUtil,
-
-        // Manager de registro (Redis + WebSocket + Email)
-        EmployeeRegistrationManager,
-
-        // Validación común reutilizable entre casos de uso
-        UsuarioValidationService,
-
-        // Casos de Uso
-        GetProfileUseCase,
-        UpdateProfileUseCase,
-        ListUsersUseCase,
-        RegisterEmployeeUseCase,
-        RegisterBulkEmployeesUseCase,
-        ConfirmEmailUseCase,
-        AssignRoleUseCase,
-        DeactivateUserUseCase,
-        ActivateUserUseCase,
-        ReassignUserUseCase,
-    ],
-    exports: [],
+  imports: [
+    TypeOrmModule.forFeature([Usuario, Rol, Sucursales, Clientes]),
+    AuthModule,
+  ],
+  controllers: [UsuarioController, AdminUsuarioController],
+  providers: [
+    // Infraestructura compartida
+    NotificationGateway,
+    CsvProcessorUtil,
+    // Manager de registro (Redis + WebSocket + Email)
+    EmployeeRegistrationManager,
+    // Validación común reutilizable entre casos de uso
+    UsuarioValidationService,
+    // Casos de Uso
+    GetProfileUseCase,
+    UpdateProfileUseCase,
+    ListUsersUseCase,
+    RegisterEmployeeUseCase,
+    RegisterBulkEmployeesUseCase,
+    ConfirmEmailUseCase,
+    AssignRoleUseCase,
+    DeactivateUserUseCase,
+    ActivateUserUseCase,
+    ReassignUserUseCase,
+  ],
+  exports: [
+    GetProfileUseCase, // Use Case de usuario para validar trabajadores
+  ],
 })
 export class UsuarioModule {}

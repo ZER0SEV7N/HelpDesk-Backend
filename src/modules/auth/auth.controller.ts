@@ -6,12 +6,16 @@ import {
   Res,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDTO } from './dto/login-auth.dto';
 import { RegisterDTO } from './dto/register-auth.dto';
 import { ConfigService } from '@nestjs/config';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
+import { RoleGuard } from '@/common/guards/role.guard';
+import { Roles } from '@/common/decorators/role.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -31,6 +35,8 @@ export class AuthController {
     password: "contraseña",
   } */
   @Post('register')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('ADMINISTRADOR')
   register(@Body() dto: RegisterDTO) {
     return this.authService.register(dto);
   }
@@ -59,7 +65,6 @@ export class AuthController {
 
     return {
       message: 'Login exitoso',
-      token: token,
       user: {
         nombre: user.nombre,
         apellido: user.apellido,
@@ -74,7 +79,11 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('jwt');
+    res.clearCookie('jwt', {
+      httpOnly: true,
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      sameSite: 'lax',
+    });
     return { message: 'Logout exitoso. Esperamos que vuelva pronto.' };
   }
 

@@ -10,7 +10,8 @@ import { CreateAreaDto } from '@/clientes/dto/create-area.dto';
 export class CreateAreaUseCase {
   constructor(
     @InjectRepository(Area) private readonly areaRepo: Repository<Area>,
-    @InjectRepository(Sucursales) private readonly sucursalRepo: Repository<Sucursales>,
+    @InjectRepository(Sucursales)
+    private readonly sucursalRepo: Repository<Sucursales>,
     private readonly responseHelper: AreaResponseHelper,
   ) {}
 
@@ -22,13 +23,16 @@ export class CreateAreaUseCase {
     const sucursal = await this.sucursalRepo.findOne({
       where: { id_sucursal: dto.id_sucursal },
     });
-    if (!sucursal) throw new NotFoundException(`Sucursal con ID ${dto.id_sucursal} no encontrada`);
-    
+    if (!sucursal)
+      throw new NotFoundException(
+        `Sucursal con ID ${dto.id_sucursal} no encontrada`,
+      );
+
     const nuevaArea = this.areaRepo.create({
       ...dto,
       sucursal: sucursal,
     });
-    
+
     const saved = await this.areaRepo.save(nuevaArea);
     return this.responseHelper.cleanResponse(saved);
   }

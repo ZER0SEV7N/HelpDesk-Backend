@@ -42,8 +42,8 @@ export class HardwareController {
   //Obtiene un hardware por su ID, accesible para ADMINISTRADOR, SOPORTE_TECNICO y SOPORTE_INSITU
   @Get(':id')
   @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU')
-  findOne(@Param('id') id: string) {
-    return this.hardwareService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.hardwareService.findOne(id);
   }
 
   //Patch: /hardware/:id
@@ -51,18 +51,18 @@ export class HardwareController {
   @Patch(':id')
   @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateHardwareDto: UpdateHardwareDto,
   ) {
-    return this.hardwareService.update(+id, updateHardwareDto);
+    return this.hardwareService.update(id, updateHardwareDto);
   }
 
   //Delete: /hardware/:id
   //Elimina un hardware (lo marca como inactivo), solo accesible para ADMINISTRADOR
   @Delete(':id')
   @Roles('ADMINISTRADOR')
-  remove(@Param('id') id: string) {
-    return this.hardwareService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.hardwareService.remove(id);
   }
 
   @Post(':id/instalar')

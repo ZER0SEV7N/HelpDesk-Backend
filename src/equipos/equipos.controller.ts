@@ -25,7 +25,12 @@ export class EquiposController {
   constructor(private readonly equiposService: EquiposService) {}
 
   @Post()
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
+  @Roles(
+    'ADMINISTRADOR',
+    'SOPORTE_TECNICO',
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+  )
   create(@Body() createEquipoDto: CreateEquipoDTO) {
     return this.equiposService.create(createEquipoDto);
   }
@@ -60,7 +65,13 @@ export class EquiposController {
   }
 
   @Patch(':id')
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
+  @Roles(
+    'ADMINISTRADOR',
+    'SOPORTE_TECNICO',
+    'SOPORTE_INSITU',
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+  )
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateEquipoDto: UpdateEquipoDto,
@@ -116,6 +127,42 @@ export class EquiposController {
     @Param('id', ParseIntPipe) id: number,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.equiposService.unassignFromWorker(id, req.user);
+    return this.unassignEquipoUseCase.execute(id, req.user);
+  }
+
+  // Editar un componente de HARDWARE instalado en el equipo
+  // PATCH /equipos/:id/hardware/:idRegistro
+  @Patch(':id/hardware/:idRegistro')
+  @Roles('SOPORTE_TECNICO')
+  updateHardware(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('idRegistro', ParseIntPipe) idRegistro: number,
+    @Body() dto: UpdateEquipoHardwareDto,
+    @Request() req: Request & { user: JwtPayload },
+  ) {
+    return this.updateEquipoHardwareUseCase.execute(
+      id,
+      idRegistro,
+      dto,
+      req.user,
+    );
+  }
+
+  // Editar un componente de SOFTWARE instalado en el equipo
+  // PATCH /equipos/:id/software/:idInstalacion
+  @Patch(':id/software/:idInstalacion')
+  @Roles('SOPORTE_TECNICO')
+  updateSoftware(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('idInstalacion', ParseIntPipe) idInstalacion: number,
+    @Body() dto: UpdateEquipoSoftwareDto,
+    @Request() req: Request & { user: JwtPayload },
+  ) {
+    return this.updateEquipoSoftwareUseCase.execute(
+      id,
+      idInstalacion,
+      dto,
+      req.user,
+    );
   }
 }

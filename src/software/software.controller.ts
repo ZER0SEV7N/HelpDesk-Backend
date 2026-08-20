@@ -25,7 +25,7 @@ export class SoftwareController {
 
   // Endpoint para crear un nuevo software
   // POST /software
-  @Post()
+  @Post('')
   @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO')
   create(@Body() createSoftwareDto: CreateSoftwareDto) {
     // Llama al servicio para crear el registro usando el DTO recibido en el body
@@ -34,8 +34,13 @@ export class SoftwareController {
 
   // Endpoint para obtener todos los registros de software
   // GET /software
-  @Get()
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU')
+  @Get('')
+  @Roles(
+    'ADMINISTRADOR',
+    'SOPORTE_TECNICO',
+    'SOPORTE_INSITU',
+    'CLIENTE_TRABAJADOR',
+  )
   findAll() {
     // Llama al servicio que retorna un arreglo con todos los registros
     return this.softwareService.findAll();

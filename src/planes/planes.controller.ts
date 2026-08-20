@@ -5,6 +5,7 @@ import {
   Body,
   Patch,
   Param,
+  Delete,
   UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
@@ -58,8 +59,8 @@ export class PlanesController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles('ADMINISTRADOR')
-  update(@Param('id') id: string, @Body() updatePlanDto: UpdatePlanDto) {
-    return this.planesService.update(+id, updatePlanDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updatePlanDto: UpdatePlanDto) {
+    return this.planesService.update(id, updatePlanDto);
   }
 
   /**
@@ -82,5 +83,12 @@ export class PlanesController {
   @Roles('ADMINISTRADOR')
   activate(@Param('id', ParseIntPipe) id: number) {
     return this.planesService.activate(id);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('ADMINISTRADOR')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.planesService.remove(id);
   }
 }
