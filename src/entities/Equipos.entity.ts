@@ -37,6 +37,9 @@ export class Equipos {
   @Column({ name: 'area', length: 100, nullable: true })
   area: string;
 
+  @Column({ name: 'nombre_usuario', length: 100, nullable: true })
+  nombre_usuario: string;
+
   @Column({ name: 'ult_revision', type: 'date', nullable: true })
   ultRevision: Date;
 

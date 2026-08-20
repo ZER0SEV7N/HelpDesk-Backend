@@ -11,12 +11,12 @@ import { Server, Socket } from 'socket.io';
 import * as cookie from 'cookie';
 import { AuthService } from '../../modules/auth/auth.service';
 import { TicketService } from '../../ticket/ticket.service';
-import { UnauthorizedException, Logger } from '@nestjs/common';
+import { UnauthorizedException, Logger, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from '../../entities/Usuario.entity';
+import { Tickets, TicketStatus } from '../../entities/Tickets.entity';
 import { ChatService } from './chat.service';
 import { Repository } from 'typeorm';
-import { env } from 'process';
 import { JwtPayload } from '../guards/jwt-auth.guard';
 
 interface AssignmentData {
@@ -41,7 +41,7 @@ interface ReadData {
 
 @WebSocketGateway({
   cors: {
-    origin: [env.HTTP_ORIGIN, 'http://localhost:3000', 'http://localhost:5173', 'http://localhost:7012'], // Permitir múltiples orígenes
+    origin: [process.env.HTTP_ORIGIN || 'http://localhost:3000', 'http://localhost:5173', 'http://localhost:7012'], // Permitir múltiples orígenes
     credentials: true,
   },
 })
@@ -56,6 +56,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly chatService: ChatService,
     @InjectRepository(Usuario)
     private readonly usuarioRepo: Repository<Usuario>,
+    @InjectRepository(Tickets)
+    private readonly ticketRepo: Repository<Tickets>,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -95,7 +97,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = client.data.user as JwtPayload;
 
     if (
-      !['CLIENTE_TRABAJADOR', 'CLIENTE_SUCURSAL', 'CLIENTE_EMPRESA',].includes(
+      !['CLIENTE_TRABAJADOR', 'CLIENTE_SUCURSAL', 'CLIENTE_EMPRESA'].includes(
         user.role,
       )
     )
@@ -123,16 +125,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!bestAgent)
       return { status: 'error', message: 'No hay agentes disponibles' };
 
-    const authUser = {
-      sub: user.sub,
-      userId: user.sub,
-      role: 'ADMINISTRADOR' as const,
-    };
-    await this.ticketService.assignTicket(
-      data.ticketId,
-      bestAgent.id,
-      authUser,
-    );
+    const ticket = await this.ticketRepo.findOne({
+      where: { id_ticket: data.ticketId },
+    });
+    if (!ticket) return { status: 'error', message: 'Ticket no encontrado' };
+    if (ticket.estado !== TicketStatus.PENDIENTE)
+      return { status: 'error', message: 'El ticket no está pendiente' };
+
+    ticket.id_soporte = bestAgent.id;
+    ticket.estado = TicketStatus.ASIGNADO;
+    await this.ticketRepo.save(ticket);
 
     client.join(data.ticketId.toString());
 
@@ -157,17 +159,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         user,
       );
 
-      const isCreator = ticket.id_trabajador === user.sub;
+      const isAdmin = user.role === 'ADMINISTRADOR';
       const isAssignedTech = ticket.id_soporte === user.sub;
-      const isManagerOrAdmin = [
-        'ADMINISTRADOR',
-        'CLIENTE_EMPRESA',
-        'CLIENTE_SUCURSAL',
-        'SOPORTE_TECNICO',
-        'SOPORTE_INSITU'
-      ].includes(user.role);
+      const isCreator = ticket.id_trabajador === user.sub;
 
-      if (isCreator || isAssignedTech || isManagerOrAdmin) {
+      if (isAdmin || isAssignedTech || isCreator) {
         client.join(data.ticketId.toString());
         this.logger.log(
           `Usuario ${user.sub} se unió al chat del ticket: ${data.ticketId}`,
@@ -197,11 +193,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       url_archivo: data.fileUrl || null,
     };
 
-    client.broadcast.to(data.ticketId.toString()).emit('new_message', {
-      ...messagePayload,
-      createdAt: new Date(),
-    });
-
     try {
       await this.chatService.guardarMensaje(messagePayload);
     } catch (error) {
@@ -210,7 +201,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.logger.error(
         `Fallo al guardar mensaje del ticket ${data.ticketId}: ${mensaje}`,
       );
+      return { event: 'error', message: 'No se pudo guardar el mensaje' };
     }
+
+    client.broadcast.to(data.ticketId.toString()).emit('new_message', {
+      ...messagePayload,
+      createdAt: new Date(),
+    });
+
+    return { event: 'sent', message: messagePayload };
   }
 
   @SubscribeMessage('typing_start')

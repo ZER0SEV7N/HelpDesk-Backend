@@ -7,15 +7,14 @@ export class FindOneEquipoUseCase {
   constructor(private readonly findAllUseCase: FindAllEquiposUseCase) {}
 
   async execute(id: number, userToken: JwtPayload) {
-    const equiposPermitidos = await this.findAllUseCase.execute(userToken);
-    const equipo = equiposPermitidos.find((e) => e.id_equipo === id);
+    const equipo = await this.findAllUseCase.findOneById(id, userToken);
 
     if (!equipo) {
       throw new NotFoundException(
         `Equipo con id ${id} no encontrado o no tienes permiso para verlo`,
-      ); 
+      );
     }
 
-    return equipo; 
+    return equipo;
   }
 }

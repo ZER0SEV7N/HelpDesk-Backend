@@ -7,7 +7,8 @@ import { Clientes } from '@/entities/Clientes.entity';
 @Injectable()
 export class FindAllClientesUseCase {
   constructor(
-    @InjectRepository(Clientes) private readonly clientesRepo: Repository<Clientes>,
+    @InjectRepository(Clientes)
+    private readonly clientesRepo: Repository<Clientes>,
     private readonly responseHelper: ClienteResponseHelper,
   ) {}
 
@@ -15,6 +16,8 @@ export class FindAllClientesUseCase {
     const clientes = await this.clientesRepo.find({
       relations: ['sucursales', 'plan'],
     });
-    return clientes.map(cliente => this.responseHelper.cleanResponse(cliente));
+    return clientes.map((cliente) =>
+      this.responseHelper.cleanResponse(cliente),
+    );
   }
 }

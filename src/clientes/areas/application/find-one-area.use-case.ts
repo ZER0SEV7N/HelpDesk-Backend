@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { AreaResponseHelper } from '../helpers/area-response.helper';
 import { Area } from '@/entities/Area.entity';
 
-
 @Injectable()
 export class FindOneAreaUseCase {
   constructor(
@@ -18,7 +17,7 @@ export class FindOneAreaUseCase {
       relations: ['sucursal', 'sucursal.cliente'],
     });
     if (!area) throw new NotFoundException(`Area con ID ${id} no encontrada`);
-    
+
     return this.responseHelper.cleanResponse(area);
   }
 }

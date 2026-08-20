@@ -12,9 +12,7 @@ import { ChatModule } from './common/chat/chat.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { PlanesModule } from './planes/planes.module';
 import { SoftwareModule } from './software/software.module';
-import { FilesController } from './files/files.controller';
-import { ServeStaticModule } from '@nestjs/serve-static'; //Importa el módulo para servir archivos estáticos
-import { join } from 'path';
+import { DashboardsModule } from './dashboards/dashboards.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { EmailModule } from './common/email/email.module';
@@ -35,13 +33,10 @@ import { EmailModule } from './common/email/email.module';
     UsuarioModule,
     EmailModule,
     PlanesModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'), // Carpeta donde se almacenan los archivos subidos
-      serveRoot: '/uploads', // Ruta base para acceder a los archivos (ejemplo: http://localhost:3000/uploads/archivo.jpg)
-    }),
+    DashboardsModule,
   ],
 
-  controllers: [AppController, FilesController],
+  controllers: [AppController],
   providers: [
     AppService,
     { provide: APP_FILTER, useClass: AllExceptionsFilter },

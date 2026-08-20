@@ -5,18 +5,19 @@ import { Usuario } from '@/entities/Usuario.entity';
 
 @Injectable()
 export class GetProfileUseCase {
-    constructor(
-        @InjectRepository(Usuario) private readonly usuarioRepo: Repository<Usuario>,
-    ) {}
+  constructor(
+    @InjectRepository(Usuario)
+    private readonly usuarioRepo: Repository<Usuario>,
+  ) {}
 
-    async execute(userId: number) {
-        const user = await this.usuarioRepo.findOne({
-            where: { id_usuario: userId },
-            relations: ['rol'],
-        });
-        if (!user) throw new NotFoundException('Usuario no encontrado');
+  async execute(userId: number) {
+    const user = await this.usuarioRepo.findOne({
+      where: { id_usuario: userId },
+      relations: ['rol'],
+    });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
 
-        const { password, ...result } = user;
-        return result;
-    }
+    const { password, ...result } = user;
+    return result;
+  }
 }

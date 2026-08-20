@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, ParseIntPipe, UseGuards, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { CreateClienteDto } from '../dto/create-cliente.dto';
 import { CreateSucursalDto } from '../dto/create-sucursal.dto';
 import { UpdateContractDto } from '../dto/update-contract.dto';
@@ -37,7 +47,8 @@ export class ClientesController {
   @Post()
   @Roles('ADMINISTRADOR')
   async create(
-    @Body('cliente', new ValidationPipe({ validateCustomDecorators: true })) clienteDto: CreateClienteDto,
+    @Body('cliente', new ValidationPipe({ validateCustomDecorators: true }))
+    clienteDto: CreateClienteDto,
     @Body('sucursal') sucursalDto: Partial<CreateSucursalDto>,
   ) {
     return this.createClienteUseCase.execute(clienteDto, sucursalDto);
@@ -48,7 +59,13 @@ export class ClientesController {
   // GET /clientes
   //-----------------------------------------------------------------
   @Get()
-  @Roles('ADMINISTRADOR','SOPORTE_TECNICO','SOPORTE_INSITU','CLIENTE_EMPRESA','CLIENTE_SUCURSAL',)
+  @Roles(
+    'ADMINISTRADOR',
+    'SOPORTE_TECNICO',
+    'SOPORTE_INSITU',
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+  )
   findAll() {
     return this.findAllClientesUseCase.execute();
   }
@@ -69,7 +86,10 @@ export class ClientesController {
   //-----------------------------------------------------------------
   @Patch(':id')
   @Roles('ADMINISTRADOR')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: Partial<CreateClienteDto>) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreateClienteDto>,
+  ) {
     return this.updateClienteUseCase.execute(id, dto);
   }
 
@@ -79,7 +99,10 @@ export class ClientesController {
   //-----------------------------------------------------------------
   @Patch('contract/:id')
   @Roles('ADMINISTRADOR')
-  updateContract(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateContractDto) {
+  updateContract(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateContractDto,
+  ) {
     return this.updateContractUseCase.execute(id, dto);
   }
 

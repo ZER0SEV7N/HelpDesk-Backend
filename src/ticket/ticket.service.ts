@@ -6,10 +6,11 @@ import {
 } from '@nestjs/common';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { Tickets, TicketStatus } from '@/entities/Tickets.entity';
-import { Repository } from 'typeorm';
+import { Repository, QueryFailedError } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Equipos } from '@/entities/Equipos.entity';
 import { JwtPayload } from '@/common/guards/jwt-auth.guard';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class TicketService {
@@ -79,21 +80,41 @@ export class TicketService {
       );
     }
 
-    const pin = await this.GenerateUniquePin();
+    let ticket: Tickets | null = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const pin = await this.GenerateUniquePin();
+      const newTicket = this.ticketRepo.create({
+        pin,
+        asunto: dto.asunto,
+        detalle: dto.detalle,
+        estado: TicketStatus.PENDIENTE,
+        id_equipo: equipo.id_equipo,
+        id_cliente: user.clienteId,
+        id_trabajador: user.userId,
+        id_software: dto.id_software,
+        es_software: dto.es_software,
+        imagen_url: dto.imagen_url,
+      });
+      try {
+        ticket = await this.ticketRepo.save(newTicket);
+        break;
+      } catch (error) {
+        if (
+          error instanceof QueryFailedError &&
+          (error as any).code === 'ER_DUP_ENTRY'
+        ) {
+          continue;
+        }
+        throw error;
+      }
+    }
 
-    const newTicket = this.ticketRepo.create({
-      pin,
-      asunto: dto.asunto,
-      detalle: dto.detalle,
-      estado: TicketStatus.PENDIENTE,
-      id_equipo: equipo.id_equipo,
-      id_cliente: user.clienteId,
-      id_trabajador: user.userId,
-      id_software: dto.id_software,
-      es_software: dto.es_software,
-      imagen_url: dto.imagen_url,
-    });
-    const ticket = await this.ticketRepo.save(newTicket);
+    if (!ticket) {
+      throw new BadRequestException(
+        'No se pudo generar un PIN único después de varios intentos. Por favor, intente nuevamente.',
+      );
+    }
+
     return {
       message: 'Ticket creado exitosamente',
       ticket: this.cleanTicketResponse(ticket),
@@ -104,7 +125,7 @@ export class TicketService {
     let pin: string;
     let exists: Tickets | null;
     do {
-      pin = Math.floor(100000 + Math.random() * 900000).toString();
+      pin = crypto.randomInt(100000, 999999).toString();
       exists = await this.ticketRepo.findOne({ where: { pin } });
     } while (exists);
     return pin;
@@ -256,69 +277,115 @@ export class TicketService {
       throw new ForbiddenException('Solo puedes asignarte tickets a ti mismo');
     }
 
-    const ticket = await this.ticketRepo.findOne({
-      where: { id_ticket: ticketId },
-    });
-    if (!ticket) throw new NotFoundException('Ticket no encontrado');
-    if (ticket.estado !== TicketStatus.PENDIENTE)
+    const result = await this.ticketRepo
+      .createQueryBuilder()
+      .update(Tickets)
+      .set({ id_soporte: soporteId, estado: TicketStatus.ASIGNADO })
+      .where('id_ticket = :id', { id: ticketId })
+      .andWhere('estado = :estado', { estado: TicketStatus.PENDIENTE })
+      .execute();
+
+    if (result.affected === 0) {
+      const ticket = await this.ticketRepo.findOne({
+        where: { id_ticket: ticketId },
+      });
+      if (!ticket)
+        throw new NotFoundException('Ticket no encontrado');
       throw new BadRequestException(
         'Solo se pueden asignar tickets en estado Pendiente',
       );
+    }
 
-    ticket.id_soporte = soporteId;
-    ticket.estado = TicketStatus.ASIGNADO;
-    return await this.ticketRepo.save(ticket);
+    return await this.ticketRepo.findOne({ where: { id_ticket: ticketId } });
   }
 
   async startProgress(ticketId: number, user: JwtPayload) {
-    const ticket = await this.ticketRepo.findOne({
-      where: { id_ticket: ticketId },
-    });
-    if (!ticket) throw new NotFoundException('Ticket no encontrado');
-    if (ticket.id_soporte !== user.userId)
-      throw new ForbiddenException(
-        'No tienes permisos para iniciar este ticket',
-      );
+    const result = await this.ticketRepo
+      .createQueryBuilder()
+      .update(Tickets)
+      .set({ estado: TicketStatus.EN_PROGRESO })
+      .where('id_ticket = :id', { id: ticketId })
+      .andWhere('id_soporte = :soporte', { soporte: user.userId })
+      .andWhere('estado = :estado', { estado: TicketStatus.ASIGNADO })
+      .execute();
 
-    ticket.estado = TicketStatus.EN_PROGRESO;
-    return await this.ticketRepo.save(ticket);
+    if (result.affected === 0) {
+      const ticket = await this.ticketRepo.findOne({
+        where: { id_ticket: ticketId },
+      });
+      if (!ticket)
+        throw new NotFoundException('Ticket no encontrado');
+      if (ticket.id_soporte !== user.userId)
+        throw new ForbiddenException(
+          'No tienes permisos para iniciar este ticket',
+        );
+      throw new BadRequestException(
+        'El ticket no está en estado Asignado',
+      );
+    }
+
+    return await this.ticketRepo.findOne({ where: { id_ticket: ticketId } });
   }
 
   async resolveTicket(ticketId: number, user: JwtPayload) {
-    const ticket = await this.ticketRepo.findOne({
-      where: { id_ticket: ticketId },
-    });
-    if (!ticket) throw new NotFoundException('Ticket no encontrado');
-    if (ticket.id_soporte !== user.userId)
-      throw new ForbiddenException(
-        'No tienes permisos para resolver este ticket',
-      );
+    const result = await this.ticketRepo
+      .createQueryBuilder()
+      .update(Tickets)
+      .set({ estado: TicketStatus.CERRADO })
+      .where('id_ticket = :id', { id: ticketId })
+      .andWhere('id_soporte = :soporte', { soporte: user.userId })
+      .andWhere('estado = :estado', { estado: TicketStatus.EN_PROGRESO })
+      .execute();
 
-    ticket.estado = TicketStatus.CERRADO;
-    return await this.ticketRepo.save(ticket);
+    if (result.affected === 0) {
+      const ticket = await this.ticketRepo.findOne({
+        where: { id_ticket: ticketId },
+      });
+      if (!ticket)
+        throw new NotFoundException('Ticket no encontrado');
+      if (ticket.id_soporte !== user.userId)
+        throw new ForbiddenException(
+          'No tienes permisos para resolver este ticket',
+        );
+      throw new BadRequestException(
+        'El ticket no está en estado En Progreso',
+      );
+    }
+
+    return await this.ticketRepo.findOne({ where: { id_ticket: ticketId } });
   }
 
   async reopenTicket(ticketId: number, user: JwtPayload) {
-    const ticket = await this.ticketRepo.findOne({
-      where: { id_ticket: ticketId },
-    });
-    if (!ticket) throw new NotFoundException('Ticket no encontrado');
-
     if (user.role !== 'CLIENTE_TRABAJADOR')
       throw new ForbiddenException(
         'Solo el trabajador original puede reabrir el ticket',
       );
 
-    if (ticket.id_trabajador !== user.userId)
-      throw new ForbiddenException(
-        'No puedes reabrir un ticket que no creaste tú',
+    const result = await this.ticketRepo
+      .createQueryBuilder()
+      .update(Tickets)
+      .set({ estado: TicketStatus.REABIERTO })
+      .where('id_ticket = :id', { id: ticketId })
+      .andWhere('id_trabajador = :trabajador', { trabajador: user.userId })
+      .andWhere('estado = :estado', { estado: TicketStatus.CERRADO })
+      .execute();
+
+    if (result.affected === 0) {
+      const ticket = await this.ticketRepo.findOne({
+        where: { id_ticket: ticketId },
+      });
+      if (!ticket)
+        throw new NotFoundException('Ticket no encontrado');
+      if (ticket.id_trabajador !== user.userId)
+        throw new ForbiddenException(
+          'No puedes reabrir un ticket que no creaste tú',
+        );
+      throw new BadRequestException(
+        'Solo tickets cerrados pueden reabrirse',
       );
+    }
 
-    if (ticket.estado !== TicketStatus.CERRADO)
-      throw new BadRequestException('Solo tickets cerrados pueden reabrirse');
-
-    ticket.estado = TicketStatus.REABIERTO;
-    return this.ticketRepo.save(ticket);
+    return await this.ticketRepo.findOne({ where: { id_ticket: ticketId } });
   }
 
   async getDashboardMetrics(user: JwtPayload) {

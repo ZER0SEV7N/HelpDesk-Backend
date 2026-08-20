@@ -75,7 +75,16 @@ export class PlanesService {
    ========================================*/
   async remove(id: number) {
     const plan = await this.findOne(id);
-    return this.planesRepo.remove(plan);
+
+    if (!plan.is_active)
+      throw new BadRequestException('Este plan ya se encuentra inactivo');
+
+    plan.is_active = false;
+    await this.planesRepo.save(plan);
+
+    return {
+      message: `El ${plan.tipo} ha sido eliminado exitosamente.`,
+    };
   }
 
   //SOFT DELETE: Archivar un plan para que ya no esté disponible para nuevos clientes, pero sin eliminarlo de la base de datos.
