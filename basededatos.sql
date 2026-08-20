@@ -126,11 +126,13 @@ CREATE TABLE usuarios (
     id_rol INT,
     id_cliente INT,
     id_sucursal INT,
+    id_area INT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_usuario_rol FOREIGN KEY (id_rol) REFERENCES rol(id_rol),
     CONSTRAINT fk_usuario_cliente FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE CASCADE,
-    CONSTRAINT fk_usuario_sucursal FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal) ON DELETE SET NULL
+    CONSTRAINT fk_usuario_sucursal FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal) ON DELETE SET NULL,
+    CONSTRAINT fk_usuario_area FOREIGN KEY (id_area) REFERENCES area(id_area) ON DELETE SET NULL
 );
 
 -- Crear la tabla de equipos
@@ -146,12 +148,14 @@ CREATE TABLE equipos (
     id_trabajador INT, -- id del Usuario con el rol CLIENTE_TRABAJADOR
     id_cliente INT,
     id_sucursal INT,
+    id_area INT,
     is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_eqipos_trabajador FOREIGN KEY (id_trabajador) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
     CONSTRAINT fk_equipos_cliente FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON DELETE CASCADE,
-    CONSTRAINT fk_equipos_sucursal FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal) ON DELETE SET NULL
+    CONSTRAINT fk_equipos_sucursal FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal) ON DELETE SET NULL,
+    CONSTRAINT fk_equipos_area FOREIGN KEY (id_area) REFERENCES area(id_area) ON DELETE SET NULL
 );
 
 -- --------------------------------------------------------
@@ -213,7 +217,31 @@ CREATE TABLE tickets (
     CONSTRAINT fk_tickets_soporte FOREIGN KEY (id_soporte) REFERENCES usuarios(id_usuario),
     CONSTRAINT fk_tickets_software FOREIGN KEY (id_software) REFERENCES software(id_software) ON DELETE SET NULL
 );
--- ---------------------------------------------------------
+
+-- -------------------------------------------------------
+-- 5. TABLA DE CITAS PROGRAMADAS
+-- -------------------------------------------------------
+
+CREATE TABLE citas_soporte (
+    id_cita INT AUTO_INCREMENT PRIMARY KEY,
+    id_ticket INT,                               -- Opcional: Para saber qué ticket originó la visita
+    id_soporte INT NOT NULL,                     -- Usuario con rol SOPORTE_INSITU
+    id_sucursal INT NOT NULL,                    -- Sucursal a la que asistirá
+    id_area INT NOT NULL,						 -- Área/departamento específico dentro de la sucursal
+    fecha_programada DATETIME NOT NULL,          -- Fecha y hora pactada para la cita
+    estado ENUM('Pendiente', 'En Camino', 'Completada', 'Cancelada', 'Reprogramada') DEFAULT 'Pendiente',
+    motivo VARCHAR(255) NOT NULL,               -- Breve descripción del motivo de la visita
+    observaciones TEXT,                          -- Informe/notas del técnico tras la visita
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    -- Claves foráneas (Relaciones)
+    CONSTRAINT fk_cita_ticket FOREIGN KEY (id_ticket) REFERENCES tickets(id_tickets) ON DELETE SET NULL,
+    CONSTRAINT fk_cita_soporte FOREIGN KEY (id_soporte) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
+    CONSTRAINT fk_cita_sucursal FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal) ON DELETE CASCADE,
+    CONSTRAINT fk_cita_area FOREIGN KEY (id_area) REFERENCES area(id_area) ON DELETE CASCADE
+);
+
 -- Insertar roles por defecto
 INSERT INTO rol VALUES
 (null, 'ADMINISTRADOR', NOW()),
