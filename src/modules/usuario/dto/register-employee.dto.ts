@@ -25,8 +25,8 @@ export class RegisterEmployeeDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(6)
-  contraseña: string;
+  @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
+  password: string;
 
   @IsString()
   @IsNotEmpty()

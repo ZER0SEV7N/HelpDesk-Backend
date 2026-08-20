@@ -25,6 +25,17 @@ import { AuthModule } from '@/modules/auth/auth.module';
     AuthModule,
   ],
   controllers: [EquiposController],
-  providers: [EquiposService],
+  providers: [
+    EquiposService,
+    CreateEquipoUseCase,
+    UpdateEquipoUseCase,
+    FindOneEquipoUseCase,
+    FindAllEquiposUseCase,
+    UpdateEquipoHardwareUseCase,
+    UpdateEquipoSoftwareUseCase,
+    RemoveEquipoUseCase,
+    AssignEquipoUseCase,
+    UnassignEquipoUseCase,
+  ],
 })
 export class EquiposModule {}

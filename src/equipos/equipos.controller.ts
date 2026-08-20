@@ -18,11 +18,21 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RoleGuard } from '../common/guards/role.guard';
 import { Roles } from '../common/decorators/role.decorator';
 import { JwtPayload } from '../common/guards/jwt-auth.guard';
+import { UpdateEquipoHardwareDto } from './dto/update-equipo-hardware.dto';
+import { UpdateEquipoSoftwareDto } from './dto/update-equipo-software.dto';
+import { UnassignEquipoUseCase } from './application/unassign-equipo.use-case';
+import { UpdateEquipoHardwareUseCase } from './application/update-equipo-hardware.use-case';
+import { UpdateEquipoSoftwareUseCase } from './application/update-equipo-software.use-case';
 
 @Controller('equipos')
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class EquiposController {
-  constructor(private readonly equiposService: EquiposService) {}
+  constructor(
+    private readonly equiposService: EquiposService,
+    private readonly unassignEquipoUseCase: UnassignEquipoUseCase,
+    private readonly updateEquipoHardwareUseCase: UpdateEquipoHardwareUseCase,
+    private readonly updateEquipoSoftwareUseCase: UpdateEquipoSoftwareUseCase, 
+  ){}
 
   @Post()
   @Roles(
