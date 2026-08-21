@@ -68,7 +68,7 @@ export class Usuario {
   @ManyToOne(() => Clientes, (cliente) => cliente.usuarios)
   @JoinColumn({ name: 'id_cliente' })
   cliente?: Clientes;
-
+ 
   @Column({ nullable: true })
   id_sucursal?: number; //Llave foranea a la tabla Sucursales
 
