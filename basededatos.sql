@@ -224,10 +224,6 @@ CREATE TABLE tickets (
 
 CREATE TABLE citas_soporte (
     id_cita INT AUTO_INCREMENT PRIMARY KEY,
-<<<<<<< HEAD
-    id_ticket INT,                               -- Opcional: Para saber qué ticket originó la visita
-=======
->>>>>>> master
     id_soporte INT NOT NULL,                     -- Usuario con rol SOPORTE_INSITU
     id_sucursal INT NOT NULL,                    -- Sucursal a la que asistirá
     id_area INT NOT NULL,						 -- Área/departamento específico dentro de la sucursal
@@ -239,17 +235,11 @@ CREATE TABLE citas_soporte (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     -- Claves foráneas (Relaciones)
-<<<<<<< HEAD
-    CONSTRAINT fk_cita_ticket FOREIGN KEY (id_ticket) REFERENCES tickets(id_tickets) ON DELETE SET NULL,
-=======
->>>>>>> master
     CONSTRAINT fk_cita_soporte FOREIGN KEY (id_soporte) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
     CONSTRAINT fk_cita_sucursal FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal) ON DELETE CASCADE,
     CONSTRAINT fk_cita_area FOREIGN KEY (id_area) REFERENCES area(id_area) ON DELETE CASCADE
 );
 
-<<<<<<< HEAD
-=======
 -- -------------------------------------------------------
 -- 6. TABLA INTERMEDIA ENTRE CITAS_SOPORTE Y TICKETS (N:M)
 -- -------------------------------------------------------
@@ -262,7 +252,6 @@ CREATE TABLE citas_tickets (
     CONSTRAINT fk_citastickets_ticket FOREIGN KEY (id_ticket) REFERENCES tickets(id_tickets) ON DELETE CASCADE
 );
 
->>>>>>> master
 -- Insertar roles por defecto
 INSERT INTO rol VALUES
 (null, 'ADMINISTRADOR', NOW()),
