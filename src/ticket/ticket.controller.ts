@@ -49,7 +49,15 @@ export class TicketController {
   }
 
   @Get('mis-tickets')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(
+    'ADMINISTRADOR',
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+    'CLIENTE_TRABAJADOR',
+    'SOPORTE_TECNICO',
+    'SOPORTE_INSITU',
+  )
   getMyTickets(@Req() req: Request & { user: JwtPayload }) {
     return this.ticketService.findTickets(req.user, { vista: 'mis-tickets' });
   }

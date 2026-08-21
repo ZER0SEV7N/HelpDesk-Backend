@@ -8,34 +8,41 @@ import { EmployeeRegistrationManager } from '../managers/employee-registration.m
 
 @Injectable()
 export class ConfirmEmailUseCase {
-    constructor(
-        @InjectRepository(Usuario) private readonly usuarioRepo: Repository<Usuario>,
-        @InjectRepository(Rol) private readonly rolRepo: Repository<Rol>,
-        private readonly registrationManager: EmployeeRegistrationManager,
-    ) {}
+  constructor(
+    @InjectRepository(Usuario)
+    private readonly usuarioRepo: Repository<Usuario>,
+    @InjectRepository(Rol) private readonly rolRepo: Repository<Rol>,
+    private readonly registrationManager: EmployeeRegistrationManager,
+  ) {}
 
-    async execute(correo: string, token: string) {
-        // Confirmar token y recuperar DTO desde Redis
-        const validatedDto = await this.registrationManager.confirmEmail(correo, token);
+  async execute(correo: string, token: string) {
+    // Confirmar token y recuperar DTO desde Redis
+    const validatedDto = await this.registrationManager.confirmEmail(
+      correo,
+      token,
+    );
 
-        const rol = await this.rolRepo.findOne({ where: { nombre: validatedDto.rolNombre } });
-        if (!rol) throw new NotFoundException(`El rol ${validatedDto.rolNombre} no existe`);
+    const rol = await this.rolRepo.findOne({
+      where: { nombre: validatedDto.rolNombre },
+    });
+    if (!rol)
+      throw new NotFoundException(`El rol ${validatedDto.rolNombre} no existe`);
 
-        const hashedPassword = await bcrypt.hash(validatedDto.password, 10);
+    const hashedPassword = await bcrypt.hash(validatedDto.password, 10);
 
-        const newUser = this.usuarioRepo.create({
-            ...validatedDto,
-            password: hashedPassword,
-            rol: rol,
-            is_active: true,
-        });
+    const newUser = this.usuarioRepo.create({
+      ...validatedDto,
+      password: hashedPassword,
+      rol: rol,
+      is_active: true,
+    });
 
-        const savedUser = await this.usuarioRepo.save(newUser);
-        const { password, ...result } = savedUser;
+    const savedUser = await this.usuarioRepo.save(newUser);
+    const { password, ...result } = savedUser;
 
-        return {
-            message: `El empleado ${savedUser.nombre} ha sido verificado y guardado con éxito.`,
-            user: result,
-        };
-    }
+    return {
+      message: `El empleado ${savedUser.nombre} ha sido verificado y guardado con éxito.`,
+      user: result,
+    };
+  }
 }

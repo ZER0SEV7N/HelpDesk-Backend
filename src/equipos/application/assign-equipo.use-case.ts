@@ -16,7 +16,10 @@ export class AssignEquipoUseCase {
   ) {}
 
   async execute(
-    id: number, id_trabajador: number, area: string, userToken: JwtPayload,
+    id: number,
+    id_trabajador: number,
+    area: string,
+    userToken: JwtPayload,
   ) {
     // Validar que el equipo exista y que el usuario tenga permisos para asignarlo
     const equipo = await this.findOneUseCase.execute(id, userToken);
@@ -30,21 +33,25 @@ export class AssignEquipoUseCase {
     const trabajador = await this.getProfileUseCase.execute(id_trabajador);
     // Validar que el trabajador pertenezca al mismo cliente que el equipo
     if (trabajador.id_cliente !== equipo.id_cliente) {
-      throw new BadRequestException("El trabajador no pertenece al mismo cliente que el equipo");
+      throw new BadRequestException(
+        'El trabajador no pertenece al mismo cliente que el equipo',
+      );
     }
     // Validar que el trabajador pertenezca a la misma sucursal que el equipo, si aplica
     if (equipo.id_sucursal && trabajador.id_sucursal !== equipo.id_sucursal) {
-      throw new BadRequestException("El trabajador no pertenece a la misma sucursal que el equipo");
+      throw new BadRequestException(
+        'El trabajador no pertenece a la misma sucursal que el equipo',
+      );
     }
     // Asignar el equipo al trabajador y actualizar el área
-    equipo.id_trabajador = id_trabajador; 
+    equipo.id_trabajador = id_trabajador;
     equipo.area = area;
 
-    const equipoActualizado = await this.equiposRepo.save(equipo); 
-    
+    const equipoActualizado = await this.equiposRepo.save(equipo);
+
     return {
       message: `Equipo asignado exitosamente en el área de ${area}`,
       equipo: equipoActualizado,
-    }; 
+    };
   }
 }

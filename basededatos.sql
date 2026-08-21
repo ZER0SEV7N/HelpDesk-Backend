@@ -243,7 +243,7 @@ CREATE TABLE citas_soporte (
 );
 
 -- Insertar roles por defecto
-INSERT rol VALUES
+INSERT INTO rol VALUES
 (null, 'ADMINISTRADOR', NOW()),
 (null, 'SOPORTE_TECNICO', NOW()),
 (null, 'SOPORTE_INSITU', NOW()),

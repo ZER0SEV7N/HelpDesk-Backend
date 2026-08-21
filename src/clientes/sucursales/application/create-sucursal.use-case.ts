@@ -9,14 +9,21 @@ import { CreateSucursalDto } from '@/clientes/dto/create-sucursal.dto';
 @Injectable()
 export class CreateSucursalUseCase {
   constructor(
-    @InjectRepository(Sucursales) private readonly sucursalRepo: Repository<Sucursales>,
-    @InjectRepository(Clientes) private readonly clientesRepo: Repository<Clientes>,
+    @InjectRepository(Sucursales)
+    private readonly sucursalRepo: Repository<Sucursales>,
+    @InjectRepository(Clientes)
+    private readonly clientesRepo: Repository<Clientes>,
     private readonly responseHelper: SucursalResponseHelper,
   ) {}
 
   async execute(dto: CreateSucursalDto) {
-    const cliente = await this.clientesRepo.findOne({ where: { id_cliente: dto.id_cliente } });
-    if (!cliente) throw new NotFoundException(`Cliente con ID ${dto.id_cliente} no encontrado`);
+    const cliente = await this.clientesRepo.findOne({
+      where: { id_cliente: dto.id_cliente },
+    });
+    if (!cliente)
+      throw new NotFoundException(
+        `Cliente con ID ${dto.id_cliente} no encontrado`,
+      );
 
     const nuevaSucursal = this.sucursalRepo.create({
       ...dto,

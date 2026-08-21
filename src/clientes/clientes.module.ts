@@ -54,19 +54,20 @@ import { ReactivateClienteUseCase } from './cliente/application/reactivate-clien
 // --- AUTOMATIZACIONES Y TAREAS CRON ---
 import { ClienteCronService } from './cliente/cliente-cron.service';
 
-
-
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Clientes, Sucursales, Area, Usuario, Planes, Equipos]),
+    TypeOrmModule.forFeature([
+      Clientes,
+      Sucursales,
+      Area,
+      Usuario,
+      Planes,
+      Equipos,
+    ]),
     AuthModule,
-    ChatModule
+    ChatModule,
   ],
-  controllers: [
-    ClientesController,
-    SucursalController,
-    AreaController
-  ],
+  controllers: [ClientesController, SucursalController, AreaController],
   providers: [
     // Helpers de Limpieza de Respuestas
     AreaResponseHelper,
@@ -101,7 +102,7 @@ import { ClienteCronService } from './cliente/cliente-cron.service';
     ReactivateClienteUseCase,
 
     // Tareas Programadas y Alertas WebSockets (@Cron)
-    ClienteCronService
+    ClienteCronService,
   ],
 })
 export class ClientesModule {}

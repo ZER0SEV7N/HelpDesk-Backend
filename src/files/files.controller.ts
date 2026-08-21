@@ -3,39 +3,49 @@
 //como subir archivos adjuntos a los tickets.
 import {
   Controller,
+  Get,
   Post,
+  Param,
   UseGuards,
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  NotFoundException,
+  ForbiddenException,
+  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { env } from 'process';
+import { extname, resolve, sep } from 'path';
+import { createReadStream, statSync } from 'fs';
+import { join } from 'path';
+import type { Response } from 'express';
+import { randomInt } from 'crypto';
+
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.pdf'];
+const UPLOADS_DIR = resolve(join(process.cwd(), 'uploads'));
 
 @Controller('files')
-@UseGuards(JwtAuthGuard) //Protege las rutas de este controlador con autenticación JWT
 export class FilesController {
-  //Configuración para almacenar los archivos subidos en el sistema de archivos local
   @Post('upload')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FileInterceptor('file', {
-      //Configurar el guardado local
       storage: diskStorage({
-        destination: env.FILE_UPLOAD_PATH || './uploads',
-        filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          cb(null, `chat-${uniqueSuffix}${ext}`);
-        },
+        destination: join(process.cwd(), 'uploads'),
+      filename: (req, file, cb) => {
+        const ext = extname(file.originalname).toLowerCase();
+        if (!ALLOWED_EXTENSIONS.includes(ext)) {
+          cb(new BadRequestException('Solo se permiten imágenes (JPG, PNG, WEBP) o PDFs') as any, false as any);
+          return;
+        }
+        const uniqueSuffix =
+          Date.now() + '-' + randomInt(0, 1e9);
+        cb(null, `chat-${uniqueSuffix}${ext}`);
+      },
       }),
-
-      //Limitar el tamaño del archivo a 5MB
       limits: { fileSize: 5 * 1024 * 1024 },
-      //Filtrar los tipos de archivos permitidos
       fileFilter: (req, file, cb) => {
         const allowedTypes = [
           'image/jpeg',
@@ -44,8 +54,6 @@ export class FilesController {
           'image/webp',
           'application/pdf',
         ];
-
-        //Validar el tipo de archivo, solo se permiten imágenes (JPG, PNG, WEBP) o PDFs
         if (!allowedTypes.includes(file.mimetype))
           return cb(
             new BadRequestException(
@@ -53,22 +61,18 @@ export class FilesController {
             ),
             false,
           );
-
         cb(null, true);
       },
     }),
   )
-
-  //Funcion para manejar la subida de archivos, valida el archivo y devuelve la URL de acceso al mismo
   uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file)
       throw new BadRequestException(
         'Archivo no proporcionado o formato no permitido',
       );
 
-    //Construir la URL de acceso al archivo subido (asumiendo que el servidor sirve los archivos desde /uploads)
-    const host = env.API_URL || 'http://localhost:3000';
-    const fileUrl = `${host}/uploads/${file.filename}`;
+    const host = process.env.API_URL || 'http://localhost:3000';
+    const fileUrl = `${host}/files/${file.filename}`;
 
     const isPDF = file.mimetype === 'application/pdf';
 
@@ -78,5 +82,21 @@ export class FilesController {
       tipo: isPDF ? 'DOCUMENTO' : 'IMAGEN',
       nombreOriginal: file.originalname,
     };
+  }
+
+  @Get(':filename')
+  @UseGuards(JwtAuthGuard)
+  async serveFile(@Param('filename') filename: string, @Res() res: Response) {
+    const filePath = resolve(UPLOADS_DIR, filename);
+    if (!filePath.startsWith(UPLOADS_DIR + sep)) {
+      throw new ForbiddenException('Access denied');
+    }
+    try {
+      const stats = statSync(filePath);
+      const stream = createReadStream(filePath);
+      stream.pipe(res);
+    } catch {
+      throw new NotFoundException('Archivo no encontrado');
+    }
   }
 }

@@ -10,13 +10,12 @@ import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import * as cookie from 'cookie';
 import { AuthService } from '../../modules/auth/auth.service';
-import { env } from 'process';
 import { JwtPayload } from '../guards/jwt-auth.guard';
 
 @WebSocketGateway({
   namespace: '/notifications',
   cors: {
-    origin: env.HTTP_ORIGIN || 'http://localhost:3000',
+    origin: process.env.HTTP_ORIGIN || 'http://localhost:3000',
     credentials: true,
   },
 })

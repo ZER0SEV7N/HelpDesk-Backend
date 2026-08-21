@@ -48,8 +48,8 @@ export class EquiposController {
 
   @Post()
   @Roles(
-    'ADMINISTRADOR', 
-    'SOPORTE_TECNICO' ,
+    'ADMINISTRADOR',
+    'SOPORTE_TECNICO',
     'CLIENTE_EMPRESA',
     'CLIENTE_SUCURSAL',
   )
@@ -87,7 +87,13 @@ export class EquiposController {
   }
 
   @Patch(':id')
-  @Roles('ADMINISTRADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL',)
+  @Roles(
+    'ADMINISTRADOR',
+    'SOPORTE_TECNICO',
+    'SOPORTE_INSITU',
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+  )
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateEquipoDto: UpdateEquipoDto,
@@ -151,7 +157,12 @@ export class EquiposController {
     @Body() dto: UpdateEquipoHardwareDto,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.updateEquipoHardwareUseCase.execute(id, idRegistro, dto, req.user);
+    return this.updateEquipoHardwareUseCase.execute(
+      id,
+      idRegistro,
+      dto,
+      req.user,
+    );
   }
 
   // Editar un componente de SOFTWARE instalado en el equipo
@@ -164,6 +175,11 @@ export class EquiposController {
     @Body() dto: UpdateEquipoSoftwareDto,
     @Request() req: Request & { user: JwtPayload },
   ) {
-    return this.updateEquipoSoftwareUseCase.execute(id, idInstalacion, dto, req.user);
+    return this.updateEquipoSoftwareUseCase.execute(
+      id,
+      idInstalacion,
+      dto,
+      req.user,
+    );
   }
 }
