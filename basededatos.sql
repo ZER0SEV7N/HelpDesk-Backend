@@ -226,18 +226,15 @@ CREATE TABLE citas_soporte (
     id_cita INT AUTO_INCREMENT PRIMARY KEY,
     id_soporte INT NOT NULL,                     -- Usuario con rol SOPORTE_INSITU
     id_sucursal INT NOT NULL,                    -- Sucursal a la que asistirá
-    id_area INT NOT NULL,						 -- Área/departamento específico dentro de la sucursal
     fecha_programada DATETIME NOT NULL,          -- Fecha y hora pactada para la cita
     estado ENUM('Pendiente', 'En Camino', 'Completada', 'Cancelada', 'Reprogramada') DEFAULT 'Pendiente',
-    motivo VARCHAR(255) NOT NULL,               -- Breve descripción del motivo de la visita
     observaciones TEXT,                          -- Informe/notas del técnico tras la visita
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     -- Claves foráneas (Relaciones)
     CONSTRAINT fk_cita_soporte FOREIGN KEY (id_soporte) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
-    CONSTRAINT fk_cita_sucursal FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal) ON DELETE CASCADE,
-    CONSTRAINT fk_cita_area FOREIGN KEY (id_area) REFERENCES area(id_area) ON DELETE CASCADE
+    CONSTRAINT fk_cita_sucursal FOREIGN KEY (id_sucursal) REFERENCES sucursales(id_sucursal) ON DELETE CASCADE
 );
 
 -- -------------------------------------------------------

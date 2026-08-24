@@ -11,7 +11,7 @@ import { Hardware } from './entities/Hardware.entity';
 import { RegistroHardware } from './entities/RegistroHardware.entity';
 import { Software_equipos } from './entities/SoftwareEquipos.entity';
 import { Area } from './entities/Area.entity';
-import { Citas } from './entities/Citas.entity';
+import { Citas_Soporte } from './entities/Citas-Soporte.entity';
 
 export const AllEntities = [
   Usuario,
@@ -26,5 +26,5 @@ export const AllEntities = [
   RegistroHardware,
   Software_equipos,
   Area,
-  Citas,
+  Citas_Soporte,
 ];

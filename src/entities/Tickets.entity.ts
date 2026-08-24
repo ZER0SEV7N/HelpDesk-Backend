@@ -14,6 +14,7 @@ import {
 import { Equipos } from './Equipos.entity';
 import { Usuario } from './Usuario.entity';
 import { Clientes } from './Clientes.entity';
+import { Area } from './Area.entity';
 
 //Definir los estados posibles de un ticket
 export enum TicketStatus {
