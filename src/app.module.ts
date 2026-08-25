@@ -16,7 +16,7 @@ import { DashboardsModule } from './dashboards/dashboards.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { EmailModule } from './common/email/email.module';
-import { CitasModule } from './citas/citas.module';
+import { CitasModule } from './citas_soporte/citas.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 

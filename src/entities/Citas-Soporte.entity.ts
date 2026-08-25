@@ -24,7 +24,7 @@ export enum EstadoCita {
 }
 
 @Entity('citas_soporte')
-export class Citas {
+export class Citas_Soporte {
   // Llave primaria auto-generada
   @PrimaryGeneratedColumn({ name: 'id_cita' })
   id_cita: number;
@@ -36,10 +36,6 @@ export class Citas {
   // Estado de la cita
   @Column({ type: 'enum', enum: EstadoCita, default: EstadoCita.PENDIENTE })
   estado: EstadoCita;
-
-  // CORREGIDO: nullable: false para alinearlo a tu SQL (NOT NULL)
-  @Column({ type: 'varchar', length: 255, nullable: false })
-  motivo: string;
 
   // Observaciones de la cita (opcional)
   @Column({ type: 'text', nullable: true })
@@ -63,7 +59,7 @@ export class Citas {
       referencedColumnName: 'id_ticket',
     },
   })
-  ticket: Tickets[];
+  tickets: Tickets[];
 
   // Relación de muchos a uno con la entidad Usuario (Soporte INSITU)
   @ManyToOne(() => Usuario, { nullable: false, onDelete: 'CASCADE' })
@@ -74,9 +70,4 @@ export class Citas {
   @ManyToOne(() => Sucursales, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'id_sucursal' })
   sucursal: Sucursales;
-
-  // Relación de muchos a uno con la entidad Area
-  @ManyToOne(() => Area, { nullable: false, onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'id_area' })
-  area: Area;
 }
