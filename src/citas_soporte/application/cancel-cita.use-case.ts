@@ -22,9 +22,8 @@ export class CancelCitaUseCase {
     // Obtener la cita por su ID
     const cita = await this.citasRepository.findOne({
       where: { id_cita },
-      relations: ['tickets', 'sucursal'],
+      relations: ['tickets', 'sucursal', 'soporte_insitu'],
     });
-    const soporteAsignado = cita?.soporte_insitu?.id_usuario;
     // Validar que la cita exista
     if (!cita) {
       throw new Error(`La cita #${id_cita} no existe.`);
@@ -38,6 +37,7 @@ export class CancelCitaUseCase {
     // Obtenemos el usuario
     const usuario = await this.usuarioRepository.findOne({
       where: { id_usuario: id_user },
+      relations: ['rol'],
     });
     // Validar que el usuario exista
     if (!usuario) throw new Error(`El usuario #${id_user} no existe.`);
