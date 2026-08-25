@@ -10,10 +10,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+import { Usuario } from './Usuario.entity';
 import { Tickets } from './Tickets.entity';
 import { Clientes } from './Clientes.entity';
 import { Sucursales } from './Sucursales.entity';
-import { Usuario } from './Usuario.entity';
 
 // Importa las entidades Hardware y Software desde la misma carpeta entities
 import { Software_equipos } from './SoftwareEquipos.entity';
@@ -34,16 +34,6 @@ export class Equipos {
   @Column({ name: 'num_serie', length: 100 })
   numero_serie: string;
 
-  @Column({ name: 'nombre_usuario', length: 100, nullable: true })
-  nombre_usuario: string;
-
-  @Column({ name: 'id_trabajador', nullable: true })
-  id_trabajador?: number;
-
-  @ManyToOne(() => Usuario, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'id_trabajador' })
-  trabajador?: Usuario;
-
   @Column({ name: 'area', length: 100, nullable: true })
   area: string;
 
@@ -62,12 +52,25 @@ export class Equipos {
   @Column()
   id_cliente: number;
 
+  @Column({ name: 'id_trabajador', nullable: true })
+  id_trabajador?: number | null;
+
+  // Relacion con la tabla Usuario (muchos a uno) para el trabajador asignado al equipo
+  @ManyToOne(() => Usuario, (usuario) => usuario.equipos, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'id_trabajador' })
+  trabajador?: Usuario;
+
+  // Relacion con la tabla Cliente (muchos a uno) para el cliente al que pertenece el equipo
   @ManyToOne(() => Clientes, (cliente) => cliente.equipos, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id_cliente' })
   cliente: Clientes;
 
+  // Relacion con la tabla Sucursal (muchos a uno) para la sucursal a la que pertenece el equipo
   @Column({ nullable: true })
   id_sucursal?: number;
 
