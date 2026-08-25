@@ -10,6 +10,9 @@ import { RelocateCitaUseCase } from './application/relocate-cita.use-case';
 import { UpdateCitaUseCase } from './application/update-cita.use-case';
 import { Usuario } from '@/entities/Usuario.entity';
 import { AddTicketsToCitaUseCase } from './application/add-tickets-to-cita.use-case';
+import { StartCitaUseCase } from './application/start-cita.use-case';
+import { CompleteCitaUseCase } from './application/complete-cita.use-case';
+import { CancelCitaUseCase } from './application/cancel-cita.use-case';
 
 @Module({
   controllers: [CitasController],
@@ -21,6 +24,9 @@ import { AddTicketsToCitaUseCase } from './application/add-tickets-to-cita.use-c
     RelocateCitaUseCase,
     UpdateCitaUseCase,
     AddTicketsToCitaUseCase,
+    StartCitaUseCase,
+    CompleteCitaUseCase,
+    CancelCitaUseCase,
   ], // Aca se agregaran casos de uso y servicios relacionados con Citas
   imports: [TypeOrmModule.forFeature([Citas_Soporte, Tickets, Usuario])], // Importar la entidad Citas para que TypeORM la reconozca
 })
