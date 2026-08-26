@@ -4,6 +4,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CancelCitaDto } from '../dto/cancel-cita.dto';
+import { JwtPayload } from '@/common/guards/jwt-auth.guard';
 
 @Injectable()
 export class CancelCitaUseCase {
@@ -16,7 +17,7 @@ export class CancelCitaUseCase {
 
   async execute(
     id_cita: number,
-    id_user: number,
+    user: JwtPayload,
     dto: CancelCitaDto,
   ): Promise<string> {
     // Obtener la cita por su ID
@@ -37,12 +38,12 @@ export class CancelCitaUseCase {
     }
     // Obtenemos el usuario
     const usuario = await this.usuarioRepository.findOne({
-      where: { id_usuario: id_user },
+      where: { id_usuario: user.userId },
     });
     // Validar que el usuario exista
-    if (!usuario) throw new Error(`El usuario #${id_user} no existe.`);
+    if (!usuario) throw new Error(`El usuario #${user.userId} no existe.`);
     // Comprobar permisos
-    const esSoporteAsignado = cita.soporte_insitu?.id_usuario === id_user;
+    const esSoporteAsignado = cita.soporte_insitu?.id_usuario === user.userId;
     const esAdmin = usuario.rol?.nombre === 'ADMINISTRADOR';
     if (!esSoporteAsignado && !esAdmin) {
       throw new ForbiddenException(

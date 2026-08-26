@@ -105,29 +105,32 @@ export class CitasController {
     return this.addTicketsToCitaUseCase.execute(id_cita_actual, dto);
   }
 
-  @Post('/start/:id/:userId')
+  @Post('/start/:id')
   @Roles('ADMINISTRADOR', 'SOPORTE_INSITU')
-  startCita(@Param('id') id_cita: number, @Param('userId') id_user: number) {
-    return this.startCitaUseCase.execute(id_cita, id_user);
+  startCita(
+    @Param('id') id_cita: number,
+    @Request() req: Request & { user: JwtPayload },
+  ) {
+    return this.startCitaUseCase.execute(id_cita, req.user);
   }
 
-  @Post('/complete/:id/:userId')
+  @Post('/complete/:id')
   @Roles('ADMINISTRADOR', 'SOPORTE_INSITU')
   completeCita(
     @Param('id') id_cita: number,
-    @Param('userId') id_user: number,
+    @Request() req: Request & { user: JwtPayload },
     @Body() dto: CompleteCitaDto,
   ) {
-    return this.completeCitaUseCase.execute(id_cita, id_user, dto);
+    return this.completeCitaUseCase.execute(id_cita, req.user, dto);
   }
 
-  @Post('/cancel/:id/:userId')
+  @Post('/cancel/:id')
   @Roles('ADMINISTRADOR', 'SOPORTE_INSITU')
   cancelCita(
     @Param('id') id_cita: number,
-    @Param('userId') id_user: number,
+    @Request() req: Request & { user: JwtPayload },
     @Body() dto: CancelCitaDto,
   ) {
-    return this.cancelCitaUseCase.execute(id_cita, id_user, dto);
+    return this.cancelCitaUseCase.execute(id_cita, req.user, dto);
   }
 }
