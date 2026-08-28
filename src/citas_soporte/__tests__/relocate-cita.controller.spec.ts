@@ -3,13 +3,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
-// 1. Controlador, DTO y Payload bajo prueba
+// Controlador, DTO y Caso de Uso principal bajo prueba
 import { CitasController } from '../citas.controller';
 import { RelocateCitaUseCase } from '../application/relocate-cita.use-case';
 import { RelocateCitaDto } from '../dto/relocate-cita.dto';
-import { JwtPayload } from '@/common/guards/jwt-auth.guard';
 
-// 2. Mocks de los demás casos de uso requeridos por CitasController
+// Mocks de los demás casos de uso requeridos por CitasController
 import { CreateCitaUseCase } from '../application/create-cita.use-case';
 import { CronogramaCitaUseCase } from '../application/cronograma-cita.use-case';
 import { FindAllCitaUseCase } from '../application/find-all-cita.use-case';
@@ -24,14 +23,6 @@ describe('CitasController - POST /citas/relocate/:id (Reprogramar Cita)', () => 
   let controller: CitasController;
   let relocateCitaUseCase: RelocateCitaUseCase;
   let reflector: Reflector;
-
-  // Mock global del usuario con el tipo JwtPayload
-  const mockUser: JwtPayload = {
-    userId: 3,
-    clienteId: 1,
-    role: 'SOPORTE_INSITU',
-    sub: 3,
-  } as any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -90,7 +81,6 @@ describe('CitasController - POST /citas/relocate/:id (Reprogramar Cita)', () => 
 
     const result = await controller.relocateCita(citaIdActual, dto);
 
-    // Valida que el controlador entregue el DTO y el id_cita al caso de uso
     expect(relocateCitaUseCase.execute).toHaveBeenCalledWith(dto, citaIdActual);
     expect(result).toEqual(mockResponse);
   });

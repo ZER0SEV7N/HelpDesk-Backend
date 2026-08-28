@@ -7,13 +7,13 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 
-// 1. Controlador, JwtPayload y Caso de Uso bajo prueba
+// Controlador, JwtPayload y Caso de Uso bajo prueba
 import { CitasController } from '../citas.controller';
 import { CompleteCitaUseCase } from '../application/complete-cita.use-case';
 import { CompleteCitaDto } from '../dto/complete-cita.dto';
 import { JwtPayload } from '@/common/guards/jwt-auth.guard';
 
-// 2. Mocks de los demás casos de uso requeridos por CitasController
+// Mocks de los demás casos de uso requeridos por CitasController
 import { CreateCitaUseCase } from '../application/create-cita.use-case';
 import { CronogramaCitaUseCase } from '../application/cronograma-cita.use-case';
 import { FindAllCitaUseCase } from '../application/find-all-cita.use-case';
@@ -88,6 +88,10 @@ describe('CitasController - POST /citas/complete/:id (Completar Cita)', () => {
       mockUser,
       dto,
     );
+
+    // Nota: Al invocar directamente el método del controlador en tests unitarios, el valor retornado
+    // es la respuesta directa del servicio. La envoltura global del TransformInterceptor
+    // ({ statusCode, data, message }) solo aplica durante el flujo HTTP real (pruebas E2E).
     expect(result).toBe(mockResponse);
   });
 

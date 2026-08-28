@@ -1,14 +1,12 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Reflector } from '@nestjs/core'; // Importación de Reflector para consultar metadatos de decoradores (@Roles)
+import { Reflector } from '@nestjs/core';
 
-// Importaciones de los controladores
+// Controlador y Caso de Uso principal bajo prueba
 import { CitasController } from '../citas.controller';
-
-// Importaciones de los casos de uso a testear
 import { FindAllCitaUseCase } from '../application/find-all-cita.use-case';
 
-// Importaciones de los casos de uso que no se van a testear pero son necesarios para completar el constructor
+// Mocks de los demás casos de uso requeridos por CitasController
 import { CreateCitaUseCase } from '../application/create-cita.use-case';
 import { CronogramaCitaUseCase } from '../application/cronograma-cita.use-case';
 import { FindOneCitaUseCase } from '../application/find-one-cita.use-case';
@@ -22,18 +20,17 @@ import { CancelCitaUseCase } from '../application/cancel-cita.use-case';
 describe('CitasController - GET /citas (Listar Citas)', () => {
   let controller: CitasController;
   let findAllCitasUseCase: FindAllCitaUseCase;
-  let reflector: Reflector; // Instancia de Reflector para inspeccionar metadatos de NestJS
+  let reflector: Reflector;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CitasController],
       providers: [
-        Reflector, // Proveemos el Reflector dentro del contexto de testing
+        Reflector,
         {
           provide: FindAllCitaUseCase,
           useValue: { execute: jest.fn() },
         },
-        // Mocks vacíos para aislar el controlador de sus otras dependencias
         { provide: CreateCitaUseCase, useValue: {} },
         { provide: CronogramaCitaUseCase, useValue: {} },
         { provide: FindOneCitaUseCase, useValue: {} },
@@ -60,7 +57,6 @@ describe('CitasController - GET /citas (Listar Citas)', () => {
   // ==========================================
 
   it('debe permitir a un ADMINISTRADOR listar todas las citas formateadas según el DTO', async () => {
-    // Simulación del payload extraído del JWT en el Request por el AuthGuard
     const mockRequest = {
       user: {
         userId: 1,
@@ -101,14 +97,12 @@ describe('CitasController - GET /citas (Listar Citas)', () => {
       },
     ];
 
-    // Espiamos el caso de uso y mockeamos una resolución exitosa de datos
     jest
       .spyOn(findAllCitasUseCase, 'execute')
       .mockResolvedValue(mockCitasResponse as any);
 
     const result = await controller.findAll(mockRequest as any);
 
-    // Verificamos que se envíe únicamente la propiedad user al caso de uso y devuelva el DTO intacto
     expect(findAllCitasUseCase.execute).toHaveBeenCalledWith(mockRequest.user);
     expect(result).toEqual(mockCitasResponse);
   });
@@ -161,13 +155,11 @@ describe('CitasController - GET /citas (Listar Citas)', () => {
   // ==========================================
 
   it('debe validar la metadata del decorador @Roles en el endpoint findAll', () => {
-    // Extraemos los roles configurados directamente en el método findAll usando el Reflector
     const roles = reflector.get<string[]>(
       'roles',
       CitasController.prototype.findAll,
     );
 
-    // Comprobamos que el arreglo de metadatos exista y contenga los roles autorizados
     expect(roles).toBeDefined();
     expect(roles).toEqual(
       expect.arrayContaining(['ADMINISTRADOR', 'SOPORTE_INSITU']),
@@ -180,7 +172,6 @@ describe('CitasController - GET /citas (Listar Citas)', () => {
       CitasController.prototype.findAll,
     );
 
-    // Verificamos explícitamente que ningún rol de tipo cliente esté presente en los metadatos permitidos
     expect(roles).not.toContain('CLIENTE_EMPRESA');
     expect(roles).not.toContain('CLIENTE_SUCURSAL');
     expect(roles).not.toContain('CLIENTE_TRABAJADOR');

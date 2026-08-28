@@ -3,13 +3,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
-// 1. Controlador, DTO y Payload bajo prueba
+// Controlador, DTO y Caso de Uso principal bajo prueba
 import { CitasController } from '../citas.controller';
 import { UpdateCitaUseCase } from '../application/update-cita.use-case';
 import { UpdateCitaDto } from '../dto/update-cita-dto';
-import { JwtPayload } from '@/common/guards/jwt-auth.guard';
 
-// 2. Mocks de los demás casos de uso requeridos para instanciar CitasController
+// Mocks de los demás casos de uso requeridos por CitasController
 import { CreateCitaUseCase } from '../application/create-cita.use-case';
 import { CronogramaCitaUseCase } from '../application/cronograma-cita.use-case';
 import { FindAllCitaUseCase } from '../application/find-all-cita.use-case';
@@ -24,14 +23,6 @@ describe('CitasController - PATCH /citas/:id (Actualizar Cita)', () => {
   let controller: CitasController;
   let updateCitaUseCase: UpdateCitaUseCase;
   let reflector: Reflector;
-
-  // Mock global del usuario para pruebas con JwtPayload
-  const mockUser: JwtPayload = {
-    userId: 3,
-    clienteId: 1,
-    role: 'SOPORTE_INSITU',
-    sub: 3,
-  } as any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

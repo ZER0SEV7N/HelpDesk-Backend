@@ -2,6 +2,7 @@ import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
 
+// Controlador y Caso de Uso principal bajo prueba
 import { CitasController } from '../citas.controller';
 import { CreateCitaUseCase } from '../application/create-cita.use-case';
 import { CreateCitaDto } from '../dto/create-cita-dto';
@@ -69,6 +70,7 @@ describe('CitasController - POST /citas (Crear Cita)', () => {
     const result = await controller.create(dto);
 
     expect(createCitaUseCase.execute).toHaveBeenCalledWith(dto);
+    // En invocaciones unitarias directas, el resultado corresponde a la respuesta directa del Use Case.
     expect(result).toEqual(expectedResponse);
   });
 

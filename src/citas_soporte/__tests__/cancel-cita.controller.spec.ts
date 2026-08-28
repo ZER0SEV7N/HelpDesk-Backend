@@ -1,15 +1,19 @@
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
-import { ForbiddenException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 
-// 1. Controlador, DTO y JwtPayload
+// Controlador, DTO y JwtPayload
 import { CitasController } from '../citas.controller';
 import { CancelCitaUseCase } from '../application/cancel-cita.use-case';
 import { CancelCitaDto } from '../dto/cancel-cita.dto';
 import { JwtPayload } from '@/common/guards/jwt-auth.guard';
 
-// 2. Mocks de los demás casos de uso requeridos por CitasController
+// Mocks de los demás casos de uso requeridos por CitasController
 import { CreateCitaUseCase } from '../application/create-cita.use-case';
 import { CronogramaCitaUseCase } from '../application/cronograma-cita.use-case';
 import { FindAllCitaUseCase } from '../application/find-all-cita.use-case';
@@ -65,6 +69,7 @@ describe('CitasController - POST /citas/cancel/:id/:userId (Cancelar Cita)', () 
       sub: 3,
       role: 'SOPORTE_INSITU',
     };
+    const mockRequest = { user: mockUser } as any;
     const dto: CancelCitaDto = {
       motivo_cancelacion: 'Cliente no asistió y no responde a las llamadas.',
     };
@@ -72,7 +77,7 @@ describe('CitasController - POST /citas/cancel/:id/:userId (Cancelar Cita)', () 
 
     jest.spyOn(cancelCitaUseCase, 'execute').mockResolvedValue(mockResponse);
 
-    const result = await controller.cancelCita(citaId, mockUser as any, dto);
+    const result = await controller.cancelCita(citaId, mockRequest, dto);
 
     // Verifica que se pase citaId, mockUser (JwtPayload) y el DTO
     expect(cancelCitaUseCase.execute).toHaveBeenCalledWith(
@@ -87,24 +92,25 @@ describe('CitasController - POST /citas/cancel/:id/:userId (Cancelar Cita)', () 
   // REGLAS DE NEGOCIO Y EXCEPCIONES PROPAGADAS
   // =========================================================================
 
-  it('debe propagar un Error si la cita a cancelar no existe en la BD', async () => {
+  it('debe propagar NotFoundException si la cita a cancelar no existe en la BD', async () => {
     const citaId = 999;
     const mockUser: JwtPayload = {
       userId: 3,
       sub: 3,
       role: 'SOPORTE_INSITU',
     };
+    const mockRequest = { user: mockUser } as any;
     const dto: CancelCitaDto = {
       motivo_cancelacion: 'Cancelación de cita inexistente',
     };
 
     jest
       .spyOn(cancelCitaUseCase, 'execute')
-      .mockRejectedValue(new Error('La cita #999 no existe.'));
+      .mockRejectedValue(new NotFoundException('La cita #999 no existe.'));
 
     await expect(
-      controller.cancelCita(citaId, mockUser as any, dto),
-    ).rejects.toThrow('La cita #999 no existe.');
+      controller.cancelCita(citaId, mockRequest, dto),
+    ).rejects.toThrow(NotFoundException);
 
     expect(cancelCitaUseCase.execute).toHaveBeenCalledWith(
       citaId,
@@ -113,13 +119,14 @@ describe('CitasController - POST /citas/cancel/:id/:userId (Cancelar Cita)', () 
     );
   });
 
-  it('debe propagar un Error si la cita no está en estado PENDIENTE', async () => {
+  it('debe propagar BadRequestException si la cita no está en estado PENDIENTE', async () => {
     const citaId = 1;
     const mockUser: JwtPayload = {
       userId: 3,
       sub: 3,
       role: 'SOPORTE_INSITU',
     };
+    const mockRequest = { user: mockUser } as any;
     const dto: CancelCitaDto = {
       motivo_cancelacion: 'Intento de cancelar cita en progreso',
     };
@@ -127,16 +134,14 @@ describe('CitasController - POST /citas/cancel/:id/:userId (Cancelar Cita)', () 
     jest
       .spyOn(cancelCitaUseCase, 'execute')
       .mockRejectedValue(
-        new Error(
+        new BadRequestException(
           'La cita #1 no puede ser cancelada porque no está en estado PENDIENTE.',
         ),
       );
 
     await expect(
-      controller.cancelCita(citaId, mockUser as any, dto),
-    ).rejects.toThrow(
-      'La cita #1 no puede ser cancelada porque no está en estado PENDIENTE.',
-    );
+      controller.cancelCita(citaId, mockRequest, dto),
+    ).rejects.toThrow(BadRequestException);
 
     expect(cancelCitaUseCase.execute).toHaveBeenCalledWith(
       citaId,
@@ -145,24 +150,25 @@ describe('CitasController - POST /citas/cancel/:id/:userId (Cancelar Cita)', () 
     );
   });
 
-  it('debe propagar un Error si el usuario que intenta cancelar no existe', async () => {
+  it('debe propagar NotFoundException si el usuario que intenta cancelar no existe', async () => {
     const citaId = 1;
     const mockUser: JwtPayload = {
       userId: 888,
       role: 'SOPORTE_INSITU',
       sub: 888,
     };
+    const mockRequest = { user: mockUser } as any;
     const dto: CancelCitaDto = {
       motivo_cancelacion: 'Cancelación por usuario no registrado',
     };
 
     jest
       .spyOn(cancelCitaUseCase, 'execute')
-      .mockRejectedValue(new Error('El usuario #888 no existe.'));
+      .mockRejectedValue(new NotFoundException('El usuario #888 no existe.'));
 
     await expect(
-      controller.cancelCita(citaId, mockUser as any, dto),
-    ).rejects.toThrow('El usuario #888 no existe.');
+      controller.cancelCita(citaId, mockRequest, dto),
+    ).rejects.toThrow(NotFoundException);
 
     expect(cancelCitaUseCase.execute).toHaveBeenCalledWith(
       citaId,
@@ -178,6 +184,7 @@ describe('CitasController - POST /citas/cancel/:id/:userId (Cancelar Cita)', () 
       sub: 5,
       role: 'SOPORTE_INSITU',
     };
+    const mockRequest = { user: mockUser } as any;
     const dto: CancelCitaDto = {
       motivo_cancelacion: 'Solicitud no autorizada',
     };
@@ -191,7 +198,7 @@ describe('CitasController - POST /citas/cancel/:id/:userId (Cancelar Cita)', () 
       );
 
     await expect(
-      controller.cancelCita(citaId, mockUser as any, dto),
+      controller.cancelCita(citaId, mockRequest, dto),
     ).rejects.toThrow(ForbiddenException);
 
     expect(cancelCitaUseCase.execute).toHaveBeenCalledWith(

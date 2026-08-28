@@ -2,9 +2,11 @@ import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
 
+// Controlador y Caso de Uso principal bajo prueba
 import { CitasController } from '../citas.controller';
 import { FindOneCitaUseCase } from '../application/find-one-cita.use-case';
 
+// Mocks de los demás casos de uso requeridos por CitasController
 import { CreateCitaUseCase } from '../application/create-cita.use-case';
 import { CronogramaCitaUseCase } from '../application/cronograma-cita.use-case';
 import { FindAllCitaUseCase } from '../application/find-all-cita.use-case';

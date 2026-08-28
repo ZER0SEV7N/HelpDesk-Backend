@@ -7,12 +7,12 @@ import {
   ConflictException,
 } from '@nestjs/common';
 
-// 1. Controlador y Caso de Uso principal bajo prueba
+// Controlador y Caso de Uso principal bajo prueba
 import { CitasController } from '../citas.controller';
 import { AddTicketsToCitaUseCase } from '../application/add-tickets-to-cita.use-case';
 import { AddTicketsToCitaDto } from '../dto/add-tickets-to-cita.dto';
 
-// 2. Mocks de los demás casos de uso requeridos para resolver la inyección de dependencias de CitasController
+// Mocks de los demás casos de uso requeridos para resolver la inyección de dependencias de CitasController
 import { CreateCitaUseCase } from '../application/create-cita.use-case';
 import { CronogramaCitaUseCase } from '../application/cronograma-cita.use-case';
 import { FindAllCitaUseCase } from '../application/find-all-cita.use-case';
@@ -82,6 +82,10 @@ describe('CitasController - POST /citas/add-tickets/:id (Agregar Tickets a Cita)
 
     // Valida que el controlador entregue los parámetros correctos al caso de uso
     expect(addTicketsToCitaUseCase.execute).toHaveBeenCalledWith(citaId, dto);
+
+    // Nota: Al invocar directamente el método del controlador en tests unitarios, el valor retornado
+    // es la respuesta directa del servicio. La envoltura global del TransformInterceptor ({ statusCode, data, message })
+    // solo se aplica durante el flujo HTTP real (pruebas E2E).
     expect(result).toBe(mockResponse);
   });
 

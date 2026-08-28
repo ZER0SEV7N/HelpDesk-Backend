@@ -7,12 +7,12 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 
-// 1. Controlador, JwtPayload y Caso de Uso bajo prueba
+// Controlador y Caso de Uso principal bajo prueba
 import { CitasController } from '../citas.controller';
 import { StartCitaUseCase } from '../application/start-cita.use-case';
 import { JwtPayload } from '@/common/guards/jwt-auth.guard';
 
-// 2. Mocks de los demás casos de uso requeridos por el controlador
+// Mocks de los demás casos de uso requeridos por CitasController
 import { CreateCitaUseCase } from '../application/create-cita.use-case';
 import { CronogramaCitaUseCase } from '../application/cronograma-cita.use-case';
 import { FindAllCitaUseCase } from '../application/find-all-cita.use-case';
@@ -76,7 +76,6 @@ describe('CitasController - POST /citas/start/:id (Iniciar Cita)', () => {
 
     const result = await controller.startCita(citaId, mockRequest);
 
-    // Verifica que el controlador envíe req.user en lugar del parámetro userId
     expect(startCitaUseCase.execute).toHaveBeenCalledWith(citaId, mockUser);
     expect(result).toBe(mockResponse);
   });
