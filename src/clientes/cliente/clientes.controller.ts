@@ -95,9 +95,9 @@ export class ClientesController {
 
   //-----------------------------------------------------------------
   // Actualizar/Renovar el contrato de un cliente (Solo ADMINISTRADOR)
-  // PATCH /clientes/contract/:id
+  // PATCH /clientes/:id/contrato
   //-----------------------------------------------------------------
-  @Patch('contract/:id')
+  @Patch(':id/contrato')
   @Roles('ADMINISTRADOR')
   updateContract(
     @Param('id', ParseIntPipe) id: number,
