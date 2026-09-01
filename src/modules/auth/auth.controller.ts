@@ -7,10 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
-<<<<<<< HEAD
-=======
   UnauthorizedException,
->>>>>>> origin/leandro
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';

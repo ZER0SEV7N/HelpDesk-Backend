@@ -19,17 +19,6 @@ export class FindOneEquipoUseCase {
   ) {}
 
   async execute(id: number, userToken: JwtPayload) {
-<<<<<<< HEAD
-    const equipo = await this.findAllUseCase.findOneById(id, userToken);
-
-    if (!equipo) {
-      throw new NotFoundException(
-        `Equipo con id ${id} no encontrado o no tienes permiso para verlo`,
-      );
-    }
-
-    return equipo;
-=======
     const usuarioReal = await this.usuarioRepo.findOneBy({
       id_usuario: userToken.userId,
     });
@@ -75,6 +64,5 @@ export class FindOneEquipoUseCase {
     }
 
     return await query.getOne();
->>>>>>> origin/leandro
   }
 }

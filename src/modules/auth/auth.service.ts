@@ -95,17 +95,12 @@ export class AuthService {
     };
 
     const token = this.jwtService.sign(payload);
-<<<<<<< HEAD
-    const { password: _password, ...userSinPassword } = user as unknown as Record<string, unknown>;
-    return { user: userSinPassword, role: user.rol.nombre, token };
-=======
 
     return {
       user,
       role: user.rol.nombre,
       token,
     };
->>>>>>> origin/leandro
   }
 
   /**
@@ -125,14 +120,10 @@ export class AuthService {
       await this.emailService.sendPasswordRecovery(user.correo, resetToken);
     }
 
-<<<<<<< HEAD
-    return { message: 'Si el correo está registrado, recibirás un enlace de recuperación' };
-=======
     return {
       message:
         'Si el correo está registrado, recibirás un enlace de recuperación',
     };
->>>>>>> origin/leandro
   }
 
   /**
