@@ -16,6 +16,9 @@ import { DashboardsModule } from './dashboards/dashboards.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { EmailModule } from './common/email/email.module';
+import { CitasModule } from './citas_soporte/citas.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -33,7 +36,12 @@ import { EmailModule } from './common/email/email.module';
     UsuarioModule,
     EmailModule,
     PlanesModule,
+    CitasModule,
     DashboardsModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'), // Carpeta donde se almacenan los archivos subidos
+      serveRoot: '/uploads', // Ruta base para acceder a los archivos (ejemplo: http://localhost:3000/uploads/archivo.jpg)
+    }),
   ],
 
   controllers: [AppController],

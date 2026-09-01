@@ -64,6 +64,7 @@ export class FindAllEquiposUseCase {
 
     return await query.getMany();
   }
+<<<<<<< HEAD
 
   async findOneById(id: number, userToken: JwtPayload) {
     const usuarioReal = await this.usuarioRepo.findOneBy({
@@ -112,4 +113,6 @@ export class FindAllEquiposUseCase {
 
     return await query.getOne();
   }
+=======
+>>>>>>> origin/leandro
 }

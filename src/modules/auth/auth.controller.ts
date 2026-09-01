@@ -7,6 +7,10 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+<<<<<<< HEAD
+=======
+  UnauthorizedException,
+>>>>>>> origin/leandro
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -49,21 +53,18 @@ export class AuthController {
   } */
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(
-    @Body() dto: LoginDTO,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async login(@Body() dto: LoginDTO, @Res() res: Response) {
     const { user, token, role } = await this.authService.login(dto);
 
-    // Configuración robusta de la Cookie segura HttpOnly
     res.cookie('jwt', token, {
       httpOnly: true,
-      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24, // 1 día
+      maxAge: 1000 * 60 * 60 * 24,
     });
 
-    return {
+    // Respondemos explícitamente enviando el JSON directo
+    return res.status(HttpStatus.OK).json({
       message: 'Login exitoso',
       user: {
         nombre: user.nombre,
@@ -71,7 +72,7 @@ export class AuthController {
         correo: user.correo,
         role: role,
       },
-    };
+    });
   }
 
   //Post: /auth/logout

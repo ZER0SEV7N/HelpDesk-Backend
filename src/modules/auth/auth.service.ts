@@ -73,17 +73,19 @@ export class AuthService {
   async login(dto: LoginDTO) {
     const user = await this.usuariosRepo.findOne({
       where: { correo: dto.correo },
-      relations: ['rol'],
+      relations: ['rol'], // Asegura que el rol se cargue junto con el usuario
     });
 
+    //En caso de que no exista el usuario
     if (!user || !user.is_active)
-      throw new UnauthorizedException(
-        'Credenciales incorrectas o cuenta inactiva',
-      );
+      throw new UnauthorizedException('Correo incorrecto');
 
+    //Verificar contraseña
     const isPasswordValid = await bcrypt.compare(dto.password, user.password);
-    if (!isPasswordValid)
-      throw new UnauthorizedException('Credenciales incorrectas');
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Contraseña incorrecta');
+    }
 
     const payload = {
       sub: user.id_usuario,
@@ -93,8 +95,17 @@ export class AuthService {
     };
 
     const token = this.jwtService.sign(payload);
+<<<<<<< HEAD
     const { password: _password, ...userSinPassword } = user as unknown as Record<string, unknown>;
     return { user: userSinPassword, role: user.rol.nombre, token };
+=======
+
+    return {
+      user,
+      role: user.rol.nombre,
+      token,
+    };
+>>>>>>> origin/leandro
   }
 
   /**
@@ -114,7 +125,14 @@ export class AuthService {
       await this.emailService.sendPasswordRecovery(user.correo, resetToken);
     }
 
+<<<<<<< HEAD
     return { message: 'Si el correo está registrado, recibirás un enlace de recuperación' };
+=======
+    return {
+      message:
+        'Si el correo está registrado, recibirás un enlace de recuperación',
+    };
+>>>>>>> origin/leandro
   }
 
   /**

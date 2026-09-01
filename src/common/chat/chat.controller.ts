@@ -1,5 +1,18 @@
 // Helpdesk-app/src/chat/chat.controller.ts
+<<<<<<< HEAD
 import { Controller, Get, Param, ParseIntPipe, UseGuards, Req, ForbiddenException, NotFoundException } from '@nestjs/common';
+=======
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+  Req,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
+>>>>>>> origin/leandro
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RoleGuard } from '../guards/role.guard';
@@ -17,13 +30,28 @@ export class ChatController {
   ) {}
 
   @Get('historial/:ticketId')
+<<<<<<< HEAD
   @Roles('ADMINISTRADOR', 'CLIENTE_EMPRESA', 'CLIENTE_SUCURSAL', 'CLIENTE_TRABAJADOR', 'SOPORTE_TECNICO', 'SOPORTE_INSITU')
+=======
+  @Roles(
+    'ADMINISTRADOR',
+    'CLIENTE_EMPRESA',
+    'CLIENTE_SUCURSAL',
+    'CLIENTE_TRABAJADOR',
+    'SOPORTE_TECNICO',
+    'SOPORTE_INSITU',
+  )
+>>>>>>> origin/leandro
   async obtenerHistorial(
     @Param('ticketId', ParseIntPipe) ticketId: number,
     @Req() req: Request & { user: JwtPayload },
   ) {
     const ticket = await this.ticketService.getTicketById(ticketId, req.user);
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> origin/leandro
     const isAdmin = req.user.role === 'ADMINISTRADOR';
     const isAssignedTech = ticket.id_soporte === req.user.sub;
     const isCreator = ticket.id_trabajador === req.user.sub;

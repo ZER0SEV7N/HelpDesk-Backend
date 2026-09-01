@@ -1,4 +1,4 @@
-use helpdesk_db;
+USE helpdesk_db;
 
 -- 2. Insertar Planes
 INSERT planes VALUES 
@@ -23,20 +23,25 @@ INSERT sucursales VALUES
 (NULL, 'Sede Central', 'Carlos Mendoza', '01-444-5555', 'Av. Principal 123', 'sede.central@innovaciontech.com', 1, 1, NOW(), NOW()),
 (NULL, 'Sucursal Norte', 'María Vargas', '01-555-6666', 'Av. Norte 456', 'norte@innovaciontech.com', 1, 1, NOW(), NOW());
 
--- 5. Insertar Administrador por Defecto 
+-- 4.5 Insertar Áreas de Prueba (NUEVO: Requerido antes de insertar Usuarios)
+INSERT area VALUES
+(NULL, 'Sistemas y TI', 'Juan Perez', '01-444-5556', 'sistemas@innovaciontech.com', 1, 1, NOW(), NOW()),
+(NULL, 'Contabilidad', 'Ana Gomez', '01-444-5557', 'contabilidad@innovaciontech.com', 1, 1, NOW(), NOW());
+
+-- 5. Insertar Usuarios de Prueba (Corregido con 13 valores por la columna id_area)
 -- La contraseña encriptada es: 123456
 INSERT usuarios VALUES
-(NULL, 'Daniel', 'Singer', 'admin@zaint.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '987654321', 1, 1, NULL, NULL, NOW(), NOW()), -- ADMINISTRADOR
-(NULL, 'Ana', 'López', 'ana.soporte@zaint.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '999888771', 1, 2, NULL, NULL, NOW(), NOW()), -- SOPORTE_TECNICO
-(NULL, 'Luis', 'Torres', 'luis.insitu@zaint.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '999888772', 1, 3, NULL, NULL, NOW(), NOW()), -- SOPORTE_INSITU
-(NULL, 'Carlos', 'Mendoza', 'example@gmail.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '123456789', 1, 4, 1, 1, NOW(), NOW()), -- CLIENTE_EMPRESA
-(NULL, 'María', 'Vargas', 'maria.sucursal2@empresa1.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '988333441', 1, 5, 1, 2, NOW(), NOW()), -- CLIENTE_SUCURSAL
-(NULL, 'Jorge', 'Pérez', 'jorge.sede1@empresa1.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '988555661', 1, 6, 1, 1, NOW(), NOW()); -- CLIENTE_TRABAJADOR
+(NULL, 'Daniel', 'Singer', 'admin@zaint.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '987654321', 1, 1, NULL, NULL, NULL, NOW(), NOW()), -- ADMINISTRADOR
+(NULL, 'Ana', 'López', 'ana.soporte@zaint.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '999888771', 1, 2, NULL, NULL, NULL, NOW(), NOW()), -- SOPORTE_TECNICO
+(NULL, 'Luis', 'Torres', 'luis.insitu@zaint.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '999888772', 1, 3, NULL, NULL, NULL, NOW(), NOW()), -- SOPORTE_INSITU
+(NULL, 'Carlos', 'Mendoza', 'example@gmail.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '123456789', 1, 4, 1, 1, 1, NOW(), NOW()), -- CLIENTE_EMPRESA
+(NULL, 'María', 'Vargas', 'maria.sucursal2@empresa1.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '988333441', 1, 5, 1, 2, 2, NOW(), NOW()), -- CLIENTE_SUCURSAL
+(NULL, 'Jorge', 'Pérez', 'jorge.sede1@empresa1.com', '$2b$10$L9WqvZ/2MA57qBqdmzp6PuthNnR51zuKAv2vwswCwCH1lDmNe2A5S', '988555661', 1, 6, 1, 1, 1, NOW(), NOW()); -- CLIENTE_TRABAJADOR
 
 -- 6. Insertar Equipos de Prueba
 INSERT equipos VALUES
-(NULL, 'Desktop', 'Dell', 'DL-889900', 'Juan Perez', 'Contabilidad', '2026-01-15', '2026-07-15',6, 1, 1, 1, NOW(), NOW()),
-(NULL, 'Laptop', 'Lenovo', 'LN-112233', 'Maria Gomez', 'Gerencia', '2026-02-10', '2026-08-10',6, 1, 1, 1, NOW(), NOW());
+(NULL, 'Desktop', 'Dell', 'DL-889900', 'Juan Perez', 'Contabilidad', '2026-01-15', '2026-07-15', 6, 1, 1, 1, 1, NOW(), NOW()),
+(NULL, 'Laptop', 'Lenovo', 'LN-112233', 'Maria Gomez', 'Gerencia', '2026-02-10', '2026-08-10', 6, 1, 1, 1, 1, NOW(), NOW());
 
 -- 7. Insertar Catálogo de Software
 INSERT software VALUES
