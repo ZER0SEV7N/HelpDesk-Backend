@@ -1,7 +1,4 @@
 // Helpdesk-app/src/chat/chat.controller.ts
-<<<<<<< HEAD
-import { Controller, Get, Param, ParseIntPipe, UseGuards, Req, ForbiddenException, NotFoundException } from '@nestjs/common';
-=======
 import {
   Controller,
   Get,
@@ -12,7 +9,6 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
->>>>>>> origin/leandro
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RoleGuard } from '../guards/role.guard';
