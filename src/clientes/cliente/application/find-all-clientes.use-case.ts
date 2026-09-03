@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ClienteResponseHelper } from '../helpers/cliente-response.helper';
 import { Clientes } from '@/entities/Clientes.entity';
+import { ClienteFilterParamDTO } from '@/clientes/dto/cliente-filter-param.dto';
 
 @Injectable()
 export class FindAllClientesUseCase {
@@ -12,8 +13,16 @@ export class FindAllClientesUseCase {
     private readonly responseHelper: ClienteResponseHelper,
   ) {}
 
-  async execute() {
+  async execute(params: ClienteFilterParamDTO) {
+    // Construir el objeto where
+    const where: Record<string, any> = {};
+
+    if (params.tipo_cliente !== undefined)
+      where.tipo_cliente = params.tipo_cliente;
+    if (params.estado !== undefined) where.is_active = params.estado;
+
     const clientes = await this.clientesRepo.find({
+      where,
       relations: ['sucursales', 'plan'],
     });
     return clientes.map((cliente) =>
