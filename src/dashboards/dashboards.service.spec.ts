@@ -5,6 +5,9 @@ import { Repository } from 'typeorm';
 import { Tickets, TicketStatus } from '@/entities/Tickets.entity';
 import { Usuario } from '@/entities/Usuario.entity';
 import { Equipos } from '@/entities/Equipos.entity';
+import { Citas_Soporte } from '@/entities/Citas-Soporte.entity';
+import { Clientes } from '@/entities/Clientes.entity';
+import { Sucursales } from '@/entities/Sucursales.entity';
 
 describe('DashboardsService', () => {
   let service: DashboardsService;
@@ -72,6 +75,27 @@ describe('DashboardsService', () => {
           provide: getRepositoryToken(Equipos),
           useValue: {
             createQueryBuilder: jest.fn(() => equipoQbMock),
+          },
+        },
+        {
+          provide: getRepositoryToken(Citas_Soporte),
+          useValue: {
+            count: jest.fn().mockResolvedValue(0),
+            findOne: jest.fn().mockResolvedValue(null),
+            createQueryBuilder: jest.fn(() => ticketQbMock),
+          },
+        },
+        {
+          provide: getRepositoryToken(Clientes),
+          useValue: {
+            findOne: jest.fn().mockResolvedValue(null),
+          },
+        },
+        {
+          provide: getRepositoryToken(Sucursales),
+          useValue: {
+            count: jest.fn().mockResolvedValue(0),
+            findOne: jest.fn().mockResolvedValue(null),
           },
         },
       ],
