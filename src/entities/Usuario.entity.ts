@@ -16,6 +16,7 @@ import { Tickets } from './Tickets.entity';
 import { Clientes } from './Clientes.entity';
 import { Sucursales } from './Sucursales.entity';
 import { Equipos } from './Equipos.entity';
+import { Area } from './Area.entity';
 
 //Definicion de la entidad Usuario
 @Entity('usuarios')
@@ -76,6 +77,15 @@ export class Usuario {
   @ManyToOne(() => Sucursales, (sucursal) => sucursal.usuarios)
   @JoinColumn({ name: 'id_sucursal' })
   sucursal?: Sucursales;
+
+  // Relacion con la tabla Arear (muchos a uno)
+  @Column({ nullable: true })
+  id_area?: number; //Llave foranea a la tabla Area
+
+  //Relacion con la tabla Area (muchos a uno)
+  @ManyToOne(() => Area)
+  @JoinColumn({ name: 'id_area' })
+  area?: Area;
 
   //Relacion con la tabla Tickets (uno a muchos) para los tickets donde el usuario es soporte
   @OneToMany(() => Tickets, (ticket) => ticket.soporte)

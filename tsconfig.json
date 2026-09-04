@@ -10,6 +10,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "types": ["node", "jest"],
     "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",

@@ -23,6 +23,10 @@ export class AssignEquipoUseCase {
   ) {
     // Validar que el equipo exista y que el usuario tenga permisos para asignarlo
     const equipo = await this.findOneUseCase.execute(id, userToken);
+    // Validar que el equipo esté activo
+    if (!equipo?.is_active) {
+      throw new BadRequestException('El equipo no está activo');
+    }
     // Validar que el equipo no esté asignado a otro trabajador
     if (equipo.id_trabajador) {
       throw new BadRequestException(
