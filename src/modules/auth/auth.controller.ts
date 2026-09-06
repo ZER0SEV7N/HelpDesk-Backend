@@ -68,6 +68,8 @@ export class AuthController {
         apellido: user.apellido,
         correo: user.correo,
         role: role,
+        id_cliente: user.id_cliente,
+        id_sucursal: user.id_sucursal,
       },
     });
   }
