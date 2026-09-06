@@ -6,6 +6,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 //Funcion principal para iniciar la aplicacion
 async function bootstrap() {
@@ -28,6 +29,9 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // Intercepto para transformar la respuesta de la API y estandarizar el formato de salida
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   await app.listen(process.env.PORT ?? 3000);
 }

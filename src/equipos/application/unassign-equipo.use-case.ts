@@ -13,19 +13,24 @@ export class UnassignEquipoUseCase {
     private readonly findOneUseCase: FindOneEquipoUseCase,
   ) {}
 
-  async execute(id: number, userToken: JwtPayload) {  
+  async execute(id: number, userToken: JwtPayload) {
     // Validar que el equipo exista y que el usuario tenga permisos para desasignarlo
-    const equipo = await this.findOneUseCase.execute(id, userToken); 
+    const equipo = await this.findOneUseCase.execute(id, userToken);
     // Desasignar el equipo del trabajador y actualizar el área a "Sin asignar"
-    equipo.id_trabajador = null as any;
-    equipo.area = 'Sin asignar'; 
-
+    if (equipo) {
+      equipo.id_trabajador = null as any;
+      equipo.area = 'Sin asignar';
+    } else {
+      throw new Error(
+        `El equipo con id ${id} no existe o no tienes permisos para desasignarlo.`,
+      );
+    }
     // Guardar los cambios en la base de datos
-    const equipoActualizado = await this.equiposRepo.save(equipo); 
+    const equipoActualizado = await this.equiposRepo.save(equipo);
     // Retornar un mensaje de éxito y el equipo actualizado
     return {
       message: `Equipo liberado exitosamente`,
       equipo: equipoActualizado,
-    }; 
+    };
   }
 }

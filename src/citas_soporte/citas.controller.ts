@@ -6,11 +6,12 @@ import {
   Patch,
   Param,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { CreateCitaUseCase } from './application/create-cita.use-case';
 import { CreateCitaDto } from './dto/create-cita-dto';
 import { Roles } from '@/common/decorators/role.decorator';
-import { ListCitaUseCase } from './application/list-cita.use-case';
+import { FindAllCitaUseCase } from './application/find-all-cita.use-case';
 import { FindOneCitaUseCase } from './application/find-one-cita.use-case';
 import { RelocateCitaDto } from './dto/relocate-cita.dto';
 import { RelocateCitaUseCase } from './application/relocate-cita.use-case';
@@ -23,15 +24,18 @@ import { CompleteCitaUseCase } from './application/complete-cita.use-case';
 import { CancelCitaUseCase } from './application/cancel-cita.use-case';
 import { CancelCitaDto } from './dto/cancel-cita.dto';
 import { CompleteCitaDto } from './dto/complete-cita.dto';
+import type { JwtPayload } from '@/common/guards/jwt-auth.guard';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { RoleGuard } from '@/common/guards/role.guard';
+import { CronogramaCitaUseCase } from './application/cronograma-cita.use-case';
 
 @Controller('citas')
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class CitasController {
   constructor(
     private readonly createCitaUseCase: CreateCitaUseCase,
-    private readonly listCitaUseCase: ListCitaUseCase,
+    private readonly cronogramaCitaUseCase: CronogramaCitaUseCase,
+    private readonly listCitaUseCase: FindAllCitaUseCase,
     private readonly findOneCitaUseCase: FindOneCitaUseCase,
     private readonly relocateCitaUseCase: RelocateCitaUseCase,
     private readonly updateCitaUseCase: UpdateCitaUseCase,
@@ -42,14 +46,22 @@ export class CitasController {
   ) {}
 
   @Get()
+  @Roles('ADMINISTRADOR', 'SOPORTE_INSITU')
+  findAll(@Request() req: Request & { user: JwtPayload }) {
+    // Se agrega el parámetro user de tipo JwtPayload para obtener la información del usuario autenticado
+    return this.listCitaUseCase.execute(req.user);
+  }
+
+  @Get('/cronograma')
   @Roles(
     'ADMINISTRADOR',
     'SOPORTE_INSITU',
     'CLIENTE_EMPRESA',
     'CLIENTE_SUCURSAL',
+    'CLIENTE_TRABAJADOR',
   )
-  findAll() {
-    return this.listCitaUseCase.execute();
+  cronograma(@Request() req: Request & { user: JwtPayload }) {
+    return this.cronogramaCitaUseCase.execute(req.user);
   }
 
   @Get('/:id')
@@ -93,29 +105,32 @@ export class CitasController {
     return this.addTicketsToCitaUseCase.execute(id_cita_actual, dto);
   }
 
-  @Post('/start/:id/:userId')
+  @Post('/start/:id')
   @Roles('ADMINISTRADOR', 'SOPORTE_INSITU')
-  startCita(@Param('id') id_cita: number, @Param('userId') id_user: number) {
-    return this.startCitaUseCase.execute(id_cita, id_user);
+  startCita(
+    @Param('id') id_cita: number,
+    @Request() req: Request & { user: JwtPayload },
+  ) {
+    return this.startCitaUseCase.execute(id_cita, req.user);
   }
 
-  @Post('/complete/:id/:userId')
+  @Post('/complete/:id')
   @Roles('ADMINISTRADOR', 'SOPORTE_INSITU')
   completeCita(
     @Param('id') id_cita: number,
-    @Param('userId') id_user: number,
+    @Request() req: Request & { user: JwtPayload },
     @Body() dto: CompleteCitaDto,
   ) {
-    return this.completeCitaUseCase.execute(id_cita, id_user, dto);
+    return this.completeCitaUseCase.execute(id_cita, req.user, dto);
   }
 
-  @Post('/cancel/:id/:userId')
+  @Post('/cancel/:id')
   @Roles('ADMINISTRADOR', 'SOPORTE_INSITU')
   cancelCita(
     @Param('id') id_cita: number,
-    @Param('userId') id_user: number,
+    @Request() req: Request & { user: JwtPayload },
     @Body() dto: CancelCitaDto,
   ) {
-    return this.cancelCitaUseCase.execute(id_cita, id_user, dto);
+    return this.cancelCitaUseCase.execute(id_cita, req.user, dto);
   }
 }

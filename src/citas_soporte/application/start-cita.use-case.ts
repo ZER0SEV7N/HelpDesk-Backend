@@ -1,4 +1,5 @@
 // src/citas_soporte/application/start-cita.use-case.ts
+import { JwtPayload } from '@/common/guards/jwt-auth.guard';
 import { Citas_Soporte, EstadoCita } from '@/entities/Citas-Soporte.entity';
 import { Usuario } from '@/entities/Usuario.entity';
 import {
@@ -19,7 +20,7 @@ export class StartCitaUseCase {
     private readonly usuarioRepository: Repository<Usuario>,
   ) {}
 
-  async execute(id_cita: number, id_user: number): Promise<string> {
+  async execute(id_cita: number, user: JwtPayload): Promise<string> {
     // Obtener la cita por su ID
     const cita = await this.citasRepository.findOne({
       where: { id_cita },
@@ -35,14 +36,16 @@ export class StartCitaUseCase {
     }
     // Obtenemos el usuario
     const usuario = await this.usuarioRepository.findOne({
-      where: { id_usuario: id_user },
+      where: { id_usuario: user.userId },
       relations: ['rol'],
     });
     // Validar que el usuario exista
     if (!usuario)
-      throw new NotFoundException(`El usuario #${id_user} no fue encontrado.`);
+      throw new NotFoundException(
+        `El usuario #${user.userId} no fue encontrado.`,
+      );
     // Validación de Permisos
-    const esSoporteAsignado = cita.soporte_insitu?.id_usuario === id_user;
+    const esSoporteAsignado = cita.soporte_insitu?.id_usuario === user.userId;
     const esAdmin = usuario.rol?.nombre === 'ADMINISTRADOR';
     // Si el usuario no es el soporte asignado ni un administrador, se lanza una excepción
     if (!esSoporteAsignado && !esAdmin) {

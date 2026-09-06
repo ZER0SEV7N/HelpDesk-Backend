@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CompleteCitaDto } from '../dto/complete-cita.dto';
 import { TicketStatus } from '@/entities/Tickets.entity';
+import { JwtPayload } from '@/common/guards/jwt-auth.guard';
 
 @Injectable()
 export class CompleteCitaUseCase {
@@ -23,7 +24,7 @@ export class CompleteCitaUseCase {
 
   async execute(
     id_cita: number,
-    id_user: number,
+    user: JwtPayload,
     dto: CompleteCitaDto,
   ): Promise<string> {
     // Obtener la cita por su ID
@@ -44,14 +45,16 @@ export class CompleteCitaUseCase {
     }
     // Obtenemos el usuario
     const usuario = await this.usuarioRepository.findOne({
-      where: { id_usuario: id_user },
+      where: { id_usuario: user.userId },
       relations: ['rol'],
     });
     // Validar que el usuario exista
     if (!usuario)
-      throw new NotFoundException(`El usuario #${id_user} no fue encontrado.`);
+      throw new NotFoundException(
+        `El usuario #${user.userId} no fue encontrado.`,
+      );
     // Validación de Permisos
-    const esSoporteAsignado = cita.soporte_insitu?.id_usuario === id_user;
+    const esSoporteAsignado = cita.soporte_insitu?.id_usuario === user.userId;
     const esAdmin = usuario.rol?.nombre === 'ADMINISTRADOR';
     // Si el usuario no es el soporte asignado ni un administrador, se lanza una excepción
     if (!esSoporteAsignado && !esAdmin) {

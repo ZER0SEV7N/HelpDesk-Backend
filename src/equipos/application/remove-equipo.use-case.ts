@@ -15,16 +15,16 @@ export class RemoveEquipoUseCase {
 
   async execute(id: number, userToken: JwtPayload) {
     const equipo = await this.findOneUseCase.execute(id, userToken);
-    
-    if (!equipo.is_active) {
+
+    if (!equipo?.is_active) {
       throw new BadRequestException('El equipo ya está inactivo');
     }
 
     equipo.is_active = false;
     await this.equiposRepo.save(equipo);
-    
+
     return {
       message: `Equipo con id ${id} dado de baja correctamente del sistema`,
-    }; 
+    };
   }
 }

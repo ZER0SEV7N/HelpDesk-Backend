@@ -37,6 +37,7 @@ import { join } from 'path';
     EmailModule,
     PlanesModule,
     CitasModule,
+    DashboardsModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'), // Carpeta donde se almacenan los archivos subidos
       serveRoot: '/uploads', // Ruta base para acceder a los archivos (ejemplo: http://localhost:3000/uploads/archivo.jpg)
