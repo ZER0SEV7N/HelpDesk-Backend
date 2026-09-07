@@ -1,6 +1,6 @@
 //src/clientes/dto/filter-cliente.dto.ts
 //DTO para el filtrado dinamico de clientes (query params)
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from '@/common/dto/pagination-query.dto';
 
@@ -36,7 +36,7 @@ export class FilterClienteDto extends PaginationQueryDto {
 
   //Estado activo/inactivo del cliente
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   is_active?: boolean;
 }

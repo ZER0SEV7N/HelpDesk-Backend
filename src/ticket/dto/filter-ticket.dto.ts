@@ -1,6 +1,6 @@
 //src/ticket/dto/filter-ticket.dto.ts
 //DTO para el filtrado dinamico de tickets (query params)
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
@@ -58,7 +58,7 @@ export class FilterTicketDto extends PaginationQueryDto {
   id_software?: number;
 
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   es_software?: boolean;
 
