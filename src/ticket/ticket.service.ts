@@ -203,10 +203,15 @@ export class TicketService {
       query.andWhere('ticket.id_software = :id_software', {
         id_software: filters.id_software,
       });
-    if (filters.es_software !== undefined)
+    if (filters.es_software !== undefined) {
+      const esSoftwareBool =
+        String(filters.es_software).toLowerCase() === 'true' ||
+        filters.es_software === true;
+
       query.andWhere('ticket.es_software = :es_software', {
-        es_software: filters.es_software,
+        es_software: esSoftwareBool,
       });
+    }
     if (filters.fechaInicio) {
       const fechaInicio = new Date(filters.fechaInicio);
       fechaInicio.setHours(0, 0, 0, 0);
@@ -291,8 +296,8 @@ export class TicketService {
             : 'Principal',
       })),
       total,
-      page,
-      limit,
+      page: Number(page),
+      limit: Number(limit),
       totalPages,
     };
   }

@@ -45,21 +45,27 @@ export class FindAllEquiposUseCase {
       .skip(skip)
       .take(limit);
 
-    if (filters.search) {
-      query.andWhere(
-        new Brackets((qb) => {
-          qb.where('LOWER(equipo.nombre) LIKE LOWER(:search)', {
-            search: `%${filters.search}%`,
-          })
-            .orWhere('LOWER(equipo.codigo) LIKE LOWER(:search)', {
-              search: `%${filters.search}%`,
-            })
-            .orWhere('LOWER(equipo.numero_serie) LIKE LOWER(:search)', {
-              search: `%${filters.search}%`,
-            });
-        }),
-      );
-    }
+if (filters.search) {
+  query.andWhere(
+    new Brackets((qb) => {
+      qb.where('LOWER(equipo.tipo) LIKE LOWER(:search)', {
+        search: `%${filters.search}%`,
+      })
+        .orWhere('LOWER(equipo.marca) LIKE LOWER(:search)', {
+          search: `%${filters.search}%`,
+        })
+        .orWhere('LOWER(equipo.numero_serie) LIKE LOWER(:search)', {
+          search: `%${filters.search}%`,
+        })
+        .orWhere('LOWER(equipo.area) LIKE LOWER(:search)', {
+          search: `%${filters.search}%`,
+        })
+        .orWhere('LOWER(equipo.nombre_usuario) LIKE LOWER(:search)', {
+          search: `%${filters.search}%`,
+        });
+    }),
+  );
+}
     if (filters.id_cliente)
       query.andWhere('equipo.id_cliente = :filterIdCliente', {
         filterIdCliente: filters.id_cliente,

@@ -42,6 +42,8 @@ export class EquiposService {
     const limit = filters.limit ?? 10;
     const skip = (page - 1) * limit;
 
+    const isActiveFilter = filters.is_active !== undefined ? filters.is_active : true;
+
     const query = this.equiposRepo
       .createQueryBuilder('equipo')
       .leftJoinAndSelect('equipo.cliente', 'cliente')
@@ -51,34 +53,76 @@ export class EquiposService {
       .leftJoinAndSelect('equipo.software_instalado', 'software_instalado')
       .leftJoin('software_instalado.soft', 'soft')
       .addSelect(['soft.id_software', 'soft.nombre_software', 'soft.licencia'])
-      .where('equipo.is_active = :isActive', { isActive: true })
+      .where('equipo.is_active = :isActive', { isActive: isActiveFilter })
       .skip(skip)
       .take(limit);
 
     if (filters.search) {
       query.andWhere(
         new Brackets((qb) => {
-          qb.where('LOWER(equipo.nombre) LIKE LOWER(:search)', {
+          qb.where('LOWER(equipo.tipo) LIKE LOWER(:search)', {
             search: `%${filters.search}%`,
           })
-            .orWhere('LOWER(equipo.codigo) LIKE LOWER(:search)', {
+            .orWhere('LOWER(equipo.marca) LIKE LOWER(:search)', {
               search: `%${filters.search}%`,
             })
             .orWhere('LOWER(equipo.numero_serie) LIKE LOWER(:search)', {
+              search: `%${filters.search}%`,
+            })
+            .orWhere('LOWER(equipo.area) LIKE LOWER(:search)', {
+              search: `%${filters.search}%`,
+            })
+            .orWhere('LOWER(equipo.nombre_usuario) LIKE LOWER(:search)', {
               search: `%${filters.search}%`,
             });
         }),
       );
     }
-    if (filters.id_cliente)
+
+    // Filtros específicos
+    if (filters.tipo) {
+      query.andWhere('LOWER(equipo.tipo) = LOWER(:tipo)', {
+        tipo: filters.tipo,
+      });
+    }
+
+    if (filters.marca) {
+      query.andWhere('LOWER(equipo.marca) = LOWER(:marca)', {
+        marca: filters.marca,
+      });
+    }
+
+    if (filters.numero_serie) {
+      query.andWhere('equipo.numero_serie = :numero_serie', {
+        numero_serie: filters.numero_serie,
+      });
+    }
+
+    if (filters.area) {
+      query.andWhere('LOWER(equipo.area) LIKE LOWER(:area)', {
+        area: `%${filters.area}%`,
+      });
+    }
+
+    if (filters.id_cliente) {
       query.andWhere('equipo.id_cliente = :filterIdCliente', {
         filterIdCliente: filters.id_cliente,
       });
-    if (filters.id_sucursal)
+    }
+
+    if (filters.id_sucursal) {
       query.andWhere('equipo.id_sucursal = :filterIdSucursal', {
         filterIdSucursal: filters.id_sucursal,
       });
+    }
 
+    if (filters.id_trabajador) {
+      query.andWhere('equipo.id_trabajador = :filterIdTrabajador', {
+        filterIdTrabajador: filters.id_trabajador,
+      });
+    }
+
+    // Control de roles de seguridad
     switch (userToken.role) {
       case 'ADMINISTRADOR':
       case 'SOPORTE_TECNICO':
@@ -106,7 +150,6 @@ export class EquiposService {
     }
 
     const [equipos, total] = await query.getManyAndCount();
-
     const totalPages = Math.ceil(total / limit);
 
     return {
@@ -121,6 +164,7 @@ export class EquiposService {
   async findOne(id: number, userToken: JwtPayload) {
     const { data: equiposPermitidos } = await this.findAll(userToken, {
       limit: 9999,
+      is_active: undefined, // Permite consultar el detalle sin restringir estado activo
     } as FilterEquipoDto);
     const equipo = equiposPermitidos.find((e) => e.id_equipo === id);
 

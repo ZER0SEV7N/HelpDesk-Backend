@@ -49,6 +49,12 @@ export class FindAllClientesUseCase {
         isActive: filters.is_active,
       });
 
+    if (filters.id_plan) {
+      query.andWhere('cliente.id_plan = :idPlan', {
+        idPlan: Number(filters.id_plan),
+      });
+    }
+    
     const [clientes, total] = await query.getManyAndCount();
 
     const totalPages = Math.ceil(total / limit);
