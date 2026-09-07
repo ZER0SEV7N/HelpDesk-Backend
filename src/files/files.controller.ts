@@ -16,8 +16,6 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
-import { RoleGuard } from '@/common/guards/role.guard';
-import { Roles } from '@/common/decorators/role.decorator';
 import { diskStorage } from 'multer';
 import { extname, resolve, sep } from 'path';
 import { createReadStream, statSync } from 'fs';
