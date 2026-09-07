@@ -6,10 +6,11 @@ import {
 } from '@nestjs/common';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { Tickets, TicketStatus } from '@/entities/Tickets.entity';
-import { Repository, QueryFailedError } from 'typeorm';
+import { Repository, QueryFailedError, Brackets } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Equipos } from '@/entities/Equipos.entity';
 import { JwtPayload } from '@/common/guards/jwt-auth.guard';
+import { FilterTicketDto } from './dto/filter-ticket.dto';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -131,30 +132,90 @@ export class TicketService {
     return pin;
   }
 
-  async findTickets(user: JwtPayload, filters: any) {
+  async findTickets(user: JwtPayload, filters: FilterTicketDto) {
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? 10;
+    const skip = (page - 1) * limit;
+
     const query = this.ticketRepo
       .createQueryBuilder('ticket')
       .leftJoinAndSelect('ticket.soporte', 'soporte')
       .leftJoinAndSelect('ticket.trabajador', 'trabajador')
       .leftJoinAndSelect('ticket.equipo', 'equipo')
       .leftJoinAndSelect('equipo.cliente', 'cliente_dueno')
-      .leftJoinAndSelect('equipo.sucursal', 'sucursal');
+      .leftJoinAndSelect('equipo.sucursal', 'sucursal')
+      .skip(skip)
+      .take(limit);
 
+    if (filters.search) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where('LOWER(ticket.pin) LIKE LOWER(:search)', {
+            search: `%${filters.search}%`,
+          })
+            .orWhere('LOWER(ticket.asunto) LIKE LOWER(:search)', {
+              search: `%${filters.search}%`,
+            })
+            .orWhere('LOWER(trabajador.nombre) LIKE LOWER(:search)', {
+              search: `%${filters.search}%`,
+            })
+            .orWhere('LOWER(trabajador.apellido) LIKE LOWER(:search)', {
+              search: `%${filters.search}%`,
+            });
+        }),
+      );
+    }
+    if (filters.id_sucursal) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where('equipo.id_sucursal = :idSucursal', {
+            idSucursal: filters.id_sucursal,
+          }).orWhere('trabajador.id_sucursal = :idSucursal', {
+            idSucursal: filters.id_sucursal,
+          });
+        }),
+      );
+    }
+    if (filters.id_area) {
+      query.andWhere('trabajador.id_area = :idArea', {
+        idArea: filters.id_area,
+      });
+    }
     if (filters.estado)
       query.andWhere('ticket.estado = :estado', { estado: filters.estado });
-    if (filters.pin) query.andWhere('ticket.pin = :pin', { pin: filters.pin });
-    if (filters.soporte)
-      query.andWhere('soporte.nombre LIKE :soporte', {
-        soporte: `%${filters.soporte}%`,
+    if (filters.id_equipo)
+      query.andWhere('ticket.id_equipo = :id_equipo', {
+        id_equipo: filters.id_equipo,
       });
-    if (filters.fecha_creacion) {
-      const fecha = new Date(filters.fecha_creacion);
-      const nextDay = new Date(fecha);
-      nextDay.setDate(fecha.getDate() + 1);
-      query.andWhere(
-        'ticket.created_at >= :fecha AND ticket.created_at < :nextDay',
-        { fecha, nextDay },
-      );
+    if (filters.id_cliente)
+      query.andWhere('ticket.id_cliente = :id_cliente', {
+        id_cliente: filters.id_cliente,
+      });
+    if (filters.id_trabajador)
+      query.andWhere('ticket.id_trabajador = :id_trabajador', {
+        id_trabajador: filters.id_trabajador,
+      });
+    if (filters.id_soporte)
+      query.andWhere('ticket.id_soporte = :id_soporte', {
+        id_soporte: filters.id_soporte,
+      });
+    if (filters.id_software)
+      query.andWhere('ticket.id_software = :id_software', {
+        id_software: filters.id_software,
+      });
+    if (filters.es_software !== undefined)
+      query.andWhere('ticket.es_software = :es_software', {
+        es_software: filters.es_software,
+      });
+    if (filters.fechaInicio) {
+      const fechaInicio = new Date(filters.fechaInicio);
+      fechaInicio.setHours(0, 0, 0, 0);
+      query.andWhere('ticket.created_at >= :fechaInicio', { fechaInicio });
+    }
+    if (filters.fechaFin) {
+      const fechaFin = new Date(filters.fechaFin);
+      fechaFin.setHours(23, 59, 59, 999);
+      query.andWhere('ticket.created_at <= :fechaFin', { fechaFin });
     }
 
     switch (user.role) {
@@ -181,7 +242,7 @@ export class TicketService {
         break;
       case 'SOPORTE_TECNICO':
       case 'SOPORTE_INSITU':
-        if (filters.vista === 'mis-tickets') {
+        if ((filters as any).vista === 'mis-tickets') {
           query.andWhere('ticket.id_soporte = :id', { id: user.userId });
         } else {
           query.andWhere(
@@ -195,7 +256,7 @@ export class TicketService {
         break;
     }
 
-    if (filters.vista === 'abiertos') {
+    if ((filters as any).vista === 'abiertos') {
       query.andWhere('ticket.estado IN (:...estados)', {
         estados: [
           TicketStatus.PENDIENTE,
@@ -206,26 +267,34 @@ export class TicketService {
       });
     }
 
-    const tickets = await query.getMany();
+    const [tickets, total] = await query.getManyAndCount();
 
-    return tickets.map((t) => ({
-      id_ticket: t.id_ticket,
-      pin: t.pin,
-      asunto: t.asunto,
-      estado: t.estado,
-      trabajador: t.trabajador
-        ? `${t.trabajador.nombre} ${t.trabajador.apellido}`
-        : 'Sin asignar',
-      equipo: t.equipo ? t.equipo.tipo : 'N/A',
-      cliente:
-        t.equipo && t.equipo.cliente
-          ? t.equipo.cliente.nombre_principal
-          : 'N/A',
-      sucursal:
-        t.equipo && t.equipo.sucursal
-          ? t.equipo.sucursal.nombre_sucursal
-          : 'Principal',
-    }));
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: tickets.map((t) => ({
+        id_ticket: t.id_ticket,
+        pin: t.pin,
+        asunto: t.asunto,
+        estado: t.estado,
+        trabajador: t.trabajador
+          ? `${t.trabajador.nombre} ${t.trabajador.apellido}`
+          : 'Sin asignar',
+        equipo: t.equipo ? t.equipo.tipo : 'N/A',
+        cliente:
+          t.equipo && t.equipo.cliente
+            ? t.equipo.cliente.nombre_principal
+            : 'N/A',
+        sucursal:
+          t.equipo && t.equipo.sucursal
+            ? t.equipo.sucursal.nombre_sucursal
+            : 'Principal',
+      })),
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   async getTicketById(id: number, user: JwtPayload) {
@@ -289,8 +358,7 @@ export class TicketService {
       const ticket = await this.ticketRepo.findOne({
         where: { id_ticket: ticketId },
       });
-      if (!ticket)
-        throw new NotFoundException('Ticket no encontrado');
+      if (!ticket) throw new NotFoundException('Ticket no encontrado');
       throw new BadRequestException(
         'Solo se pueden asignar tickets en estado Pendiente',
       );
@@ -313,15 +381,12 @@ export class TicketService {
       const ticket = await this.ticketRepo.findOne({
         where: { id_ticket: ticketId },
       });
-      if (!ticket)
-        throw new NotFoundException('Ticket no encontrado');
+      if (!ticket) throw new NotFoundException('Ticket no encontrado');
       if (ticket.id_soporte !== user.userId)
         throw new ForbiddenException(
           'No tienes permisos para iniciar este ticket',
         );
-      throw new BadRequestException(
-        'El ticket no está en estado Asignado',
-      );
+      throw new BadRequestException('El ticket no está en estado Asignado');
     }
 
     return await this.ticketRepo.findOne({ where: { id_ticket: ticketId } });
@@ -341,15 +406,12 @@ export class TicketService {
       const ticket = await this.ticketRepo.findOne({
         where: { id_ticket: ticketId },
       });
-      if (!ticket)
-        throw new NotFoundException('Ticket no encontrado');
+      if (!ticket) throw new NotFoundException('Ticket no encontrado');
       if (ticket.id_soporte !== user.userId)
         throw new ForbiddenException(
           'No tienes permisos para resolver este ticket',
         );
-      throw new BadRequestException(
-        'El ticket no está en estado En Progreso',
-      );
+      throw new BadRequestException('El ticket no está en estado En Progreso');
     }
 
     return await this.ticketRepo.findOne({ where: { id_ticket: ticketId } });
@@ -374,15 +436,12 @@ export class TicketService {
       const ticket = await this.ticketRepo.findOne({
         where: { id_ticket: ticketId },
       });
-      if (!ticket)
-        throw new NotFoundException('Ticket no encontrado');
+      if (!ticket) throw new NotFoundException('Ticket no encontrado');
       if (ticket.id_trabajador !== user.userId)
         throw new ForbiddenException(
           'No puedes reabrir un ticket que no creaste tú',
         );
-      throw new BadRequestException(
-        'Solo tickets cerrados pueden reabrirse',
-      );
+      throw new BadRequestException('Solo tickets cerrados pueden reabrirse');
     }
 
     return await this.ticketRepo.findOne({ where: { id_ticket: ticketId } });

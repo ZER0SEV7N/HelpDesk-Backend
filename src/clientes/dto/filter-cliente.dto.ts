@@ -1,17 +1,17 @@
 //src/clientes/dto/filter-cliente.dto.ts
 //DTO para el filtrado dinamico de clientes (query params)
 import { Type } from 'class-transformer';
-import { IsBoolean, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from '@/common/dto/pagination-query.dto';
-import { TipoCliente } from '@/entities/Clientes.entity';
 
 export class FilterClienteDto extends PaginationQueryDto {
-  //Tipo de cliente (JURIDICA o NATURAL)
   @IsOptional()
-  @IsEnum(TipoCliente, {
-    message: `tipo_cliente debe ser uno de los siguientes valores: ${Object.values(TipoCliente).join(', ')}`,
-  })
-  tipo_cliente?: TipoCliente;
+  @IsString()
+  search?: string;
+
+  @IsOptional()
+  @IsString()
+  tipo_cliente?: string;
 
   //Numero de documento del cliente
   @IsOptional()

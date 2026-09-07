@@ -5,6 +5,10 @@ import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from '@/common/dto/pagination-query.dto';
 
 export class FilterEquipoDto extends PaginationQueryDto {
+  @IsOptional()
+  @IsString()
+  search?: string;
+
   //Tipo de equipo
   @IsOptional()
   @IsString()

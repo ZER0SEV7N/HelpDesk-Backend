@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   UseGuards,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { CreateClienteDto } from '../dto/create-cliente.dto';
 import { CreateSucursalDto } from '../dto/create-sucursal.dto';
@@ -26,6 +27,7 @@ import { UpdateClienteUseCase } from './application/update-cliente.use-case';
 import { UpdateContractUseCase } from './application/update-contract.use-case';
 import { DeactivateClienteUseCase } from './application/deactivate-cliente.use-case';
 import { ReactivateClienteUseCase } from './application/reactivate-cliente.use-case';
+import { FilterClienteDto } from '../dto/filter-cliente.dto';
 
 @Controller('clientes')
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -66,8 +68,8 @@ export class ClientesController {
     'CLIENTE_EMPRESA',
     'CLIENTE_SUCURSAL',
   )
-  findAll() {
-    return this.findAllClientesUseCase.execute();
+  findAll(@Query() filters: FilterClienteDto) {
+    return this.findAllClientesUseCase.execute(filters);
   }
 
   //-----------------------------------------------------------------

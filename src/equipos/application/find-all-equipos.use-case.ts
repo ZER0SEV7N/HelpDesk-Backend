@@ -7,7 +7,8 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Brackets } from 'typeorm';
+import { FilterEquipoDto } from '@/equipos/dto/filter-equipo.dto';
 
 @Injectable()
 export class FindAllEquiposUseCase {
@@ -18,12 +19,18 @@ export class FindAllEquiposUseCase {
     private readonly usuarioRepo: Repository<Usuario>,
   ) {}
 
-  async execute(userToken: JwtPayload) {
+  async execute(
+    userToken: JwtPayload,
+    filters: FilterEquipoDto = {} as FilterEquipoDto,
+  ) {
     const usuarioReal = await this.usuarioRepo.findOneBy({
       id_usuario: userToken.userId,
     });
-
     if (!usuarioReal) throw new NotFoundException('Usuario no válido');
+
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? 10;
+    const skip = (page - 1) * limit;
 
     const query = this.equiposRepo
       .createQueryBuilder('equipo')
@@ -34,7 +41,33 @@ export class FindAllEquiposUseCase {
       .leftJoinAndSelect('equipo.software_instalado', 'software_instalado')
       .leftJoin('software_instalado.soft', 'soft')
       .addSelect(['soft.id_software', 'soft.nombre_software', 'soft.licencia'])
-      .where('equipo.is_active = :isActive', { isActive: true });
+      .where('equipo.is_active = :isActive', { isActive: true })
+      .skip(skip)
+      .take(limit);
+
+    if (filters.search) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where('LOWER(equipo.nombre) LIKE LOWER(:search)', {
+            search: `%${filters.search}%`,
+          })
+            .orWhere('LOWER(equipo.codigo) LIKE LOWER(:search)', {
+              search: `%${filters.search}%`,
+            })
+            .orWhere('LOWER(equipo.numero_serie) LIKE LOWER(:search)', {
+              search: `%${filters.search}%`,
+            });
+        }),
+      );
+    }
+    if (filters.id_cliente)
+      query.andWhere('equipo.id_cliente = :filterIdCliente', {
+        filterIdCliente: filters.id_cliente,
+      });
+    if (filters.id_sucursal)
+      query.andWhere('equipo.id_sucursal = :filterIdSucursal', {
+        filterIdSucursal: filters.id_sucursal,
+      });
 
     switch (userToken.role) {
       case 'ADMINISTRADOR':
@@ -42,18 +75,18 @@ export class FindAllEquiposUseCase {
       case 'SOPORTE_INSITU':
         break;
       case 'CLIENTE_EMPRESA':
-        query.andWhere('equipo.id_cliente = :idCliente', {
-          idCliente: usuarioReal.id_cliente,
+        query.andWhere('equipo.id_cliente = :securityIdCliente', {
+          securityIdCliente: usuarioReal.id_cliente,
         });
         break;
       case 'CLIENTE_SUCURSAL':
-        query.andWhere('equipo.id_sucursal = :idSucursal', {
-          idSucursal: usuarioReal.id_sucursal,
+        query.andWhere('equipo.id_sucursal = :securityIdSucursal', {
+          securityIdSucursal: usuarioReal.id_sucursal,
         });
         break;
       case 'CLIENTE_TRABAJADOR':
-        query.andWhere('equipo.id_trabajador = :idTrabajador', {
-          idTrabajador: usuarioReal.id_usuario,
+        query.andWhere('equipo.id_trabajador = :securityIdTrabajador', {
+          securityIdTrabajador: usuarioReal.id_usuario,
         });
         break;
       default:
@@ -62,6 +95,16 @@ export class FindAllEquiposUseCase {
         );
     }
 
-    return await query.getMany();
+    const [equipos, total] = await query.getManyAndCount();
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: equipos,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 }

@@ -10,6 +10,7 @@ import {
   UseGuards,
   ParseIntPipe,
   Request,
+  Query,
 } from '@nestjs/common';
 import { EquiposService } from './equipos.service';
 import { CreateEquipoDTO } from './dto/create-equipos.dto';
@@ -23,6 +24,7 @@ import { UpdateEquipoSoftwareDto } from './dto/update-equipo-software.dto';
 import { UnassignEquipoUseCase } from './application/unassign-equipo.use-case';
 import { UpdateEquipoHardwareUseCase } from './application/update-equipo-hardware.use-case';
 import { UpdateEquipoSoftwareUseCase } from './application/update-equipo-software.use-case';
+import { FilterEquipoDto } from './dto/filter-equipo.dto';
 
 @Controller('equipos')
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -31,8 +33,8 @@ export class EquiposController {
     private readonly equiposService: EquiposService,
     private readonly unassignEquipoUseCase: UnassignEquipoUseCase,
     private readonly updateEquipoHardwareUseCase: UpdateEquipoHardwareUseCase,
-    private readonly updateEquipoSoftwareUseCase: UpdateEquipoSoftwareUseCase, 
-  ){}
+    private readonly updateEquipoSoftwareUseCase: UpdateEquipoSoftwareUseCase,
+  ) {}
 
   @Post()
   @Roles(
@@ -54,8 +56,11 @@ export class EquiposController {
     'CLIENTE_SUCURSAL',
     'CLIENTE_TRABAJADOR',
   )
-  findAll(@Request() req: Request & { user: JwtPayload }) {
-    return this.equiposService.findAll(req.user);
+  findAll(
+    @Request() req: Request & { user: JwtPayload },
+    @Query() filters: FilterEquipoDto,
+  ) {
+    return this.equiposService.findAll(req.user, filters);
   }
 
   @Get(':id')
