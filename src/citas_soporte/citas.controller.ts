@@ -7,6 +7,7 @@ import {
   Param,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import { CreateCitaUseCase } from './application/create-cita.use-case';
 import { CreateCitaDto } from './dto/create-cita-dto';
@@ -28,6 +29,7 @@ import type { JwtPayload } from '@/common/guards/jwt-auth.guard';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { RoleGuard } from '@/common/guards/role.guard';
 import { CronogramaCitaUseCase } from './application/cronograma-cita.use-case';
+import { FilterCitaDto } from './dto/filter-cita.dto';
 
 @Controller('citas')
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -47,9 +49,12 @@ export class CitasController {
 
   @Get()
   @Roles('ADMINISTRADOR', 'SOPORTE_INSITU')
-  findAll(@Request() req: Request & { user: JwtPayload }) {
+  findAll(
+    @Request() req: Request & { user: JwtPayload },
+    @Query() filters: FilterCitaDto,
+  ) {
     // Se agrega el parámetro user de tipo JwtPayload para obtener la información del usuario autenticado
-    return this.listCitaUseCase.execute(req.user);
+    return this.listCitaUseCase.execute(req.user, filters);
   }
 
   @Get('/cronograma')

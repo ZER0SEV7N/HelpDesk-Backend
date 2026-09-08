@@ -1,11 +1,22 @@
-//src/citas_soporte/dto/filter-cita.dto.ts
-//DTO para el filtrado dinamico de citas de soporte (query params)
+// src/citas_soporte/dto/filter-cita.dto.ts
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { PaginationQueryDto } from '@/common/dto/pagination-query.dto';
 import { EstadoCita } from '@/entities/Citas-Soporte.entity';
 
 export class FilterCitaDto extends PaginationQueryDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number = 1;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  limit?: number = 10;
+
   @IsOptional()
   @IsString()
   search?: string;
@@ -15,7 +26,6 @@ export class FilterCitaDto extends PaginationQueryDto {
   @IsInt()
   id_cliente?: number;
 
-  //Sucursal donde se realiza la cita
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -31,14 +41,12 @@ export class FilterCitaDto extends PaginationQueryDto {
   @IsInt()
   anio?: number;
 
-  //Estado de la cita
   @IsOptional()
   @IsEnum(EstadoCita, {
     message: `estado debe ser uno de los siguientes valores: ${Object.values(EstadoCita).join(', ')}`,
   })
   estado?: EstadoCita;
 
-  //Soporte insitu asignado a la cita
   @IsOptional()
   @Type(() => Number)
   @IsInt()
