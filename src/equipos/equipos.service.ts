@@ -98,10 +98,8 @@ export class EquiposService {
       });
     }
 
-    if (filters.area) {
-      query.andWhere('LOWER(equipo.area) LIKE LOWER(:area)', {
-        area: `%${filters.area}%`,
-      });
+    if (filters.id_area) {
+      query.andWhere('equipo.id_area = :id_area', { id_area: filters.id_area });
     }
 
     if (filters.id_cliente) {
