@@ -36,6 +36,9 @@ export class FindAllClientesUseCase {
             })
             .orWhere('LOWER(cliente.numero_documento) LIKE LOWER(:search)', {
               search: `%${filters.search}%`,
+            })
+            .orWhere('LOWER(cliente.telefono) LIKE LOWER(:search)', {
+              search: `%${filters.search}%`,
             });
         }),
       );
