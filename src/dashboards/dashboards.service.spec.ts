@@ -123,4 +123,30 @@ describe('DashboardsService', () => {
     expect(result).toHaveProperty('desempeno');
     expect(result.resumen.totalTickets).toBe(10);
   });
+
+  it('debería despachar el dashboard de admin a través de getDashboard', async () => {
+    ticketQbMock.getCount.mockResolvedValue(10);
+    ticketQbMock.getRawMany.mockResolvedValue([]);
+    equipoQbMock.getMany.mockResolvedValue([]);
+    usuarioQbMock.getRawMany.mockResolvedValue([]);
+
+    const userPayload = {
+      sub: 1,
+      userId: 1,
+      role: 'ADMINISTRADOR',
+    };
+
+    const result = await service.getDashboard(userPayload);
+    expect(result).toHaveProperty('resumen');
+  });
+
+  it('debería lanzar ForbiddenException si el rol no es válido', async () => {
+    const userPayload = {
+      sub: 1,
+      userId: 1,
+      role: 'ROL_INEXISTENTE',
+    };
+
+    await expect(service.getDashboard(userPayload)).rejects.toThrow();
+  });
 });

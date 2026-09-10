@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Tickets, TicketStatus } from '../entities/Tickets.entity';
@@ -23,6 +23,50 @@ export class DashboardsService {
     @InjectRepository(Sucursales)
     private readonly sucursalRepo: Repository<Sucursales>,
   ) {}
+
+  /**
+   * =========================================================================
+   * MÉTODO PRINCIPAL (ORQUESTADOR): GET DASHBOARD
+   * =========================================================================
+   * Evalúa el rol del usuario autenticado proveniente del JWT y despacha
+   * automáticamente el caso de uso y la vista de dashboard que le corresponde.
+   *
+   * @param user Payload del JWT con id_usuario, rol, clienteId y sucursalId
+   * @returns Datos y métricas específicas del rol del usuario
+   */
+  async getDashboard(user: JwtPayload) {
+    switch (user.role) {
+      // 1. Administrador global del sistema HelpDesk
+      case 'ADMINISTRADOR':
+        return this.getAdminDashboard();
+
+      // 2. Técnico de Soporte Remoto
+      case 'SOPORTE_TECNICO':
+        return this.getSoporteTecnicoDashboard(user);
+
+      // 3. Técnico de Soporte Presencial / En Campo
+      case 'SOPORTE_INSITU':
+        return this.getSoporteInsituDashboard(user);
+
+      // 4. Administrador / Gerente de la Empresa Cliente
+      case 'CLIENTE_EMPRESA':
+        return this.getClienteEmpresaDashboard(user);
+
+      // 5. Encargado / Gerente de Sucursal de la Empresa Cliente
+      case 'CLIENTE_SUCURSAL':
+        return this.getClienteSucursalDashboard(user);
+
+      // 6. Trabajador / Empleado Final de la Empresa
+      case 'CLIENTE_TRABAJADOR':
+        return this.getClienteTrabajadorDashboard(user);
+
+      // Caso por defecto: Rol desconocido o sin permisos
+      default:
+        throw new ForbiddenException(
+          `El rol '${user.role}' no tiene un dashboard configurado o no está autorizado.`,
+        );
+    }
+  }
 
   // 1. DASHBOARD ADMINISTRADOR (Métricas Globales de Todo el HelpDesk)
   async getAdminDashboard() {
@@ -50,16 +94,16 @@ export class DashboardsService {
     //Cronograma global de equipos con revisión técnica programada pendiente o próxima
     const cronograma = await this.equipoRepo
       .createQueryBuilder('equipo')
-      .where('equipo.rev_programada IS NOT NULL')
-      .andWhere('equipo.rev_programada >= CURRENT_DATE') // Solo revisiones de hoy en adelante
-      .orderBy('equipo.rev_programada', 'ASC') // Orden cronológico más próximo primero
+      .where('equipo.revProgramada IS NOT NULL')
+      .andWhere('equipo.revProgramada >= CURRENT_DATE') // Solo revisiones de hoy en adelante
+      .orderBy('equipo.revProgramada', 'ASC') // Orden cronológico más próximo primero
       .select([
         'equipo.id_equipo',
         'equipo.tipo',
         'equipo.marca',
         'equipo.nombre_usuario',
         'equipo.area',
-        'equipo.rev_programada',
+        'equipo.revProgramada',
         'equipo.id_cliente',
       ])
       .getMany();
@@ -72,7 +116,7 @@ export class DashboardsService {
       .select('soporte.id_usuario', 'idSoporte')
       .addSelect('soporte.nombre', 'nombreSoporte')
       .addSelect('soporte.apellido', 'apellidoSoporte')
-      .addSelect('COUNT(ticket.id_tickets)', 'totalAsignados') // Total de casos asignados a este técnico
+      .addSelect('COUNT(ticket.id_ticket)', 'totalAsignados') // Total de casos asignados a este técnico
       .addSelect(
         'SUM(CASE WHEN ticket.estado = :cerrado THEN 1 ELSE 0 END)',
         'resueltos', // Total de casos que este técnico resolvió
@@ -476,7 +520,7 @@ export class DashboardsService {
       .where('ticket.id_cliente = :clienteId', { clienteId })
       .select('sucursal.id_sucursal', 'idSucursal')
       .addSelect('sucursal.nombre_sucursal', 'nombreSucursal')
-      .addSelect('COUNT(ticket.id_tickets)', 'totalTickets')
+      .addSelect('COUNT(ticket.id_ticket)', 'totalTickets')
       .addSelect(
         'SUM(CASE WHEN ticket.estado != :cerrado THEN 1 ELSE 0 END)',
         'abiertos',
@@ -606,7 +650,7 @@ export class DashboardsService {
       .createQueryBuilder('ticket')
       .innerJoin('ticket.equipo', 'equipo')
       .where('equipo.id_sucursal = :sucursalId', { sucursalId })
-      .select('COUNT(ticket.id_tickets)', 'total')
+      .select('COUNT(ticket.id_ticket)', 'total')
       .addSelect(
         'SUM(CASE WHEN ticket.estado = :pendiente THEN 1 ELSE 0 END)',
         'pendientes',
@@ -657,8 +701,8 @@ export class DashboardsService {
       .createQueryBuilder('ticket')
       .innerJoin('ticket.equipo', 'equipo')
       .where('equipo.id_sucursal = :sucursalId', { sucursalId })
-      .select('COALESCE(equipo.area, "General")', 'nombreArea')
-      .addSelect('COUNT(ticket.id_tickets)', 'total')
+      .select('COALESCE(equipo.area, \'General\')', 'nombreArea')
+      .addSelect('COUNT(ticket.id_ticket)', 'total')
       .addSelect(
         'SUM(CASE WHEN ticket.estado != :cerrado THEN 1 ELSE 0 END)',
         'abiertos',
